@@ -7,7 +7,9 @@ import 'package:http/http.dart' as http;
 class CommonStoryApi {
   Future<List<CommonStory>> fetchAllStory() async {
     String baseUrl = dotenv.env['FETCH_STORY_API'] ?? 'https://google.com';
-    final response = await http.get(Uri.parse(baseUrl));
+    String token = dotenv.env['TOKEN'] ?? '';
+    String url = "$baseUrl?token=$token";
+    final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
       String decodedBody = utf8.decode(response.bodyBytes);
