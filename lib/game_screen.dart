@@ -23,6 +23,7 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   SaveUsecase saveUsecase = SaveUsecase();
   int currentIndex = 0;
+  var backgroundImage = '';
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _GameScreenState extends State<GameScreen> {
   void _showItem() {
     setState(() {
       currentIndex = (currentIndex + 1);
+      backgroundImage = widget.allStory[currentIndex].imageName;
     });
   }
 
@@ -41,6 +43,7 @@ class _GameScreenState extends State<GameScreen> {
     if (widget.savedIndex != 0) {
       currentIndex = widget.savedIndex;
     }
+    backgroundImage = widget.allStory[currentIndex].imageName;
   }
 
   @override
@@ -53,42 +56,50 @@ class _GameScreenState extends State<GameScreen> {
         onTap: () {
           _showItem();
         },
-        child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('images/sample.jpg'),
-              fit: BoxFit.cover
-            )
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Container(
-                  color: Colors.brown.withAlpha(200),
-                  alignment: Alignment.topLeft,
-                  height: 150,
-                  child: Container(
-                    margin: EdgeInsets.only(left: 20, right: 20, top: 10),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: AnimatedTextKit(
-                        key: ValueKey<String>(widget.allStory[currentIndex].word),
-                        animatedTexts: [
-                          TyperAnimatedText(
-                            widget.allStory[currentIndex].word,
-                            textStyle: const TextStyle(
-                              fontSize: 18
-                            ),
-                          )
-                        ],
-                        totalRepeatCount: 1,
-                        displayFullTextOnTap: true
-                      )
+        child: AnimatedSwitcher(
+          duration: const Duration(seconds: 2),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: Container(
+            key: ValueKey(backgroundImage),
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('images/$backgroundImage'),
+                fit: BoxFit.cover
+              )
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  // テキストエリア
+                  Container(
+                    color: Colors.brown.withAlpha(200),
+                    alignment: Alignment.topLeft,
+                    height: 150,
+                    child: Container(
+                      margin: EdgeInsets.only(left: 20, right: 20, top: 10),
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: AnimatedTextKit(
+                          key: ValueKey<String>(widget.allStory[currentIndex].word),
+                          animatedTexts: [
+                            TyperAnimatedText(
+                              widget.allStory[currentIndex].word,
+                              textStyle: const TextStyle(
+                                fontSize: 18
+                              ),
+                            )
+                          ],
+                          totalRepeatCount: 1,
+                          displayFullTextOnTap: true
+                        )
+                      ),
                     ),
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
           ),
         ),
