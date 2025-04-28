@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_nobel_app/models/common_story.dart';
 import 'package:flutter_nobel_app/usecase/save_usecase.dart';
+import 'package:flutter_nobel_app/widget/image_screen_widget.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 
@@ -57,20 +58,8 @@ class _GameScreenState extends State<GameScreen> {
         child: Stack(
           children: <Widget>[
             // 画像表示エリア
-            AnimatedSwitcher(
-              duration: const Duration(seconds: 2),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return FadeTransition(opacity: animation, child: child);
-              },
-              child: Container(
-                key: ValueKey(backgroundImage),
-                child: Image.asset(
-                  'images/$backgroundImage',
-                  width: double.infinity,
-                  height: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
+            ImageScreenWidget(
+              backgroundImage: backgroundImage
             ),
                   
             // テキストエリア
