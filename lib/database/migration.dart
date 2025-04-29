@@ -20,7 +20,22 @@ Future<Database> initializeDatabase() async {
       ''';
       await db.execute(createStoryTableQuery);
 
+      // 選択肢１の選択テーブル
+      var choose1 = '''
+        CREATE TABLE IF NOT EXISTS choose1 (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          sort_id TEXT,
+          visible_story_id INTEGET NOT NULL,
+          select_1 TEXT,
+          select_2 TEXT,
+          select_3 TEXT,
+          select_4 TEXT,
+          select_5 TEXT
+        )
+      ''';
+      await db.execute(choose1);
 
+      // セーブデータテーブル作成
       var saveTableQuery = '''
         CREATE TABLE IF NOT EXISTS save (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
