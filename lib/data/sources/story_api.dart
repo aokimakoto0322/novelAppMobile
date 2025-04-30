@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_nobel_app/models/common_story.dart';
+import 'package:flutter_nobel_app/database/database.dart';
 import 'package:http/http.dart' as http;
 
 class CommonStoryApi {

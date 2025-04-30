@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/game_screen.dart';
-import 'package:flutter_nobel_app/models/common_story.dart';
 import 'package:flutter_nobel_app/usecase/save_usecase.dart';
 import 'package:flutter_nobel_app/views/save_view_model.dart';
-import 'package:sqflite/sqlite_api.dart';
 
 class SaveScreen extends StatefulWidget {
-  final Database database;
+  final MyDatabase database;
   final List<CommonStory> allStory;
   const SaveScreen({super.key, required this.database, required this.allStory});
 

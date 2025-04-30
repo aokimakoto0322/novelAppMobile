@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_nobel_app/models/common_story.dart';
+import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/usecase/save_usecase.dart';
 import 'package:flutter_nobel_app/widget/image_screen_widget.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 
 class GameScreen extends StatefulWidget {
-  final Database database;
+  final MyDatabase database;
   final List<CommonStory> allStory;
   final int savedIndex;
 
@@ -97,7 +96,7 @@ class _GameScreenState extends State<GameScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          saveUsecase.saveStory(widget.database, widget.allStory[currentIndex].storyId);
+          saveUsecase.saveStory(widget.database, widget.allStory[currentIndex].id);
         },
         child: Icon(Icons.add),
       ),
