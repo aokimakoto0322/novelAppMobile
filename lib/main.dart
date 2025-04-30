@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: MyHomePage(title: 'サンプル', database: database),
+      home: MyHomePage(database: database),
     );
   }
 }
@@ -37,9 +37,7 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   final MyDatabase database;
 
-  const MyHomePage({super.key, required this.title, required this.database});
-
-  final String title;
+  const MyHomePage({super.key, required this.database});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
