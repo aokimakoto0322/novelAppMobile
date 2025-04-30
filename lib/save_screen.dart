@@ -6,7 +6,7 @@ import 'package:flutter_nobel_app/views/save_view_model.dart';
 
 class SaveScreen extends StatefulWidget {
   final MyDatabase database;
-  final List<CommonStory> allStory;
+  final List<Story> allStory;
   const SaveScreen({super.key, required this.database, required this.allStory});
 
   @override

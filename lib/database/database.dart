@@ -11,8 +11,8 @@ int? stringToInt(String value) {
   return int.tryParse(value);
 }
 
-@DataClassName('CommonStory')
-class CommonStoryTable extends Table {
+@DataClassName('Story')
+class StoryTable extends Table {
   
   @JsonKey('story_id')
   IntColumn get id => integer().autoIncrement()();
@@ -34,7 +34,7 @@ class SaveTable extends Table {
   TextColumn get saveDate => text()();
 }
 
-@DriftDatabase(tables: [CommonStoryTable, SaveTable])
+@DriftDatabase(tables: [StoryTable, SaveTable])
 class MyDatabase extends _$MyDatabase {
 
   MyDatabase(): super(_openConnection());

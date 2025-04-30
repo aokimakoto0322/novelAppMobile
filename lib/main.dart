@@ -47,7 +47,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   CommonStoryUsecase commonStoryUsecase = CommonStoryUsecase();
   SaveUsecase saveUsecase = SaveUsecase();
-  List<CommonStory> allStory = [];
+  List<Story> allStory = [];
   bool isLoading = false; // 初期データ取得時のロード状態を管理
 
   @override

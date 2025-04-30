@@ -3,12 +3,12 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class $CommonStoryTableTable extends CommonStoryTable
-    with TableInfo<$CommonStoryTableTable, CommonStory> {
+class $StoryTableTable extends StoryTable
+    with TableInfo<$StoryTableTable, Story> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $CommonStoryTableTable(this.attachedDatabase, [this._alias]);
+  $StoryTableTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -57,10 +57,10 @@ class $CommonStoryTableTable extends CommonStoryTable
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'common_story_table';
+  static const String $name = 'story_table';
   @override
   VerificationContext validateIntegrity(
-    Insertable<CommonStory> instance, {
+    Insertable<Story> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -98,9 +98,9 @@ class $CommonStoryTableTable extends CommonStoryTable
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  CommonStory map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Story map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return CommonStory(
+    return Story(
       id:
           attachedDatabase.typeMapping.read(
             DriftSqlType.int,
@@ -125,17 +125,17 @@ class $CommonStoryTableTable extends CommonStoryTable
   }
 
   @override
-  $CommonStoryTableTable createAlias(String alias) {
-    return $CommonStoryTableTable(attachedDatabase, alias);
+  $StoryTableTable createAlias(String alias) {
+    return $StoryTableTable(attachedDatabase, alias);
   }
 }
 
-class CommonStory extends DataClass implements Insertable<CommonStory> {
+class Story extends DataClass implements Insertable<Story> {
   final int id;
   final String sortId;
   final String word;
   final String imageName;
-  const CommonStory({
+  const Story({
     required this.id,
     required this.sortId,
     required this.word,
@@ -151,8 +151,8 @@ class CommonStory extends DataClass implements Insertable<CommonStory> {
     return map;
   }
 
-  CommonStoryTableCompanion toCompanion(bool nullToAbsent) {
-    return CommonStoryTableCompanion(
+  StoryTableCompanion toCompanion(bool nullToAbsent) {
+    return StoryTableCompanion(
       id: Value(id),
       sortId: Value(sortId),
       word: Value(word),
@@ -160,12 +160,12 @@ class CommonStory extends DataClass implements Insertable<CommonStory> {
     );
   }
 
-  factory CommonStory.fromJson(
+  factory Story.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return CommonStory(
+    return Story(
       id: serializer.fromJson<int>(json['story_id']),
       sortId: serializer.fromJson<String>(json['sort_id']),
       word: serializer.fromJson<String>(json['word']),
@@ -183,19 +183,15 @@ class CommonStory extends DataClass implements Insertable<CommonStory> {
     };
   }
 
-  CommonStory copyWith({
-    int? id,
-    String? sortId,
-    String? word,
-    String? imageName,
-  }) => CommonStory(
-    id: id ?? this.id,
-    sortId: sortId ?? this.sortId,
-    word: word ?? this.word,
-    imageName: imageName ?? this.imageName,
-  );
-  CommonStory copyWithCompanion(CommonStoryTableCompanion data) {
-    return CommonStory(
+  Story copyWith({int? id, String? sortId, String? word, String? imageName}) =>
+      Story(
+        id: id ?? this.id,
+        sortId: sortId ?? this.sortId,
+        word: word ?? this.word,
+        imageName: imageName ?? this.imageName,
+      );
+  Story copyWithCompanion(StoryTableCompanion data) {
+    return Story(
       id: data.id.present ? data.id.value : this.id,
       sortId: data.sortId.present ? data.sortId.value : this.sortId,
       word: data.word.present ? data.word.value : this.word,
@@ -205,7 +201,7 @@ class CommonStory extends DataClass implements Insertable<CommonStory> {
 
   @override
   String toString() {
-    return (StringBuffer('CommonStory(')
+    return (StringBuffer('Story(')
           ..write('id: $id, ')
           ..write('sortId: $sortId, ')
           ..write('word: $word, ')
@@ -219,25 +215,25 @@ class CommonStory extends DataClass implements Insertable<CommonStory> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is CommonStory &&
+      (other is Story &&
           other.id == this.id &&
           other.sortId == this.sortId &&
           other.word == this.word &&
           other.imageName == this.imageName);
 }
 
-class CommonStoryTableCompanion extends UpdateCompanion<CommonStory> {
+class StoryTableCompanion extends UpdateCompanion<Story> {
   final Value<int> id;
   final Value<String> sortId;
   final Value<String> word;
   final Value<String> imageName;
-  const CommonStoryTableCompanion({
+  const StoryTableCompanion({
     this.id = const Value.absent(),
     this.sortId = const Value.absent(),
     this.word = const Value.absent(),
     this.imageName = const Value.absent(),
   });
-  CommonStoryTableCompanion.insert({
+  StoryTableCompanion.insert({
     this.id = const Value.absent(),
     required String sortId,
     required String word,
@@ -245,7 +241,7 @@ class CommonStoryTableCompanion extends UpdateCompanion<CommonStory> {
   }) : sortId = Value(sortId),
        word = Value(word),
        imageName = Value(imageName);
-  static Insertable<CommonStory> custom({
+  static Insertable<Story> custom({
     Expression<int>? id,
     Expression<String>? sortId,
     Expression<String>? word,
@@ -259,13 +255,13 @@ class CommonStoryTableCompanion extends UpdateCompanion<CommonStory> {
     });
   }
 
-  CommonStoryTableCompanion copyWith({
+  StoryTableCompanion copyWith({
     Value<int>? id,
     Value<String>? sortId,
     Value<String>? word,
     Value<String>? imageName,
   }) {
-    return CommonStoryTableCompanion(
+    return StoryTableCompanion(
       id: id ?? this.id,
       sortId: sortId ?? this.sortId,
       word: word ?? this.word,
@@ -293,7 +289,7 @@ class CommonStoryTableCompanion extends UpdateCompanion<CommonStory> {
 
   @override
   String toString() {
-    return (StringBuffer('CommonStoryTableCompanion(')
+    return (StringBuffer('StoryTableCompanion(')
           ..write('id: $id, ')
           ..write('sortId: $sortId, ')
           ..write('word: $word, ')
@@ -554,38 +550,33 @@ class SaveTableCompanion extends UpdateCompanion<Save> {
 abstract class _$MyDatabase extends GeneratedDatabase {
   _$MyDatabase(QueryExecutor e) : super(e);
   $MyDatabaseManager get managers => $MyDatabaseManager(this);
-  late final $CommonStoryTableTable commonStoryTable = $CommonStoryTableTable(
-    this,
-  );
+  late final $StoryTableTable storyTable = $StoryTableTable(this);
   late final $SaveTableTable saveTable = $SaveTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [
-    commonStoryTable,
-    saveTable,
-  ];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [storyTable, saveTable];
 }
 
-typedef $$CommonStoryTableTableCreateCompanionBuilder =
-    CommonStoryTableCompanion Function({
+typedef $$StoryTableTableCreateCompanionBuilder =
+    StoryTableCompanion Function({
       Value<int> id,
       required String sortId,
       required String word,
       required String imageName,
     });
-typedef $$CommonStoryTableTableUpdateCompanionBuilder =
-    CommonStoryTableCompanion Function({
+typedef $$StoryTableTableUpdateCompanionBuilder =
+    StoryTableCompanion Function({
       Value<int> id,
       Value<String> sortId,
       Value<String> word,
       Value<String> imageName,
     });
 
-class $$CommonStoryTableTableFilterComposer
-    extends Composer<_$MyDatabase, $CommonStoryTableTable> {
-  $$CommonStoryTableTableFilterComposer({
+class $$StoryTableTableFilterComposer
+    extends Composer<_$MyDatabase, $StoryTableTable> {
+  $$StoryTableTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -613,9 +604,9 @@ class $$CommonStoryTableTableFilterComposer
   );
 }
 
-class $$CommonStoryTableTableOrderingComposer
-    extends Composer<_$MyDatabase, $CommonStoryTableTable> {
-  $$CommonStoryTableTableOrderingComposer({
+class $$StoryTableTableOrderingComposer
+    extends Composer<_$MyDatabase, $StoryTableTable> {
+  $$StoryTableTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -643,9 +634,9 @@ class $$CommonStoryTableTableOrderingComposer
   );
 }
 
-class $$CommonStoryTableTableAnnotationComposer
-    extends Composer<_$MyDatabase, $CommonStoryTableTable> {
-  $$CommonStoryTableTableAnnotationComposer({
+class $$StoryTableTableAnnotationComposer
+    extends Composer<_$MyDatabase, $StoryTableTable> {
+  $$StoryTableTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -665,51 +656,39 @@ class $$CommonStoryTableTableAnnotationComposer
       $composableBuilder(column: $table.imageName, builder: (column) => column);
 }
 
-class $$CommonStoryTableTableTableManager
+class $$StoryTableTableTableManager
     extends
         RootTableManager<
           _$MyDatabase,
-          $CommonStoryTableTable,
-          CommonStory,
-          $$CommonStoryTableTableFilterComposer,
-          $$CommonStoryTableTableOrderingComposer,
-          $$CommonStoryTableTableAnnotationComposer,
-          $$CommonStoryTableTableCreateCompanionBuilder,
-          $$CommonStoryTableTableUpdateCompanionBuilder,
-          (
-            CommonStory,
-            BaseReferences<_$MyDatabase, $CommonStoryTableTable, CommonStory>,
-          ),
-          CommonStory,
+          $StoryTableTable,
+          Story,
+          $$StoryTableTableFilterComposer,
+          $$StoryTableTableOrderingComposer,
+          $$StoryTableTableAnnotationComposer,
+          $$StoryTableTableCreateCompanionBuilder,
+          $$StoryTableTableUpdateCompanionBuilder,
+          (Story, BaseReferences<_$MyDatabase, $StoryTableTable, Story>),
+          Story,
           PrefetchHooks Function()
         > {
-  $$CommonStoryTableTableTableManager(
-    _$MyDatabase db,
-    $CommonStoryTableTable table,
-  ) : super(
+  $$StoryTableTableTableManager(_$MyDatabase db, $StoryTableTable table)
+    : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer:
-              () =>
-                  $$CommonStoryTableTableFilterComposer($db: db, $table: table),
+              () => $$StoryTableTableFilterComposer($db: db, $table: table),
           createOrderingComposer:
-              () => $$CommonStoryTableTableOrderingComposer(
-                $db: db,
-                $table: table,
-              ),
+              () => $$StoryTableTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer:
-              () => $$CommonStoryTableTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
+              () => $$StoryTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> sortId = const Value.absent(),
                 Value<String> word = const Value.absent(),
                 Value<String> imageName = const Value.absent(),
-              }) => CommonStoryTableCompanion(
+              }) => StoryTableCompanion(
                 id: id,
                 sortId: sortId,
                 word: word,
@@ -721,7 +700,7 @@ class $$CommonStoryTableTableTableManager
                 required String sortId,
                 required String word,
                 required String imageName,
-              }) => CommonStoryTableCompanion.insert(
+              }) => StoryTableCompanion.insert(
                 id: id,
                 sortId: sortId,
                 word: word,
@@ -742,21 +721,18 @@ class $$CommonStoryTableTableTableManager
       );
 }
 
-typedef $$CommonStoryTableTableProcessedTableManager =
+typedef $$StoryTableTableProcessedTableManager =
     ProcessedTableManager<
       _$MyDatabase,
-      $CommonStoryTableTable,
-      CommonStory,
-      $$CommonStoryTableTableFilterComposer,
-      $$CommonStoryTableTableOrderingComposer,
-      $$CommonStoryTableTableAnnotationComposer,
-      $$CommonStoryTableTableCreateCompanionBuilder,
-      $$CommonStoryTableTableUpdateCompanionBuilder,
-      (
-        CommonStory,
-        BaseReferences<_$MyDatabase, $CommonStoryTableTable, CommonStory>,
-      ),
-      CommonStory,
+      $StoryTableTable,
+      Story,
+      $$StoryTableTableFilterComposer,
+      $$StoryTableTableOrderingComposer,
+      $$StoryTableTableAnnotationComposer,
+      $$StoryTableTableCreateCompanionBuilder,
+      $$StoryTableTableUpdateCompanionBuilder,
+      (Story, BaseReferences<_$MyDatabase, $StoryTableTable, Story>),
+      Story,
       PrefetchHooks Function()
     >;
 typedef $$SaveTableTableCreateCompanionBuilder =
@@ -920,8 +896,8 @@ typedef $$SaveTableTableProcessedTableManager =
 class $MyDatabaseManager {
   final _$MyDatabase _db;
   $MyDatabaseManager(this._db);
-  $$CommonStoryTableTableTableManager get commonStoryTable =>
-      $$CommonStoryTableTableTableManager(_db, _db.commonStoryTable);
+  $$StoryTableTableTableManager get storyTable =>
+      $$StoryTableTableTableManager(_db, _db.storyTable);
   $$SaveTableTableTableManager get saveTable =>
       $$SaveTableTableTableManager(_db, _db.saveTable);
 }

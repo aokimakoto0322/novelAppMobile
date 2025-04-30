@@ -6,7 +6,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 
 class GameScreen extends StatefulWidget {
   final MyDatabase database;
-  final List<CommonStory> allStory;
+  final List<Story> allStory;
   final int savedIndex;
 
   const GameScreen({

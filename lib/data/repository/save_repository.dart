@@ -19,14 +19,14 @@ class SaveRepository {
   // 進行状態を取得
   Future<List<SaveViewModel>> fetchSaveList(MyDatabase db) async {
     final query = db.select(db.saveTable).join([
-      innerJoin(db.commonStoryTable, db.saveTable.storyId.equalsExp(db.commonStoryTable.id))
+      innerJoin(db.storyTable, db.saveTable.storyId.equalsExp(db.storyTable.id))
     ]);
 
     final results = await query.get();
 
     return results.map((row) {
       final save = row.readTable(db.saveTable);
-      final story = row.readTable(db.commonStoryTable);
+      final story = row.readTable(db.storyTable);
 
       return SaveViewModel(id: save.id, storyId: story.id, saveDate: save.saveDate, word: story.word);
     }).toList();
