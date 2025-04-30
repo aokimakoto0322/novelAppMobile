@@ -1,11 +1,11 @@
 
 
-import 'package:flutter_nobel_app/data/repository/common_story_repository.dart';
+import 'package:flutter_nobel_app/data/repository/story_repository.dart';
 import 'package:flutter_nobel_app/database/database.dart';
 import '../data/sources/story_api.dart';
 
 class CommonStoryUsecase {
-  CommonStoryRepository commonStoryRepository = CommonStoryRepository();
+  StoryRepository commonStoryRepository = StoryRepository();
   CommonStoryApi commonStoryApi = CommonStoryApi();
 
   Future<List<Story>> getAllStory(MyDatabase db) async {

@@ -3,7 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter_nobel_app/database/database.dart';
 
 
-class CommonStoryRepository {
+class StoryRepository {
   // 全件データ取得
   Future<List<Story>> fetchAllStory(MyDatabase db) async {
     List<Story> result = await db.select(db.storyTable).get();
@@ -15,7 +15,7 @@ class CommonStoryRepository {
     return count;
   }
 
-  // データをリストで取得し、common_storyテーブルに格納
+  // データをリストで取得し、storyテーブルに格納
   Future<void> insertStory(MyDatabase db, List<Story> storyList) async {
     await db.batch((batch) {
       for(final story in storyList) {
