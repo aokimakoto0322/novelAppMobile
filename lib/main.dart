@@ -4,7 +4,7 @@ import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/game_screen.dart';
 import 'package:flutter_nobel_app/save_screen.dart';
 import 'package:flutter_nobel_app/usecase/choice_usecase.dart';
-import 'package:flutter_nobel_app/usecase/common_story_usecase.dart';
+import 'package:flutter_nobel_app/usecase/story_usecase.dart';
 import 'package:flutter_nobel_app/usecase/save_usecase.dart';
 
 Future<void> main() async {
@@ -46,7 +46,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  CommonStoryUsecase commonStoryUsecase = CommonStoryUsecase();
+  StoryUsecase storyUsecase = StoryUsecase();
   ChoiceUsecase choiseUsecase = ChoiceUsecase();
   SaveUsecase saveUsecase = SaveUsecase();
   List<Story> allStory = [];
@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
       isLoading = true;
     });
 
-    allStory = await commonStoryUsecase.getAllStory(widget.database);
+    allStory = await storyUsecase.getAllStory(widget.database);
     choiseUsecase.setInitialData(widget.database);
 
     setState(() {
