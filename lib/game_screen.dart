@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_nobel_app/database/database.dart';
+import 'package:flutter_nobel_app/usecase/choice_usecase.dart';
 import 'package:flutter_nobel_app/usecase/save_usecase.dart';
 import 'package:flutter_nobel_app/widget/image_screen_widget.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
@@ -22,6 +23,8 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   SaveUsecase saveUsecase = SaveUsecase();
+  ChoiceUsecase choiceUsecase = ChoiceUsecase();
+  List<Choice> currentChoices = [];
   int currentIndex = 0;
   var backgroundImage = '';
 
@@ -31,11 +34,13 @@ class _GameScreenState extends State<GameScreen> {
     super.initState();
   }
   
-  void _showItem() {
+  Future<void> _showItem() async {
     setState(() {
       currentIndex = (currentIndex + 1);
       backgroundImage = widget.allStory[currentIndex].imageName;
     });
+    currentChoices = await choiceUsecase.fetchCoiceList(widget.database, widget.allStory[currentIndex].id);
+    print('選択肢リスト$currentChoices');
   }
 
   // セーブされたデータがあるのであれば、セーブ時の状態から表示する

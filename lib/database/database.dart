@@ -7,10 +7,6 @@ import 'package:path_provider/path_provider.dart';
 
 part 'database.g.dart';
 
-int? stringToInt(String value) {
-  return int.tryParse(value);
-}
-
 @DataClassName('Story')
 class StoryTable extends Table {
   
@@ -25,6 +21,9 @@ class StoryTable extends Table {
 
   @JsonKey('image_name')
   TextColumn get imageName => text()();
+
+  @JsonKey('is_common')
+  BoolColumn get isCommon => boolean().nullable()(); // 共通ストーリーかそうでないかを判定、falseの場合は個別ストーリーとなる
 }
 
 @DataClassName('Save')
@@ -34,7 +33,16 @@ class SaveTable extends Table {
   TextColumn get saveDate => text()();
 }
 
-@DriftDatabase(tables: [StoryTable, SaveTable])
+@DataClassName('Choice')
+class ChoiseTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get storyId => integer()(); // 選択肢を表示するstory_id
+  TextColumn get word => text()();
+  IntColumn get nextStoryId => integer()(); // 選択した場合に表示を開始するstory_id
+  IntColumn get returnStoryId => integer()(); // 選択肢を選んで、選択を選んだのちに戻るstory_id
+}
+
+@DriftDatabase(tables: [StoryTable, SaveTable, ChoiseTable])
 class MyDatabase extends _$MyDatabase {
 
   MyDatabase(): super(_openConnection());

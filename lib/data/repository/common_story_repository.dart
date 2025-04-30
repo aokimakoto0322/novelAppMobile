@@ -25,7 +25,8 @@ class CommonStoryRepository {
             id: Value(story.id),
             sortId: story.sortId,
             word: story.word,
-            imageName: story.imageName
+            imageName: story.imageName,
+            isCommon: Value(story.isCommon)
           ),
           onConflict: DoNothing()
         );

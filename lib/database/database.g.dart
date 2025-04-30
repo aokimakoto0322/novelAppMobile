@@ -51,8 +51,22 @@ class $StoryTableTable extends StoryTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isCommonMeta = const VerificationMeta(
+    'isCommon',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, sortId, word, imageName];
+  late final GeneratedColumn<bool> isCommon = GeneratedColumn<bool>(
+    'is_common',
+    aliasedName,
+    true,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_common" IN (0, 1))',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, sortId, word, imageName, isCommon];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -92,6 +106,12 @@ class $StoryTableTable extends StoryTable
     } else if (isInserting) {
       context.missing(_imageNameMeta);
     }
+    if (data.containsKey('is_common')) {
+      context.handle(
+        _isCommonMeta,
+        isCommon.isAcceptableOrUnknown(data['is_common']!, _isCommonMeta),
+      );
+    }
     return context;
   }
 
@@ -121,6 +141,10 @@ class $StoryTableTable extends StoryTable
             DriftSqlType.string,
             data['${effectivePrefix}image_name'],
           )!,
+      isCommon: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_common'],
+      ),
     );
   }
 
@@ -135,11 +159,13 @@ class Story extends DataClass implements Insertable<Story> {
   final String sortId;
   final String word;
   final String imageName;
+  final bool? isCommon;
   const Story({
     required this.id,
     required this.sortId,
     required this.word,
     required this.imageName,
+    this.isCommon,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -148,6 +174,9 @@ class Story extends DataClass implements Insertable<Story> {
     map['sort_id'] = Variable<String>(sortId);
     map['word'] = Variable<String>(word);
     map['image_name'] = Variable<String>(imageName);
+    if (!nullToAbsent || isCommon != null) {
+      map['is_common'] = Variable<bool>(isCommon);
+    }
     return map;
   }
 
@@ -157,6 +186,10 @@ class Story extends DataClass implements Insertable<Story> {
       sortId: Value(sortId),
       word: Value(word),
       imageName: Value(imageName),
+      isCommon:
+          isCommon == null && nullToAbsent
+              ? const Value.absent()
+              : Value(isCommon),
     );
   }
 
@@ -170,6 +203,7 @@ class Story extends DataClass implements Insertable<Story> {
       sortId: serializer.fromJson<String>(json['sort_id']),
       word: serializer.fromJson<String>(json['word']),
       imageName: serializer.fromJson<String>(json['image_name']),
+      isCommon: serializer.fromJson<bool?>(json['is_common']),
     );
   }
   @override
@@ -180,22 +214,30 @@ class Story extends DataClass implements Insertable<Story> {
       'sort_id': serializer.toJson<String>(sortId),
       'word': serializer.toJson<String>(word),
       'image_name': serializer.toJson<String>(imageName),
+      'is_common': serializer.toJson<bool?>(isCommon),
     };
   }
 
-  Story copyWith({int? id, String? sortId, String? word, String? imageName}) =>
-      Story(
-        id: id ?? this.id,
-        sortId: sortId ?? this.sortId,
-        word: word ?? this.word,
-        imageName: imageName ?? this.imageName,
-      );
+  Story copyWith({
+    int? id,
+    String? sortId,
+    String? word,
+    String? imageName,
+    Value<bool?> isCommon = const Value.absent(),
+  }) => Story(
+    id: id ?? this.id,
+    sortId: sortId ?? this.sortId,
+    word: word ?? this.word,
+    imageName: imageName ?? this.imageName,
+    isCommon: isCommon.present ? isCommon.value : this.isCommon,
+  );
   Story copyWithCompanion(StoryTableCompanion data) {
     return Story(
       id: data.id.present ? data.id.value : this.id,
       sortId: data.sortId.present ? data.sortId.value : this.sortId,
       word: data.word.present ? data.word.value : this.word,
       imageName: data.imageName.present ? data.imageName.value : this.imageName,
+      isCommon: data.isCommon.present ? data.isCommon.value : this.isCommon,
     );
   }
 
@@ -205,13 +247,14 @@ class Story extends DataClass implements Insertable<Story> {
           ..write('id: $id, ')
           ..write('sortId: $sortId, ')
           ..write('word: $word, ')
-          ..write('imageName: $imageName')
+          ..write('imageName: $imageName, ')
+          ..write('isCommon: $isCommon')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, sortId, word, imageName);
+  int get hashCode => Object.hash(id, sortId, word, imageName, isCommon);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -219,7 +262,8 @@ class Story extends DataClass implements Insertable<Story> {
           other.id == this.id &&
           other.sortId == this.sortId &&
           other.word == this.word &&
-          other.imageName == this.imageName);
+          other.imageName == this.imageName &&
+          other.isCommon == this.isCommon);
 }
 
 class StoryTableCompanion extends UpdateCompanion<Story> {
@@ -227,17 +271,20 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
   final Value<String> sortId;
   final Value<String> word;
   final Value<String> imageName;
+  final Value<bool?> isCommon;
   const StoryTableCompanion({
     this.id = const Value.absent(),
     this.sortId = const Value.absent(),
     this.word = const Value.absent(),
     this.imageName = const Value.absent(),
+    this.isCommon = const Value.absent(),
   });
   StoryTableCompanion.insert({
     this.id = const Value.absent(),
     required String sortId,
     required String word,
     required String imageName,
+    this.isCommon = const Value.absent(),
   }) : sortId = Value(sortId),
        word = Value(word),
        imageName = Value(imageName);
@@ -246,12 +293,14 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     Expression<String>? sortId,
     Expression<String>? word,
     Expression<String>? imageName,
+    Expression<bool>? isCommon,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (sortId != null) 'sort_id': sortId,
       if (word != null) 'word': word,
       if (imageName != null) 'image_name': imageName,
+      if (isCommon != null) 'is_common': isCommon,
     });
   }
 
@@ -260,12 +309,14 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     Value<String>? sortId,
     Value<String>? word,
     Value<String>? imageName,
+    Value<bool?>? isCommon,
   }) {
     return StoryTableCompanion(
       id: id ?? this.id,
       sortId: sortId ?? this.sortId,
       word: word ?? this.word,
       imageName: imageName ?? this.imageName,
+      isCommon: isCommon ?? this.isCommon,
     );
   }
 
@@ -284,6 +335,9 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     if (imageName.present) {
       map['image_name'] = Variable<String>(imageName.value);
     }
+    if (isCommon.present) {
+      map['is_common'] = Variable<bool>(isCommon.value);
+    }
     return map;
   }
 
@@ -293,7 +347,8 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
           ..write('id: $id, ')
           ..write('sortId: $sortId, ')
           ..write('word: $word, ')
-          ..write('imageName: $imageName')
+          ..write('imageName: $imageName, ')
+          ..write('isCommon: $isCommon')
           ..write(')'))
         .toString();
   }
@@ -547,16 +602,387 @@ class SaveTableCompanion extends UpdateCompanion<Save> {
   }
 }
 
+class $ChoiseTableTable extends ChoiseTable
+    with TableInfo<$ChoiseTableTable, Choice> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChoiseTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _storyIdMeta = const VerificationMeta(
+    'storyId',
+  );
+  @override
+  late final GeneratedColumn<int> storyId = GeneratedColumn<int>(
+    'story_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _wordMeta = const VerificationMeta('word');
+  @override
+  late final GeneratedColumn<String> word = GeneratedColumn<String>(
+    'word',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nextStoryIdMeta = const VerificationMeta(
+    'nextStoryId',
+  );
+  @override
+  late final GeneratedColumn<int> nextStoryId = GeneratedColumn<int>(
+    'next_story_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _returnStoryIdMeta = const VerificationMeta(
+    'returnStoryId',
+  );
+  @override
+  late final GeneratedColumn<int> returnStoryId = GeneratedColumn<int>(
+    'return_story_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    storyId,
+    word,
+    nextStoryId,
+    returnStoryId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'choise_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Choice> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('story_id')) {
+      context.handle(
+        _storyIdMeta,
+        storyId.isAcceptableOrUnknown(data['story_id']!, _storyIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_storyIdMeta);
+    }
+    if (data.containsKey('word')) {
+      context.handle(
+        _wordMeta,
+        word.isAcceptableOrUnknown(data['word']!, _wordMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_wordMeta);
+    }
+    if (data.containsKey('next_story_id')) {
+      context.handle(
+        _nextStoryIdMeta,
+        nextStoryId.isAcceptableOrUnknown(
+          data['next_story_id']!,
+          _nextStoryIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_nextStoryIdMeta);
+    }
+    if (data.containsKey('return_story_id')) {
+      context.handle(
+        _returnStoryIdMeta,
+        returnStoryId.isAcceptableOrUnknown(
+          data['return_story_id']!,
+          _returnStoryIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_returnStoryIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Choice map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Choice(
+      id:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}id'],
+          )!,
+      storyId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}story_id'],
+          )!,
+      word:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}word'],
+          )!,
+      nextStoryId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}next_story_id'],
+          )!,
+      returnStoryId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}return_story_id'],
+          )!,
+    );
+  }
+
+  @override
+  $ChoiseTableTable createAlias(String alias) {
+    return $ChoiseTableTable(attachedDatabase, alias);
+  }
+}
+
+class Choice extends DataClass implements Insertable<Choice> {
+  final int id;
+  final int storyId;
+  final String word;
+  final int nextStoryId;
+  final int returnStoryId;
+  const Choice({
+    required this.id,
+    required this.storyId,
+    required this.word,
+    required this.nextStoryId,
+    required this.returnStoryId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['story_id'] = Variable<int>(storyId);
+    map['word'] = Variable<String>(word);
+    map['next_story_id'] = Variable<int>(nextStoryId);
+    map['return_story_id'] = Variable<int>(returnStoryId);
+    return map;
+  }
+
+  ChoiseTableCompanion toCompanion(bool nullToAbsent) {
+    return ChoiseTableCompanion(
+      id: Value(id),
+      storyId: Value(storyId),
+      word: Value(word),
+      nextStoryId: Value(nextStoryId),
+      returnStoryId: Value(returnStoryId),
+    );
+  }
+
+  factory Choice.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Choice(
+      id: serializer.fromJson<int>(json['id']),
+      storyId: serializer.fromJson<int>(json['storyId']),
+      word: serializer.fromJson<String>(json['word']),
+      nextStoryId: serializer.fromJson<int>(json['nextStoryId']),
+      returnStoryId: serializer.fromJson<int>(json['returnStoryId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'storyId': serializer.toJson<int>(storyId),
+      'word': serializer.toJson<String>(word),
+      'nextStoryId': serializer.toJson<int>(nextStoryId),
+      'returnStoryId': serializer.toJson<int>(returnStoryId),
+    };
+  }
+
+  Choice copyWith({
+    int? id,
+    int? storyId,
+    String? word,
+    int? nextStoryId,
+    int? returnStoryId,
+  }) => Choice(
+    id: id ?? this.id,
+    storyId: storyId ?? this.storyId,
+    word: word ?? this.word,
+    nextStoryId: nextStoryId ?? this.nextStoryId,
+    returnStoryId: returnStoryId ?? this.returnStoryId,
+  );
+  Choice copyWithCompanion(ChoiseTableCompanion data) {
+    return Choice(
+      id: data.id.present ? data.id.value : this.id,
+      storyId: data.storyId.present ? data.storyId.value : this.storyId,
+      word: data.word.present ? data.word.value : this.word,
+      nextStoryId:
+          data.nextStoryId.present ? data.nextStoryId.value : this.nextStoryId,
+      returnStoryId:
+          data.returnStoryId.present
+              ? data.returnStoryId.value
+              : this.returnStoryId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Choice(')
+          ..write('id: $id, ')
+          ..write('storyId: $storyId, ')
+          ..write('word: $word, ')
+          ..write('nextStoryId: $nextStoryId, ')
+          ..write('returnStoryId: $returnStoryId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, storyId, word, nextStoryId, returnStoryId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Choice &&
+          other.id == this.id &&
+          other.storyId == this.storyId &&
+          other.word == this.word &&
+          other.nextStoryId == this.nextStoryId &&
+          other.returnStoryId == this.returnStoryId);
+}
+
+class ChoiseTableCompanion extends UpdateCompanion<Choice> {
+  final Value<int> id;
+  final Value<int> storyId;
+  final Value<String> word;
+  final Value<int> nextStoryId;
+  final Value<int> returnStoryId;
+  const ChoiseTableCompanion({
+    this.id = const Value.absent(),
+    this.storyId = const Value.absent(),
+    this.word = const Value.absent(),
+    this.nextStoryId = const Value.absent(),
+    this.returnStoryId = const Value.absent(),
+  });
+  ChoiseTableCompanion.insert({
+    this.id = const Value.absent(),
+    required int storyId,
+    required String word,
+    required int nextStoryId,
+    required int returnStoryId,
+  }) : storyId = Value(storyId),
+       word = Value(word),
+       nextStoryId = Value(nextStoryId),
+       returnStoryId = Value(returnStoryId);
+  static Insertable<Choice> custom({
+    Expression<int>? id,
+    Expression<int>? storyId,
+    Expression<String>? word,
+    Expression<int>? nextStoryId,
+    Expression<int>? returnStoryId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (storyId != null) 'story_id': storyId,
+      if (word != null) 'word': word,
+      if (nextStoryId != null) 'next_story_id': nextStoryId,
+      if (returnStoryId != null) 'return_story_id': returnStoryId,
+    });
+  }
+
+  ChoiseTableCompanion copyWith({
+    Value<int>? id,
+    Value<int>? storyId,
+    Value<String>? word,
+    Value<int>? nextStoryId,
+    Value<int>? returnStoryId,
+  }) {
+    return ChoiseTableCompanion(
+      id: id ?? this.id,
+      storyId: storyId ?? this.storyId,
+      word: word ?? this.word,
+      nextStoryId: nextStoryId ?? this.nextStoryId,
+      returnStoryId: returnStoryId ?? this.returnStoryId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (storyId.present) {
+      map['story_id'] = Variable<int>(storyId.value);
+    }
+    if (word.present) {
+      map['word'] = Variable<String>(word.value);
+    }
+    if (nextStoryId.present) {
+      map['next_story_id'] = Variable<int>(nextStoryId.value);
+    }
+    if (returnStoryId.present) {
+      map['return_story_id'] = Variable<int>(returnStoryId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChoiseTableCompanion(')
+          ..write('id: $id, ')
+          ..write('storyId: $storyId, ')
+          ..write('word: $word, ')
+          ..write('nextStoryId: $nextStoryId, ')
+          ..write('returnStoryId: $returnStoryId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$MyDatabase extends GeneratedDatabase {
   _$MyDatabase(QueryExecutor e) : super(e);
   $MyDatabaseManager get managers => $MyDatabaseManager(this);
   late final $StoryTableTable storyTable = $StoryTableTable(this);
   late final $SaveTableTable saveTable = $SaveTableTable(this);
+  late final $ChoiseTableTable choiseTable = $ChoiseTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [storyTable, saveTable];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    storyTable,
+    saveTable,
+    choiseTable,
+  ];
 }
 
 typedef $$StoryTableTableCreateCompanionBuilder =
@@ -565,6 +991,7 @@ typedef $$StoryTableTableCreateCompanionBuilder =
       required String sortId,
       required String word,
       required String imageName,
+      Value<bool?> isCommon,
     });
 typedef $$StoryTableTableUpdateCompanionBuilder =
     StoryTableCompanion Function({
@@ -572,6 +999,7 @@ typedef $$StoryTableTableUpdateCompanionBuilder =
       Value<String> sortId,
       Value<String> word,
       Value<String> imageName,
+      Value<bool?> isCommon,
     });
 
 class $$StoryTableTableFilterComposer
@@ -600,6 +1028,11 @@ class $$StoryTableTableFilterComposer
 
   ColumnFilters<String> get imageName => $composableBuilder(
     column: $table.imageName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isCommon => $composableBuilder(
+    column: $table.isCommon,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -632,6 +1065,11 @@ class $$StoryTableTableOrderingComposer
     column: $table.imageName,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isCommon => $composableBuilder(
+    column: $table.isCommon,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$StoryTableTableAnnotationComposer
@@ -654,6 +1092,9 @@ class $$StoryTableTableAnnotationComposer
 
   GeneratedColumn<String> get imageName =>
       $composableBuilder(column: $table.imageName, builder: (column) => column);
+
+  GeneratedColumn<bool> get isCommon =>
+      $composableBuilder(column: $table.isCommon, builder: (column) => column);
 }
 
 class $$StoryTableTableTableManager
@@ -688,11 +1129,13 @@ class $$StoryTableTableTableManager
                 Value<String> sortId = const Value.absent(),
                 Value<String> word = const Value.absent(),
                 Value<String> imageName = const Value.absent(),
+                Value<bool?> isCommon = const Value.absent(),
               }) => StoryTableCompanion(
                 id: id,
                 sortId: sortId,
                 word: word,
                 imageName: imageName,
+                isCommon: isCommon,
               ),
           createCompanionCallback:
               ({
@@ -700,11 +1143,13 @@ class $$StoryTableTableTableManager
                 required String sortId,
                 required String word,
                 required String imageName,
+                Value<bool?> isCommon = const Value.absent(),
               }) => StoryTableCompanion.insert(
                 id: id,
                 sortId: sortId,
                 word: word,
                 imageName: imageName,
+                isCommon: isCommon,
               ),
           withReferenceMapper:
               (p0) =>
@@ -892,6 +1337,206 @@ typedef $$SaveTableTableProcessedTableManager =
       Save,
       PrefetchHooks Function()
     >;
+typedef $$ChoiseTableTableCreateCompanionBuilder =
+    ChoiseTableCompanion Function({
+      Value<int> id,
+      required int storyId,
+      required String word,
+      required int nextStoryId,
+      required int returnStoryId,
+    });
+typedef $$ChoiseTableTableUpdateCompanionBuilder =
+    ChoiseTableCompanion Function({
+      Value<int> id,
+      Value<int> storyId,
+      Value<String> word,
+      Value<int> nextStoryId,
+      Value<int> returnStoryId,
+    });
+
+class $$ChoiseTableTableFilterComposer
+    extends Composer<_$MyDatabase, $ChoiseTableTable> {
+  $$ChoiseTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get storyId => $composableBuilder(
+    column: $table.storyId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get word => $composableBuilder(
+    column: $table.word,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get nextStoryId => $composableBuilder(
+    column: $table.nextStoryId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get returnStoryId => $composableBuilder(
+    column: $table.returnStoryId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ChoiseTableTableOrderingComposer
+    extends Composer<_$MyDatabase, $ChoiseTableTable> {
+  $$ChoiseTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get storyId => $composableBuilder(
+    column: $table.storyId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get word => $composableBuilder(
+    column: $table.word,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get nextStoryId => $composableBuilder(
+    column: $table.nextStoryId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get returnStoryId => $composableBuilder(
+    column: $table.returnStoryId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ChoiseTableTableAnnotationComposer
+    extends Composer<_$MyDatabase, $ChoiseTableTable> {
+  $$ChoiseTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get storyId =>
+      $composableBuilder(column: $table.storyId, builder: (column) => column);
+
+  GeneratedColumn<String> get word =>
+      $composableBuilder(column: $table.word, builder: (column) => column);
+
+  GeneratedColumn<int> get nextStoryId => $composableBuilder(
+    column: $table.nextStoryId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get returnStoryId => $composableBuilder(
+    column: $table.returnStoryId,
+    builder: (column) => column,
+  );
+}
+
+class $$ChoiseTableTableTableManager
+    extends
+        RootTableManager<
+          _$MyDatabase,
+          $ChoiseTableTable,
+          Choice,
+          $$ChoiseTableTableFilterComposer,
+          $$ChoiseTableTableOrderingComposer,
+          $$ChoiseTableTableAnnotationComposer,
+          $$ChoiseTableTableCreateCompanionBuilder,
+          $$ChoiseTableTableUpdateCompanionBuilder,
+          (Choice, BaseReferences<_$MyDatabase, $ChoiseTableTable, Choice>),
+          Choice,
+          PrefetchHooks Function()
+        > {
+  $$ChoiseTableTableTableManager(_$MyDatabase db, $ChoiseTableTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$ChoiseTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer:
+              () => $$ChoiseTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer:
+              () =>
+                  $$ChoiseTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> storyId = const Value.absent(),
+                Value<String> word = const Value.absent(),
+                Value<int> nextStoryId = const Value.absent(),
+                Value<int> returnStoryId = const Value.absent(),
+              }) => ChoiseTableCompanion(
+                id: id,
+                storyId: storyId,
+                word: word,
+                nextStoryId: nextStoryId,
+                returnStoryId: returnStoryId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int storyId,
+                required String word,
+                required int nextStoryId,
+                required int returnStoryId,
+              }) => ChoiseTableCompanion.insert(
+                id: id,
+                storyId: storyId,
+                word: word,
+                nextStoryId: nextStoryId,
+                returnStoryId: returnStoryId,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          BaseReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ChoiseTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$MyDatabase,
+      $ChoiseTableTable,
+      Choice,
+      $$ChoiseTableTableFilterComposer,
+      $$ChoiseTableTableOrderingComposer,
+      $$ChoiseTableTableAnnotationComposer,
+      $$ChoiseTableTableCreateCompanionBuilder,
+      $$ChoiseTableTableUpdateCompanionBuilder,
+      (Choice, BaseReferences<_$MyDatabase, $ChoiseTableTable, Choice>),
+      Choice,
+      PrefetchHooks Function()
+    >;
 
 class $MyDatabaseManager {
   final _$MyDatabase _db;
@@ -900,4 +1545,6 @@ class $MyDatabaseManager {
       $$StoryTableTableTableManager(_db, _db.storyTable);
   $$SaveTableTableTableManager get saveTable =>
       $$SaveTableTableTableManager(_db, _db.saveTable);
+  $$ChoiseTableTableTableManager get choiseTable =>
+      $$ChoiseTableTableTableManager(_db, _db.choiseTable);
 }

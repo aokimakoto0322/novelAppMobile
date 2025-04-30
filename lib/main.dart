@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/game_screen.dart';
 import 'package:flutter_nobel_app/save_screen.dart';
+import 'package:flutter_nobel_app/usecase/choice_usecase.dart';
 import 'package:flutter_nobel_app/usecase/common_story_usecase.dart';
 import 'package:flutter_nobel_app/usecase/save_usecase.dart';
 
@@ -46,6 +47,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   CommonStoryUsecase commonStoryUsecase = CommonStoryUsecase();
+  ChoiceUsecase choiseUsecase = ChoiceUsecase();
   SaveUsecase saveUsecase = SaveUsecase();
   List<Story> allStory = [];
   bool isLoading = false; // 初期データ取得時のロード状態を管理
@@ -62,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     allStory = await commonStoryUsecase.getAllStory(widget.database);
+    choiseUsecase.setInitialData(widget.database);
 
     setState(() {
       isLoading = false;
