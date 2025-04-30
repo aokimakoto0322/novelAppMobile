@@ -48,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
   CommonStoryUsecase commonStoryUsecase = CommonStoryUsecase();
   SaveUsecase saveUsecase = SaveUsecase();
   List<CommonStory> allStory = [];
+  bool isLoading = false; // 初期データ取得時のロード状態を管理
 
   @override
   void initState() {
@@ -56,7 +57,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> fetchAllStory() async {
+    setState(() {
+      isLoading = true;
+    });
+
     allStory = await commonStoryUsecase.getAllStory(widget.database);
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -77,29 +86,33 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) => GameScreen(database: widget.database, allStory: allStory),
-                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                          return FadeTransition(
-                            opacity: animation.drive(
-                              CurveTween(curve: Curves.easeIn)
-                            ),
-                            child: child
-                          );
-                        },
-                        transitionDuration: Duration(milliseconds: 500)
-                      )
-                    );
+                    if (isLoading == false) {
+                      Navigator.of(context).push(
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) => GameScreen(database: widget.database, allStory: allStory),
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                            return FadeTransition(
+                              opacity: animation.drive(
+                                CurveTween(curve: Curves.easeIn)
+                              ),
+                              child: child
+                            );
+                          },
+                          transitionDuration: Duration(milliseconds: 500)
+                        )
+                      );
+                    }
                   },
                   child: Text('初めから')
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SaveScreen(database: widget.database, allStory: allStory))
-                    );
+                    if (isLoading == false) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SaveScreen(database: widget.database, allStory: allStory))
+                      );
+                    }
                   },
                   child: Text('続きから')
                 ),
