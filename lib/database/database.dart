@@ -21,9 +21,6 @@ class StoryTable extends Table {
 
   @JsonKey('image_name')
   TextColumn get imageName => text()();
-
-  @JsonKey('is_common')
-  BoolColumn get isCommon => boolean().nullable()(); // 共通ストーリーかそうでないかを判定、falseの場合は個別ストーリーとなる
 }
 
 @DataClassName('Save')
