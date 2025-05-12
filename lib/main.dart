@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_nobel_app/database/migration.dart';
+import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/game_screen.dart';
-import 'package:flutter_nobel_app/models/common_story.dart';
 import 'package:flutter_nobel_app/save_screen.dart';
-import 'package:flutter_nobel_app/usecase/common_story_usecase.dart';
+import 'package:flutter_nobel_app/usecase/choice_usecase.dart';
+import 'package:flutter_nobel_app/usecase/story_usecase.dart';
 import 'package:flutter_nobel_app/usecase/save_usecase.dart';
-import 'package:sqflite/sqflite.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Database database = await initializeDatabase();
+  final database = MyDatabase();
 
   // 環境変数
   await dotenv.load(fileName: ".env");
@@ -19,7 +18,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final Database database;
+  final MyDatabase database;
 
   const MyApp({super.key, required this.database});
 
@@ -30,26 +29,26 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: MyHomePage(title: 'サンプル', database: database),
+      home: MyHomePage(database: database),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  final Database database;
+  final MyDatabase database;
 
-  const MyHomePage({super.key, required this.title, required this.database});
-
-  final String title;
+  const MyHomePage({super.key, required this.database});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  CommonStoryUsecase commonStoryUsecase = CommonStoryUsecase();
+  StoryUsecase storyUsecase = StoryUsecase();
+  ChoiceUsecase choiseUsecase = ChoiceUsecase();
   SaveUsecase saveUsecase = SaveUsecase();
-  List<CommonStory> allStory = [];
+  List<Story> allStory = [];
+  bool isLoading = false; // 初期データ取得時のロード状態を管理
 
   @override
   void initState() {
@@ -58,16 +57,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> fetchAllStory() async {
-    allStory = await commonStoryUsecase.getAllStory(widget.database);
+    setState(() {
+      isLoading = true;
+    });
+
+    allStory = await storyUsecase.getAllStory(widget.database);
+    choiseUsecase.setInitialData(widget.database);
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -83,29 +87,33 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) => GameScreen(database: widget.database, allStory: allStory),
-                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                          return FadeTransition(
-                            opacity: animation.drive(
-                              CurveTween(curve: Curves.easeIn)
-                            ),
-                            child: child
-                          );
-                        },
-                        transitionDuration: Duration(milliseconds: 500)
-                      )
-                    );
+                    if (isLoading == false) {
+                      Navigator.of(context).push(
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) => GameScreen(database: widget.database, allStory: allStory),
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                            return FadeTransition(
+                              opacity: animation.drive(
+                                CurveTween(curve: Curves.easeIn)
+                              ),
+                              child: child
+                            );
+                          },
+                          transitionDuration: Duration(milliseconds: 500)
+                        )
+                      );
+                    }
                   },
                   child: Text('初めから')
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SaveScreen(database: widget.database, allStory: allStory))
-                    );
+                    if (isLoading == false) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SaveScreen(database: widget.database, allStory: allStory))
+                      );
+                    }
                   },
                   child: Text('続きから')
                 ),
