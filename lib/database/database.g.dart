@@ -51,22 +51,8 @@ class $StoryTableTable extends StoryTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _isCommonMeta = const VerificationMeta(
-    'isCommon',
-  );
   @override
-  late final GeneratedColumn<bool> isCommon = GeneratedColumn<bool>(
-    'is_common',
-    aliasedName,
-    true,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_common" IN (0, 1))',
-    ),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [id, sortId, word, imageName, isCommon];
+  List<GeneratedColumn> get $columns => [id, sortId, word, imageName];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -106,12 +92,6 @@ class $StoryTableTable extends StoryTable
     } else if (isInserting) {
       context.missing(_imageNameMeta);
     }
-    if (data.containsKey('is_common')) {
-      context.handle(
-        _isCommonMeta,
-        isCommon.isAcceptableOrUnknown(data['is_common']!, _isCommonMeta),
-      );
-    }
     return context;
   }
 
@@ -141,10 +121,6 @@ class $StoryTableTable extends StoryTable
             DriftSqlType.string,
             data['${effectivePrefix}image_name'],
           )!,
-      isCommon: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_common'],
-      ),
     );
   }
 
@@ -159,13 +135,11 @@ class Story extends DataClass implements Insertable<Story> {
   final String sortId;
   final String word;
   final String imageName;
-  final bool? isCommon;
   const Story({
     required this.id,
     required this.sortId,
     required this.word,
     required this.imageName,
-    this.isCommon,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -174,9 +148,6 @@ class Story extends DataClass implements Insertable<Story> {
     map['sort_id'] = Variable<String>(sortId);
     map['word'] = Variable<String>(word);
     map['image_name'] = Variable<String>(imageName);
-    if (!nullToAbsent || isCommon != null) {
-      map['is_common'] = Variable<bool>(isCommon);
-    }
     return map;
   }
 
@@ -186,10 +157,6 @@ class Story extends DataClass implements Insertable<Story> {
       sortId: Value(sortId),
       word: Value(word),
       imageName: Value(imageName),
-      isCommon:
-          isCommon == null && nullToAbsent
-              ? const Value.absent()
-              : Value(isCommon),
     );
   }
 
@@ -203,7 +170,6 @@ class Story extends DataClass implements Insertable<Story> {
       sortId: serializer.fromJson<String>(json['sort_id']),
       word: serializer.fromJson<String>(json['word']),
       imageName: serializer.fromJson<String>(json['image_name']),
-      isCommon: serializer.fromJson<bool?>(json['is_common']),
     );
   }
   @override
@@ -214,30 +180,22 @@ class Story extends DataClass implements Insertable<Story> {
       'sort_id': serializer.toJson<String>(sortId),
       'word': serializer.toJson<String>(word),
       'image_name': serializer.toJson<String>(imageName),
-      'is_common': serializer.toJson<bool?>(isCommon),
     };
   }
 
-  Story copyWith({
-    int? id,
-    String? sortId,
-    String? word,
-    String? imageName,
-    Value<bool?> isCommon = const Value.absent(),
-  }) => Story(
-    id: id ?? this.id,
-    sortId: sortId ?? this.sortId,
-    word: word ?? this.word,
-    imageName: imageName ?? this.imageName,
-    isCommon: isCommon.present ? isCommon.value : this.isCommon,
-  );
+  Story copyWith({int? id, String? sortId, String? word, String? imageName}) =>
+      Story(
+        id: id ?? this.id,
+        sortId: sortId ?? this.sortId,
+        word: word ?? this.word,
+        imageName: imageName ?? this.imageName,
+      );
   Story copyWithCompanion(StoryTableCompanion data) {
     return Story(
       id: data.id.present ? data.id.value : this.id,
       sortId: data.sortId.present ? data.sortId.value : this.sortId,
       word: data.word.present ? data.word.value : this.word,
       imageName: data.imageName.present ? data.imageName.value : this.imageName,
-      isCommon: data.isCommon.present ? data.isCommon.value : this.isCommon,
     );
   }
 
@@ -247,14 +205,13 @@ class Story extends DataClass implements Insertable<Story> {
           ..write('id: $id, ')
           ..write('sortId: $sortId, ')
           ..write('word: $word, ')
-          ..write('imageName: $imageName, ')
-          ..write('isCommon: $isCommon')
+          ..write('imageName: $imageName')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, sortId, word, imageName, isCommon);
+  int get hashCode => Object.hash(id, sortId, word, imageName);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -262,8 +219,7 @@ class Story extends DataClass implements Insertable<Story> {
           other.id == this.id &&
           other.sortId == this.sortId &&
           other.word == this.word &&
-          other.imageName == this.imageName &&
-          other.isCommon == this.isCommon);
+          other.imageName == this.imageName);
 }
 
 class StoryTableCompanion extends UpdateCompanion<Story> {
@@ -271,20 +227,17 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
   final Value<String> sortId;
   final Value<String> word;
   final Value<String> imageName;
-  final Value<bool?> isCommon;
   const StoryTableCompanion({
     this.id = const Value.absent(),
     this.sortId = const Value.absent(),
     this.word = const Value.absent(),
     this.imageName = const Value.absent(),
-    this.isCommon = const Value.absent(),
   });
   StoryTableCompanion.insert({
     this.id = const Value.absent(),
     required String sortId,
     required String word,
     required String imageName,
-    this.isCommon = const Value.absent(),
   }) : sortId = Value(sortId),
        word = Value(word),
        imageName = Value(imageName);
@@ -293,14 +246,12 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     Expression<String>? sortId,
     Expression<String>? word,
     Expression<String>? imageName,
-    Expression<bool>? isCommon,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (sortId != null) 'sort_id': sortId,
       if (word != null) 'word': word,
       if (imageName != null) 'image_name': imageName,
-      if (isCommon != null) 'is_common': isCommon,
     });
   }
 
@@ -309,14 +260,12 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     Value<String>? sortId,
     Value<String>? word,
     Value<String>? imageName,
-    Value<bool?>? isCommon,
   }) {
     return StoryTableCompanion(
       id: id ?? this.id,
       sortId: sortId ?? this.sortId,
       word: word ?? this.word,
       imageName: imageName ?? this.imageName,
-      isCommon: isCommon ?? this.isCommon,
     );
   }
 
@@ -335,9 +284,6 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     if (imageName.present) {
       map['image_name'] = Variable<String>(imageName.value);
     }
-    if (isCommon.present) {
-      map['is_common'] = Variable<bool>(isCommon.value);
-    }
     return map;
   }
 
@@ -347,8 +293,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
           ..write('id: $id, ')
           ..write('sortId: $sortId, ')
           ..write('word: $word, ')
-          ..write('imageName: $imageName, ')
-          ..write('isCommon: $isCommon')
+          ..write('imageName: $imageName')
           ..write(')'))
         .toString();
   }
@@ -991,7 +936,6 @@ typedef $$StoryTableTableCreateCompanionBuilder =
       required String sortId,
       required String word,
       required String imageName,
-      Value<bool?> isCommon,
     });
 typedef $$StoryTableTableUpdateCompanionBuilder =
     StoryTableCompanion Function({
@@ -999,7 +943,6 @@ typedef $$StoryTableTableUpdateCompanionBuilder =
       Value<String> sortId,
       Value<String> word,
       Value<String> imageName,
-      Value<bool?> isCommon,
     });
 
 class $$StoryTableTableFilterComposer
@@ -1028,11 +971,6 @@ class $$StoryTableTableFilterComposer
 
   ColumnFilters<String> get imageName => $composableBuilder(
     column: $table.imageName,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isCommon => $composableBuilder(
-    column: $table.isCommon,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1065,11 +1003,6 @@ class $$StoryTableTableOrderingComposer
     column: $table.imageName,
     builder: (column) => ColumnOrderings(column),
   );
-
-  ColumnOrderings<bool> get isCommon => $composableBuilder(
-    column: $table.isCommon,
-    builder: (column) => ColumnOrderings(column),
-  );
 }
 
 class $$StoryTableTableAnnotationComposer
@@ -1092,9 +1025,6 @@ class $$StoryTableTableAnnotationComposer
 
   GeneratedColumn<String> get imageName =>
       $composableBuilder(column: $table.imageName, builder: (column) => column);
-
-  GeneratedColumn<bool> get isCommon =>
-      $composableBuilder(column: $table.isCommon, builder: (column) => column);
 }
 
 class $$StoryTableTableTableManager
@@ -1129,13 +1059,11 @@ class $$StoryTableTableTableManager
                 Value<String> sortId = const Value.absent(),
                 Value<String> word = const Value.absent(),
                 Value<String> imageName = const Value.absent(),
-                Value<bool?> isCommon = const Value.absent(),
               }) => StoryTableCompanion(
                 id: id,
                 sortId: sortId,
                 word: word,
                 imageName: imageName,
-                isCommon: isCommon,
               ),
           createCompanionCallback:
               ({
@@ -1143,13 +1071,11 @@ class $$StoryTableTableTableManager
                 required String sortId,
                 required String word,
                 required String imageName,
-                Value<bool?> isCommon = const Value.absent(),
               }) => StoryTableCompanion.insert(
                 id: id,
                 sortId: sortId,
                 word: word,
                 imageName: imageName,
-                isCommon: isCommon,
               ),
           withReferenceMapper:
               (p0) =>
