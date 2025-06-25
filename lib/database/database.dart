@@ -92,12 +92,13 @@ Future<void> _initChoiceDataInsert(MyDatabase db) async {
 
   // 選択肢A
   await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 5, word: '選択肢A', nextStoryId: 589, returnStoryId: 6)
+    // index - 1なので、選択肢を出したいStoryId + 1にすること
+    ChoiseTableCompanion.insert(storyId: 5, word: '選択肢A', nextStoryId: 588, returnStoryId: 605)
   );
 
-  // 選択肢B
+  // 選択肢B // 最後の場合retunStoryId - 1に設定
   await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 5, word: '選択肢B', nextStoryId: 606, returnStoryId: 6)
+    ChoiseTableCompanion.insert(storyId: 5, word: '選択肢B', nextStoryId: 605, returnStoryId: 623)
   );
 
   print('初期データ挿入完了');

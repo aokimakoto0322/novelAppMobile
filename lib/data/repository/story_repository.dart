@@ -10,11 +10,6 @@ class StoryRepository {
     return result;
   }
 
-  Future<int> getStoryCount(MyDatabase db) async {
-    var count = await db.select(db.storyTable).get().then((rows) => rows.length);
-    return count;
-  }
-
   // データをリストで取得し、storyテーブルに格納
   Future<void> insertStory(MyDatabase db, List<Story> storyList) async {
     await db.batch((batch) {
@@ -31,6 +26,10 @@ class StoryRepository {
         );
       }
     });
+  }
+
+  Future<void> deleteAllStory(MyDatabase db) async {
+    await db.delete(db.storyTable).go();
   }
 }
 

@@ -44,7 +44,9 @@ class _GameScreenState extends State<GameScreen> {
           builder: (context, usecase, child) {
             return GestureDetector(
               onTap: () {
-                usecase.showNextItem(widget.database, widget.allStory);
+                if (!usecase.isChoice) {
+                  usecase.showNextItem(widget.database, widget.allStory);
+                }
               },
               behavior: HitTestBehavior.deferToChild,
               child: Stack(
@@ -80,6 +82,38 @@ class _GameScreenState extends State<GameScreen> {
                             totalRepeatCount: 1,
                             displayFullTextOnTap: true
                           )
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // 選択肢表示エリア
+                  AnimatedOpacity(
+                    opacity: usecase.isChoice ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 1000),
+                    child: IgnorePointer(
+                      ignoring: !usecase.isChoice,
+                      child: Container(
+                        color: Colors.black.withAlpha(180),
+                        width: double.infinity,
+                        height: double.infinity,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ...usecase.currentChoice.map((choice) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      usecase.tabSelect(choice, widget.allStory);
+                                    },
+                                    child: Text(choice.word)
+                                  ),
+                                );
+                              })
+                            ]
+                          ),
                         ),
                       ),
                     ),
