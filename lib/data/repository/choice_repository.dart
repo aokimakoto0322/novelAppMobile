@@ -8,23 +8,6 @@ class ChoiceRepository {
     return count;
   }
 
-  // Choiceテーブルに初期データをINSERTする
-  Future<void> setInitialData(MyDatabase db, List<Choice> initialDataList) async {
-    await db.batch((batch) {
-      for (final initialData in initialDataList) {
-        batch.insert(
-          db.choiseTable,
-          ChoiseTableCompanion.insert(
-            storyId: initialData.storyId,
-            word: initialData.word,
-            nextStoryId: initialData.nextStoryId,
-            returnStoryId: initialData.returnStoryId
-          )
-        );
-      }
-    });
-  }
-
   Future<List<Choice>> fetchChoiceList(MyDatabase db, int storyId) async {
     var result = await (db.select(db.choiseTable)
       ..where((tbl) => tbl.storyId.equals(storyId))).get();

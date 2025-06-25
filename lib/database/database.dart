@@ -49,6 +49,35 @@ class MyDatabase extends _$MyDatabase {
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (Migrator m) {
+        // データベースが新規作成される際に、すべてのテーブルを作成
+        return m.createAll();
+      },
+      onUpgrade: (Migrator m, int from, int to) async {
+        // schemaVersionが上がった際の処理
+
+        // 例: バージョン1からバージョン2へのアップグレード時に初期データを投入
+        // if (from < 2 && to >= 2) {
+        //   final count = await (select(choiseTable)..limit(1)).getSingleOrNull();
+        //   if (count == null) {
+        //     await _initDataInsert(this);
+        //   }
+        // }
+      },
+      beforeOpen: (details) async {
+        // 初期データ（選択肢）のカウントを行い、なかったら選択肢初期データを挿入
+        final choiceCount = await (select(choiseTable)..limit(1)).getSingleOrNull();
+
+        if (choiceCount == null) {
+          await _initChoiceDataInsert(this);
+        }
+      } 
+    );
+  }
 }
 
 LazyDatabase _openConnection() {
@@ -59,4 +88,20 @@ LazyDatabase _openConnection() {
     final file = File(p.join(dbFolder.path, 'db.sqlite'));
     return NativeDatabase.createInBackground(file);
   });
+}
+
+Future<void> _initChoiceDataInsert(MyDatabase db) async {
+  print('初期データ投入');
+
+  // 選択肢A
+  await db.into(db.choiseTable).insert(
+    ChoiseTableCompanion.insert(storyId: 5, word: '選択肢A', nextStoryId: 589, returnStoryId: 6)
+  );
+
+  // 選択肢B
+  await db.into(db.choiseTable).insert(
+    ChoiseTableCompanion.insert(storyId: 5, word: '選択肢B', nextStoryId: 606, returnStoryId: 6)
+  );
+
+  print('初期データ挿入完了');
 }
