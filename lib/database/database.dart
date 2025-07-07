@@ -19,6 +19,12 @@ class StoryTable extends Table {
   @JsonKey('word')
   TextColumn get word => text()();
 
+  @JsonKey('speaker')
+  TextColumn get speaker => text()();
+
+  @JsonKey('description')
+  TextColumn get description => text()();
+
   @JsonKey('image_name')
   TextColumn get imageName => text()();
 }
@@ -92,13 +98,14 @@ Future<void> _initChoiceDataInsert(MyDatabase db) async {
 
   // 選択肢A
   await db.into(db.choiseTable).insert(
-    // index - 1なので、選択肢を出したいStoryId + 1にすること
-    ChoiseTableCompanion.insert(storyId: 5, word: '選択肢A', nextStoryId: 588, returnStoryId: 605)
+    // index - 1なので、選択肢を出したいStoryId - 1にすること（例StoryId35で選択肢を出したい場合、34と入力）
+    // nextStoryIdも同様
+    ChoiseTableCompanion.insert(storyId: 34, word: 'ヒロインAを選ぶ', nextStoryId: 35, returnStoryId: 57)
   );
 
   // 選択肢B // 最後の場合retunStoryId - 1に設定
   await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 5, word: '選択肢B', nextStoryId: 605, returnStoryId: 623)
+    ChoiseTableCompanion.insert(storyId: 34, word: 'ヒロインBを選ぶ', nextStoryId: 57, returnStoryId: 84)
   );
 
   print('初期データ挿入完了');

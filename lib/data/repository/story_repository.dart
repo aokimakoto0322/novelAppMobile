@@ -20,6 +20,8 @@ class StoryRepository {
             id: Value(story.id),
             sortId: story.sortId,
             word: story.word,
+            speaker: story.speaker,
+            description: story.description,
             imageName: story.imageName
           ),
           onConflict: DoNothing()

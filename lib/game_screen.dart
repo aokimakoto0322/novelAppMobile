@@ -87,6 +87,28 @@ class _GameScreenState extends State<GameScreen> {
                     ),
                   ),
 
+                  // しゃべっている人ラベル表示エリア
+                  if (widget.allStory[storyUsecase.currentIndex].speaker != '')
+                    Positioned(
+                      left: 10,
+                      bottom: 155,
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 30,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.amber.withAlpha(200),
+                          borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(20),
+                            right: Radius.circular(20)
+                          )
+                        ),
+                        child: Text(
+                          widget.allStory[storyUsecase.currentIndex].speaker
+                        ),
+                      ),
+                    ),
+                  
                   // 選択肢表示エリア
                   AnimatedOpacity(
                     opacity: usecase.isChoice ? 1.0 : 0.0,

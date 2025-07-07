@@ -63,6 +63,9 @@ class StoryUsecase extends ChangeNotifier {
 
   // ゲーム画面クリック時の業務処理
   Future<void> showNextItem(MyDatabase db, List<Story> allStory) async {
+    // 話の終わりを判定
+    if (_currentIndex + 1 >= allStory.length) return;
+
     _currentIndex++;
     _backGroundImage = allStory[_currentIndex].imageName;
 
@@ -72,6 +75,8 @@ class StoryUsecase extends ChangeNotifier {
     if (isChoice.length > 1) {
       _isChoice = true;
     }
+
+    print(allStory[_currentIndex]);
 
     // 選択肢に応じたストーリーの場合
     if (_selectedChoice.id != 0) {
