@@ -69,19 +69,21 @@ class _GameScreenState extends State<GameScreen> {
                         margin: EdgeInsets.only(left: 20, right: 20, top: 10),
                         child: Align(
                           alignment: Alignment.topLeft,
-                          child: AnimatedTextKit(
-                            key: ValueKey<String>(widget.allStory[storyUsecase.currentIndex].word),
-                            animatedTexts: [
-                              TyperAnimatedText(
-                                widget.allStory[storyUsecase.currentIndex].word,
-                                textStyle: const TextStyle(
-                                  fontSize: 18
+                          child: usecase.isWaiting
+                              ? SizedBox.shrink()
+                              : AnimatedTextKit(
+                                  key: ValueKey<String>(widget.allStory[storyUsecase.currentIndex].word),
+                                  animatedTexts: [
+                                    TyperAnimatedText(
+                                      widget.allStory[storyUsecase.currentIndex].word,
+                                      textStyle: const TextStyle(
+                                        fontSize: 18
+                                      ),
+                                    )
+                                  ],
+                                  totalRepeatCount: 1,
+                                  displayFullTextOnTap: true
                                 ),
-                              )
-                            ],
-                            totalRepeatCount: 1,
-                            displayFullTextOnTap: true
-                          )
                         ),
                       ),
                     ),
