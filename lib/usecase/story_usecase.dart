@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_nobel_app/data/repository/choice_repository.dart';
 import 'package:flutter_nobel_app/data/repository/story_repository.dart';
@@ -15,12 +13,14 @@ class StoryUsecase extends ChangeNotifier {
   String _backGroundImage = '';
   List<Choice> _currentChoices = []; // 選択肢リスト
   bool _isChoice = false; // 話が選択肢に来た場合を格納
+  bool _isWaiting = false; // ロード状態を管理
   Choice _selectedChoice = Choice(id: 0, storyId: 0, word: '', nextStoryId: 0, returnStoryId: 0); // 選択された選択肢情報を格納
 
   int get currentIndex => _currentIndex;
   String get backGroundImage => _backGroundImage;
   List<Choice> get currentChoice => _currentChoices;
   bool get isChoice => _isChoice;
+  bool get isWaiting => _isWaiting;
   Choice get selectedChoice => _selectedChoice;
 
 
@@ -96,17 +96,23 @@ class StoryUsecase extends ChangeNotifier {
 
   // 選択肢がクリックされたとき
   // クリックされた選択肢状態を保存し、選択肢に応じた話にジャンプする
-  void tabSelect(Choice choice, List<Story> allStory) {
-    // 全体ストーリーから、選択された選択肢の箇所にジャンプする
+  Future<void> tabSelect(Choice choice, List<Story> allStory) async {
     _selectedChoice = choice;
+    _isWaiting = true; // ロード状態を開始
 
-    _currentIndex = choice.nextStoryId;
-    _backGroundImage = allStory[_currentIndex].imageName;
-
-    // ジャンプ後は選択肢画面を閉じる
+    // シーン切り替え処理で画像を先に切り替えて後から文字を出す
+    // ①画像だけ先に切り替える
+    _backGroundImage = allStory[choice.nextStoryId].imageName;
     _isChoice = false;
+    notifyListeners();
 
-    // 変数の変更を通知(画面側のChangeNotifierProviderでこのクラスのメンバ変数の変更を取得している)
+    // ②4秒待つ
+    // TODO: この秒数はStoryテーブルの値を見て判断するようにする
+    await Future.delayed(Duration(seconds: 4));
+
+    // ③currentIndexを切り替え、テキストも切り替わる
+    _currentIndex = choice.nextStoryId;
+    _isWaiting = false; // ロード状態を終了
     notifyListeners();
   }
 }

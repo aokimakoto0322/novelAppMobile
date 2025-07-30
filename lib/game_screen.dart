@@ -44,7 +44,7 @@ class _GameScreenState extends State<GameScreen> {
           builder: (context, usecase, child) {
             return GestureDetector(
               onTap: () {
-                if (!usecase.isChoice) {
+                if (!usecase.isChoice && !usecase.isWaiting) {
                   usecase.showNextItem(widget.database, widget.allStory);
                 }
               },
