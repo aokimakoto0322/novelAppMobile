@@ -4,7 +4,7 @@ import 'package:flutter_nobel_app/usecase/choice_usecase.dart';
 import 'package:flutter_nobel_app/usecase/save_usecase.dart';
 import 'package:flutter_nobel_app/usecase/story_usecase.dart';
 import 'package:flutter_nobel_app/widget/image_screen_widget.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:flutter_nobel_app/widget/text_area_widget.dart';
 import 'package:provider/provider.dart';
 
 class GameScreen extends StatefulWidget {
@@ -57,36 +57,10 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                         
                   // テキストエリア
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: Container(
-                      color: Colors.brown.withAlpha(200),
-                      alignment: Alignment.topLeft,
-                      height: 150,
-                      child: Container(
-                        margin: EdgeInsets.only(left: 20, right: 20, top: 10),
-                        child: Align(
-                          alignment: Alignment.topLeft,
-                          child: usecase.isWaiting
-                              ? SizedBox.shrink()
-                              : AnimatedTextKit(
-                                  key: ValueKey<String>(widget.allStory[storyUsecase.currentIndex].word),
-                                  animatedTexts: [
-                                    TyperAnimatedText(
-                                      widget.allStory[storyUsecase.currentIndex].word,
-                                      textStyle: const TextStyle(
-                                        fontSize: 18
-                                      ),
-                                    )
-                                  ],
-                                  totalRepeatCount: 1,
-                                  displayFullTextOnTap: true
-                                ),
-                        ),
-                      ),
-                    ),
+                  TextAreaWidget(
+                    usecase: usecase,
+                    allStory: widget.allStory,
+                    currentIndex: storyUsecase.currentIndex,
                   ),
 
                   // しゃべっている人ラベル表示エリア
