@@ -42,7 +42,8 @@ class ChoiseTable extends Table {
   IntColumn get storyId => integer()(); // 選択肢を表示するstory_id
   TextColumn get word => text()();
   IntColumn get nextStoryId => integer()(); // 選択した場合に表示を開始するstory_id
-  IntColumn get returnStoryId => integer()(); // 選択肢を選んで、選択を選んだのちに戻るstory_id
+  IntColumn get returnStoryId => integer()(); // 選択した場合に表示を終了するstory_id
+  IntColumn get warpStoryId => integer()(); // 選択肢に応じた物語が終わり、通常ルートに戻る先のstory_id
 }
 
 @DriftDatabase(tables: [StoryTable, SaveTable, ChoiseTable])
@@ -100,12 +101,12 @@ Future<void> _initChoiceDataInsert(MyDatabase db) async {
   await db.into(db.choiseTable).insert(
     // index - 1なので、選択肢を出したいStoryId - 1にすること（例StoryId35で選択肢を出したい場合、34と入力）
     // nextStoryIdも同様
-    ChoiseTableCompanion.insert(storyId: 34, word: 'ヒロインAを選ぶ', nextStoryId: 35, returnStoryId: 57)
+    ChoiseTableCompanion.insert(storyId: 34, word: 'ヒロインAを選ぶ', nextStoryId: 35, returnStoryId: 57, warpStoryId: 1)
   );
 
   // 選択肢B // 最後の場合retunStoryId - 1に設定
   await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 34, word: 'ヒロインBを選ぶ', nextStoryId: 57, returnStoryId: 84)
+    ChoiseTableCompanion.insert(storyId: 34, word: 'ヒロインBを選ぶ', nextStoryId: 57, returnStoryId: 84, warpStoryId: 1)
   );
 
   print('初期データ挿入完了');
