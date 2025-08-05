@@ -14,7 +14,7 @@ class StoryUsecase extends ChangeNotifier {
   List<Choice> _currentChoices = []; // 選択肢リスト
   bool _isChoice = false; // 話が選択肢に来た場合を格納
   bool _isWaiting = false; // ロード状態を管理
-  Choice _selectedChoice = Choice(id: 0, storyId: 0, word: '', nextStoryId: 0, returnStoryId: 0); // 選択された選択肢情報を格納
+  Choice _selectedChoice = Choice(id: 0, storyId: 0, word: '', nextStoryId: 0, returnStoryId: 0, warpStoryId: 0); // 選択された選択肢情報を格納
 
   int get currentIndex => _currentIndex;
   String get backGroundImage => _backGroundImage;
@@ -86,7 +86,7 @@ class StoryUsecase extends ChangeNotifier {
         _backGroundImage = allStory[_currentIndex].imageName;
 
         // 選択した選択肢情報を初期化
-        _selectedChoice = Choice(id: 0, storyId: 0, word: '', nextStoryId: 0, returnStoryId: 0);
+        _selectedChoice = Choice(id: 0, storyId: 0, word: '', nextStoryId: 0, returnStoryId: 0, warpStoryId: 0);
       }
     }
 
