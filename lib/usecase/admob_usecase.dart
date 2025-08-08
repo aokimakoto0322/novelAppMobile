@@ -1,12 +1,17 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+final adUnitId = Platform.isAndroid
+    ? 'ca-app-pub-3940256099942544/1033173712'
+    : 'ca-app-pub-3940256099942544/4411468910';
 
 class AdmobUsecase {
   InterstitialAd? _interstitialAd;
 
   Future<void> loadInterstitialAd() async {
     InterstitialAd.load(
-      adUnitId: 'ca-app-pub-3940256099942544/1033173712', // テスト用の広告ユニットID
+      adUnitId: adUnitId, // テスト用の広告ユニットID
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (InterstitialAd ad) {
