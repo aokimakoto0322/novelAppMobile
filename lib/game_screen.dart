@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_nobel_app/database/database.dart';
+import 'package:flutter_nobel_app/usecase/admob_usecase.dart';
 import 'package:flutter_nobel_app/usecase/choice_usecase.dart';
 import 'package:flutter_nobel_app/usecase/save_usecase.dart';
 import 'package:flutter_nobel_app/usecase/story_usecase.dart';
@@ -26,10 +27,12 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   SaveUsecase saveUsecase = SaveUsecase();
   ChoiceUsecase choiceUsecase = ChoiceUsecase();
+  AdmobUsecase admobUsecase = AdmobUsecase();
   late StoryUsecase storyUsecase;
 
   @override
   void initState() {
+    admobUsecase.loadInterstitialAd();
     storyUsecase = StoryUsecase();
     storyUsecase.initGameScreen(widget.database, widget.allStory, widget.savedIndex);
     super.initState();
@@ -45,7 +48,7 @@ class _GameScreenState extends State<GameScreen> {
             return GestureDetector(
               onTap: () {
                 if (!usecase.isChoice && !usecase.isWaiting) {
-                  usecase.showNextItem(widget.database, widget.allStory);
+                  usecase.showNextItem(widget.database, widget.allStory, admobUsecase);
                 }
               },
               behavior: HitTestBehavior.deferToChild,

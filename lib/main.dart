@@ -4,9 +4,11 @@ import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/game_screen.dart';
 import 'package:flutter_nobel_app/save_screen.dart';
 import 'package:flutter_nobel_app/usecase/story_usecase.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   final database = MyDatabase();
 
   // 環境変数

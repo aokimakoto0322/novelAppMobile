@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_nobel_app/data/repository/choice_repository.dart';
 import 'package:flutter_nobel_app/data/repository/story_repository.dart';
 import 'package:flutter_nobel_app/database/database.dart';
+import 'package:flutter_nobel_app/usecase/admob_usecase.dart';
 import '../data/sources/story_api.dart';
 
 class StoryUsecase extends ChangeNotifier {
@@ -62,7 +63,21 @@ class StoryUsecase extends ChangeNotifier {
   }
 
   // ゲーム画面クリック時の業務処理
-  Future<void> showNextItem(MyDatabase db, List<Story> allStory) async {
+  Future<void> showNextItem(MyDatabase db, List<Story> allStory, AdmobUsecase admobUsecase) async {
+    // 広告表示チェック（サンプルで5回に1回表示する）
+    if (_currentIndex % 5 == 0) {
+
+      // 広告を表示
+      admobUsecase.showInterstitialAd(onAdClosed: () async {
+        await Future.delayed(Duration(seconds: 1));
+        _currentIndex++;
+        _backGroundImage = allStory[_currentIndex].imageName;
+        notifyListeners();
+        admobUsecase.loadInterstitialAd();
+      });
+      return;
+    }
+
     // 話の終わりを判定
     if (_currentIndex + 1 >= allStory.length) return;
 
@@ -76,7 +91,7 @@ class StoryUsecase extends ChangeNotifier {
       _isChoice = true;
     }
 
-    print(allStory[_currentIndex]);
+    // print(allStory[_currentIndex]);
 
     // 選択肢に応じたストーリーの場合
     if (_selectedChoice.id != 0) {
