@@ -65,7 +65,7 @@ class StoryUsecase extends ChangeNotifier {
   // ゲーム画面クリック時の業務処理
   Future<void> showNextItem(MyDatabase db, List<Story> allStory, AdmobUsecase admobUsecase) async {
     // 広告表示チェック（サンプルで10回に1回表示する）
-    if (_currentIndex % 10 == 0) {
+    if (_currentIndex % 20 == 0) {
 
       // 広告を表示
       admobUsecase.showInterstitialAd(onAdClosed: () async {
