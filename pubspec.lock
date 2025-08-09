@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.4.4"
+  animated_stack:
+    dependency: "direct main"
+    description:
+      name: animated_stack
+      sha256: "78a2ae12cde6db384a481f749e1fcd2de7c2cd94c557e2484dab4ce71e74d575"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.3"
   animated_text_kit:
     dependency: "direct main"
     description:
