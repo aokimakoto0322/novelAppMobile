@@ -17,7 +17,7 @@ class SpeakerAreaWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       left: 10,
-      bottom: 155,
+      bottom: 185,
       child: Container(
         alignment: Alignment.center,
         height: 30,

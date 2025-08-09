@@ -24,7 +24,7 @@ class TextAreaWidget extends StatelessWidget {
       child: Container(
         color: Colors.brown.withAlpha(200),
         alignment: Alignment.topLeft,
-        height: 150,
+        height: 180,
         child: Container(
           margin: EdgeInsets.only(left: 20, right: 20, top: 10),
           child: Align(
