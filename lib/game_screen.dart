@@ -45,6 +45,10 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScopeDialogWidget(
+      database: widget.database,
+      allStory: widget.allStory,
+      storyUsecase: storyUsecase,
+      saveUsecase: saveUsecase,
       child: AnimationStackWidget(
         database: widget.database,
         allStory: widget.allStory,

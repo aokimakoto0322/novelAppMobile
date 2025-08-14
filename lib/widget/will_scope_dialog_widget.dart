@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_nobel_app/database/database.dart';
+import 'package:flutter_nobel_app/usecase/save_usecase.dart';
+import 'package:flutter_nobel_app/usecase/story_usecase.dart';
 
 class WillPopScopeDialogWidget extends StatelessWidget {
   final Widget child;
+  final MyDatabase database;
+  final List<Story> allStory;
+  final StoryUsecase storyUsecase;
+  final SaveUsecase saveUsecase;
 
-  const WillPopScopeDialogWidget({super.key, required this.child});
+  const WillPopScopeDialogWidget({
+    super.key,
+    required this.child,
+    required this.database,
+    required this.allStory,
+    required this.storyUsecase,
+    required this.saveUsecase,
+    });
 
   @override
   Widget build(BuildContext context) {
@@ -15,14 +29,17 @@ class WillPopScopeDialogWidget extends StatelessWidget {
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('確認'),
-              content: const Text('この画面を閉じますか？'),
+              content: const Text('セーブしてホーム画面に戻りますか？'),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('キャンセル'),
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('セーブしないで戻る'),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
+                  onPressed: () {
+                    saveUsecase.saveStory(database, allStory[storyUsecase.currentIndex].id);
+                    Navigator.of(context).pop(true);
+                  },
                   child: const Text('OK'),
                 ),
               ],
