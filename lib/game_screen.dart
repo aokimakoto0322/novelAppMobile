@@ -9,6 +9,7 @@ import 'package:flutter_nobel_app/widget/choose_screen_widget.dart';
 import 'package:flutter_nobel_app/widget/image_screen_widget.dart';
 import 'package:flutter_nobel_app/widget/speaker_area_widget.dart';
 import 'package:flutter_nobel_app/widget/text_area_widget.dart';
+import 'package:flutter_nobel_app/widget/will_scope_dialog_widget.dart';
 import 'package:provider/provider.dart';
 
 class GameScreen extends StatefulWidget {
@@ -43,53 +44,55 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimationStackWidget(
-      database: widget.database,
-      allStory: widget.allStory,
-      saveUsecase: saveUsecase,
-      storyUsecase: storyUsecase,
-      foregroundWidget: Scaffold(
-        body: ChangeNotifierProvider(
-          create: (_) => storyUsecase,
-          child: Consumer<StoryUsecase>(
-            builder: (context, usecase, child) {
-              return GestureDetector(
-                onTap: () {
-                  if (!usecase.isChoice && !usecase.isWaiting) {
-                    usecase.showNextItem(widget.database, widget.allStory, admobUsecase);
-                  }
-                },
-                behavior: HitTestBehavior.deferToChild,
-                child: Stack(
-                  children: <Widget>[
-                    // 画像表示エリア
-                    ImageScreenWidget(
-                      backgroundImage: usecase.backGroundImage
-                    ),
-                          
-                    // テキストエリア
-                    TextAreaWidget(
-                      usecase: usecase,
-                      allStory: widget.allStory,
-                      currentIndex: storyUsecase.currentIndex,
-                    ),
-      
-                    // しゃべっている人ラベル表示エリア
-                    if (widget.allStory[storyUsecase.currentIndex].speaker != '')
-                      SpeakerAreaWidget(
-                        allStory: widget.allStory,
-                        storyUsecase: storyUsecase
+    return WillPopScopeDialogWidget(
+      child: AnimationStackWidget(
+        database: widget.database,
+        allStory: widget.allStory,
+        saveUsecase: saveUsecase,
+        storyUsecase: storyUsecase,
+        foregroundWidget: Scaffold(
+          body: ChangeNotifierProvider(
+            create: (_) => storyUsecase,
+            child: Consumer<StoryUsecase>(
+              builder: (context, usecase, child) {
+                return GestureDetector(
+                  onTap: () {
+                    if (!usecase.isChoice && !usecase.isWaiting) {
+                      usecase.showNextItem(widget.database, widget.allStory, admobUsecase);
+                    }
+                  },
+                  behavior: HitTestBehavior.deferToChild,
+                  child: Stack(
+                    children: <Widget>[
+                      // 画像表示エリア
+                      ImageScreenWidget(
+                        backgroundImage: usecase.backGroundImage
                       ),
-                                      
-                    // 選択肢表示エリア
-                    ChooseScreenWidget(
-                      usecase: usecase,
-                      allStory: widget.allStory
-                    )
-                  ],
-                ),
-              );
-            },
+                            
+                      // テキストエリア
+                      TextAreaWidget(
+                        usecase: usecase,
+                        allStory: widget.allStory,
+                        currentIndex: storyUsecase.currentIndex,
+                      ),
+        
+                      // しゃべっている人ラベル表示エリア
+                      if (widget.allStory[storyUsecase.currentIndex].speaker != '')
+                        SpeakerAreaWidget(
+                          allStory: widget.allStory,
+                          storyUsecase: storyUsecase
+                        ),
+                                        
+                      // 選択肢表示エリア
+                      ChooseScreenWidget(
+                        usecase: usecase,
+                        allStory: widget.allStory
+                      )
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
