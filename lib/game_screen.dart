@@ -44,25 +44,25 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScopeDialogWidget(
-      database: widget.database,
-      allStory: widget.allStory,
-      storyUsecase: storyUsecase,
-      saveUsecase: saveUsecase,
-      child: AnimationStackWidget(
-        database: widget.database,
-        allStory: widget.allStory,
-        saveUsecase: saveUsecase,
-        storyUsecase: storyUsecase,
-        foregroundWidget: Scaffold(
-          body: ChangeNotifierProvider(
-            create: (_) => storyUsecase,
-            child: Consumer<StoryUsecase>(
+    return MultiProvider(
+      providers: [
+        Provider<MyDatabase>.value(value: widget.database),
+        Provider<List<Story>>.value(value: widget.allStory),
+        ChangeNotifierProvider<StoryUsecase>.value(value: storyUsecase),
+        Provider<SaveUsecase>.value(value: saveUsecase),
+      ],
+      child: WillPopScopeDialogWidget(
+        child: AnimationStackWidget(
+          foregroundWidget: Scaffold(
+            body: Consumer<StoryUsecase>( // ConsumerWidgetを使用し、StoryUsecaseの状態を監視
               builder: (context, usecase, child) {
+                final database = context.read<MyDatabase>();
+                final allStory = context.read<List<Story>>();
+
                 return GestureDetector(
                   onTap: () {
                     if (!usecase.isChoice && !usecase.isWaiting) {
-                      usecase.showNextItem(widget.database, widget.allStory, admobUsecase);
+                      usecase.showNextItem(database, allStory, admobUsecase);
                     }
                   },
                   behavior: HitTestBehavior.deferToChild,
@@ -76,21 +76,20 @@ class _GameScreenState extends State<GameScreen> {
                       // テキストエリア
                       TextAreaWidget(
                         usecase: usecase,
-                        allStory: widget.allStory,
-                        currentIndex: storyUsecase.currentIndex,
+                        allStory: allStory
                       ),
-        
+                      
                       // しゃべっている人ラベル表示エリア
-                      if (widget.allStory[storyUsecase.currentIndex].speaker != '')
+                      if (allStory[storyUsecase.currentIndex].speaker != '')
                         SpeakerAreaWidget(
-                          allStory: widget.allStory,
+                          allStory: allStory,
                           storyUsecase: storyUsecase
                         ),
                                         
                       // 選択肢表示エリア
                       ChooseScreenWidget(
                         usecase: usecase,
-                        allStory: widget.allStory
+                        allStory: allStory
                       )
                     ],
                   ),

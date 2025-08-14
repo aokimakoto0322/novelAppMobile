@@ -6,13 +6,11 @@ import '../database/database.dart';
 class TextAreaWidget extends StatelessWidget {
   final StoryUsecase usecase;
   final List<Story> allStory;
-  final int currentIndex;
 
   const TextAreaWidget({
     super.key,
     required this.usecase,
-    required this.allStory,
-    required this.currentIndex,
+    required this.allStory
   });
 
   @override
@@ -32,10 +30,10 @@ class TextAreaWidget extends StatelessWidget {
             child: usecase.isWaiting
                 ? SizedBox.shrink()
                 : AnimatedTextKit(
-                    key: ValueKey<String>(allStory[currentIndex].word),
+                    key: ValueKey<String>(allStory[usecase.currentIndex].word),
                     animatedTexts: [
                       TyperAnimatedText(
-                        allStory[currentIndex].word,
+                        allStory[usecase.currentIndex].word,
                         textStyle: const TextStyle(fontSize: 18),
                       )
                     ],

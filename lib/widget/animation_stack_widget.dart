@@ -4,23 +4,11 @@ import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/usecase/save_usecase.dart';
 import 'package:flutter_nobel_app/usecase/story_usecase.dart';
 import 'package:flutter_nobel_app/widget/fab_icon_widget.dart';
+import 'package:provider/provider.dart';
 
 class AnimationStackWidget extends StatelessWidget {
   final Widget foregroundWidget;
-  final MyDatabase database;
-  final List<Story> allStory;
-  final SaveUsecase saveUsecase;
-  final StoryUsecase storyUsecase;
-  
-
-  const AnimationStackWidget({
-    super.key,
-    required this.foregroundWidget,
-    required this.database,
-    required this.allStory,
-    required this.saveUsecase,
-    required this.storyUsecase
-  });
+  const AnimationStackWidget({super.key, required this.foregroundWidget});
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +30,11 @@ class AnimationStackWidget extends StatelessWidget {
             height: 60,
             iconData: Icons.save,
             onPressed: () {
+              final database = context.read<MyDatabase>();
+              final allStory = context.read<List<Story>>();
+              final storyUsecase = context.read<StoryUsecase>();
+              final saveUsecase = context.read<SaveUsecase>();
+
               saveUsecase.saveStory(database, allStory[storyUsecase.currentIndex].id);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('ストーリーを保存しました'))
