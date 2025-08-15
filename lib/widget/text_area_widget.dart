@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-import '../usecase/story_usecase.dart';
-import '../database/database.dart';
+import 'package:flutter_nobel_app/provider/story_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TextAreaWidget extends StatelessWidget {
-  final StoryUsecase usecase;
-  final List<Story> allStory;
-
-  const TextAreaWidget({
-    super.key,
-    required this.usecase,
-    required this.allStory
-  });
+class TextAreaWidget extends ConsumerWidget {
+  const TextAreaWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final storyState = ref.read(storyUsecaseProvider);
+    final allStory = storyState.allStory;
+
     return Positioned(
       left: 0,
       right: 0,
@@ -27,13 +23,13 @@ class TextAreaWidget extends StatelessWidget {
           margin: EdgeInsets.only(left: 20, right: 20, top: 10),
           child: Align(
             alignment: Alignment.topLeft,
-            child: usecase.isWaiting
+            child: storyState.isWaiting
                 ? SizedBox.shrink()
                 : AnimatedTextKit(
-                    key: ValueKey<String>(allStory[usecase.currentIndex].word),
+                    key: ValueKey<String>(allStory[storyState.currentIndex].word),
                     animatedTexts: [
                       TyperAnimatedText(
-                        allStory[usecase.currentIndex].word,
+                        allStory[storyState.currentIndex].word,
                         textStyle: const TextStyle(fontSize: 18),
                       )
                     ],

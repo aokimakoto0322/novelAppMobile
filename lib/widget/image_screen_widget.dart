@@ -10,20 +10,24 @@ class ImageScreenWidget extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(seconds: 2),
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return FadeTransition(opacity: animation, child: child);
-      },
-      child: Container(
-        key: ValueKey(backgroundImage),
-        child: Image.asset(
-          'images/$backgroundImage',
-          width: double.infinity,
-          height: double.infinity,
-          fit: BoxFit.cover,
+    if (backgroundImage.isNotEmpty) {
+      return AnimatedSwitcher(
+        duration: const Duration(seconds: 2),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        child: Container(
+          key: ValueKey(backgroundImage),
+          child: Image.asset(
+            'images/$backgroundImage',
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      return SizedBox();
+    }
   }
 }

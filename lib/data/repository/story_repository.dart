@@ -4,8 +4,14 @@ import 'package:flutter_nobel_app/database/database.dart';
 
 
 class StoryRepository {
+  final MyDatabase db;
+
+  StoryRepository(
+    this.db
+  );
+
   // 全件データ取得
-  Future<List<Story>> fetchAllStory(MyDatabase db) async {
+  Future<List<Story>> fetchAllStory() async {
     List<Story> result = await db.select(db.storyTable).get();
     return result;
   }
@@ -30,7 +36,7 @@ class StoryRepository {
     });
   }
 
-  Future<void> deleteAllStory(MyDatabase db) async {
+  Future<void> deleteAllStory() async {
     await db.delete(db.storyTable).go();
   }
 }

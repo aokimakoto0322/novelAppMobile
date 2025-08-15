@@ -1,25 +1,21 @@
-
 import 'package:flutter/material.dart';
-import 'package:flutter_nobel_app/database/database.dart';
-import 'package:flutter_nobel_app/usecase/story_usecase.dart';
+import 'package:flutter_nobel_app/provider/story_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ChooseScreenWidget extends StatelessWidget {
-  final StoryUsecase usecase;
-  final List<Story> allStory;
-  
-  const ChooseScreenWidget({
-    super.key,
-    required this.usecase,
-    required this.allStory
-  });
+class ChooseScreenWidget extends ConsumerWidget {
+  const ChooseScreenWidget({super.key});
   
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final storyUsecase = ref.read(storyUsecaseProvider.notifier);
+    final storyState = ref.watch(storyUsecaseProvider);
+    final allStory = storyState.allStory;
+
     return AnimatedOpacity(
-      opacity: usecase.isChoice ? 1.0 : 0.0,
+      opacity: storyState.isChoice ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 1000),
       child: IgnorePointer(
-        ignoring: !usecase.isChoice,
+        ignoring: !storyState.isChoice,
         child: Container(
           color: Colors.black.withAlpha(180),
           width: double.infinity,
@@ -28,12 +24,12 @@ class ChooseScreenWidget extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ...usecase.currentChoice.map((choice) {
+                ...storyUsecase.currentChoice.map((choice) {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        usecase.tabSelect(choice, allStory);
+                        storyUsecase.tabSelect(choice, allStory);
                       },
                       child: Text(choice.word)
                     ),

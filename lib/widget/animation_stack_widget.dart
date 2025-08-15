@@ -1,18 +1,23 @@
 import 'package:animated_stack/animated_stack.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_nobel_app/database/database.dart';
-import 'package:flutter_nobel_app/usecase/save_usecase.dart';
-import 'package:flutter_nobel_app/usecase/story_usecase.dart';
+import 'package:flutter_nobel_app/provider/database_provider.dart';
+import 'package:flutter_nobel_app/provider/save_provider.dart';
+import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_nobel_app/widget/fab_icon_widget.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AnimationStackWidget extends StatelessWidget {
+class AnimationStackWidget extends ConsumerWidget {
   final Widget foregroundWidget;
   const AnimationStackWidget({super.key, required this.foregroundWidget});
 
   @override
-  Widget build(BuildContext context) {
-   return AnimatedStack(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final database = ref.read(databaseProvider);
+    final saveUsecase = ref.read(saveUsecaseProvider);
+    final storyState = ref.read(storyUsecaseProvider);
+    final allStory = storyState.allStory;
+
+    return AnimatedStack(
       buttonIcon: Icons.menu,
       fabIconColor: Colors.white,
       animateButton: false,
@@ -30,12 +35,7 @@ class AnimationStackWidget extends StatelessWidget {
             height: 60,
             iconData: Icons.save,
             onPressed: () {
-              final database = context.read<MyDatabase>();
-              final allStory = context.read<List<Story>>();
-              final storyUsecase = context.read<StoryUsecase>();
-              final saveUsecase = context.read<SaveUsecase>();
-
-              saveUsecase.saveStory(database, allStory[storyUsecase.currentIndex].id);
+              saveUsecase.saveStory(database, allStory[storyState.currentIndex].id);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('ストーリーを保存しました'))
               );
@@ -62,6 +62,6 @@ class AnimationStackWidget extends StatelessWidget {
         ],
       ),
       foregroundWidget: foregroundWidget,
-   ); 
+    ); 
   }
 }

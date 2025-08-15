@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/game_screen.dart';
+import 'package:flutter_nobel_app/provider/database_provider.dart';
+import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_nobel_app/save_screen.dart';
-import 'package:flutter_nobel_app/usecase/story_usecase.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 Future<void> main() async {
@@ -14,13 +16,18 @@ Future<void> main() async {
   // 環境変数
   await dotenv.load(fileName: ".env");
 
-  runApp(MyApp(database: database));
+  runApp(
+    ProviderScope(
+      overrides: [
+        databaseProvider.overrideWithValue(database)
+      ],
+      child: MyApp()
+    )
+  );
 }
 
 class MyApp extends StatelessWidget {
-  final MyDatabase database;
-
-  const MyApp({super.key, required this.database});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,37 +36,36 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: MyHomePage(database: database),
+      home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  final MyDatabase database;
-
-  const MyHomePage({super.key, required this.database});
+class MyHomePage extends ConsumerStatefulWidget {
+  const MyHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  ConsumerState<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  StoryUsecase storyUsecase = StoryUsecase();
+class _MyHomePageState extends ConsumerState<MyHomePage> {
   List<Story> allStory = [];
   bool isLoading = false; // 初期データ取得時のロード状態を管理
 
   @override
   void initState() {
-    fetchAllStory();
     super.initState();
+    fetchAllStory();
   }
 
   Future<void> fetchAllStory() async {
+    final storyUsecase = ref.read(storyUsecaseProvider.notifier);
+
     setState(() {
       isLoading = true;
     });
 
-    allStory = await storyUsecase.getAllStory(widget.database);
+    await storyUsecase.getAllStory();
 
     setState(() {
       isLoading = false;
@@ -68,6 +74,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final usecase = ref.read(storyUsecaseProvider.notifier);
+    
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -83,11 +91,15 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 ElevatedButton(
-                  onPressed: () {
-                    if (isLoading == false) {
+                  onPressed: () async {
+                    if (!isLoading) {
+                      usecase.resetState();
+                      await usecase.setCurrentIndex(0);
+                      if (!context.mounted) return;
                       Navigator.of(context).push(
                         PageRouteBuilder(
-                          pageBuilder: (context, animation, secondaryAnimation) => GameScreen(database: widget.database, allStory: allStory),
+                          opaque: false,
+                          pageBuilder: (context, animation, secondaryAnimation) => GameScreen(),
                           transitionsBuilder: (context, animation, secondaryAnimation, child) {
                             return FadeTransition(
                               opacity: animation.drive(
@@ -105,10 +117,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    if (isLoading == false) {
+                    if (!isLoading) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SaveScreen(database: widget.database, allStory: allStory))
+                        MaterialPageRoute(builder: (context) => SaveScreen())
                       );
                     }
                   },

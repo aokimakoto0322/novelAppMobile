@@ -3,7 +3,11 @@ import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/views/save_view_model.dart';
 
 class SaveUsecase {
-  SaveRepository saveRepository = SaveRepository();
+  final SaveRepository saveRepository;
+
+  SaveUsecase({
+    required this.saveRepository
+  });
 
   // 進行状態をセーブする
   Future<void> saveStory(MyDatabase db, int storyId) async {

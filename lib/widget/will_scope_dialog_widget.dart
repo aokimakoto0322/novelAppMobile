@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_nobel_app/database/database.dart';
-import 'package:flutter_nobel_app/usecase/save_usecase.dart';
-import 'package:flutter_nobel_app/usecase/story_usecase.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_nobel_app/provider/database_provider.dart';
+import 'package:flutter_nobel_app/provider/save_provider.dart';
+import 'package:flutter_nobel_app/provider/story_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class WillPopScopeDialogWidget extends StatelessWidget {
+class WillPopScopeDialogWidget extends ConsumerWidget {
   final Widget child;
 
   const WillPopScopeDialogWidget({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final database = ref.read(databaseProvider);
+    final storyState = ref.read(storyUsecaseProvider); // StoryState
+    final saveUsecase = ref.read(saveUsecaseProvider);
+    final allStory = storyState.allStory;
+
+
     return Builder(
       builder: (innerContext) {
         return PopScope(
           canPop: false,
           onPopInvokedWithResult: (didPop, _) async {
-            final database = innerContext.read<MyDatabase>();
-            final allStory = innerContext.read<List<Story>>();
-            final storyUsecase = innerContext.read<StoryUsecase>();
-            final saveUsecase = innerContext.read<SaveUsecase>();
-
             if (!didPop) {
               final shouldExit = await showDialog<bool>(
                 context: innerContext,
@@ -34,7 +35,7 @@ class WillPopScopeDialogWidget extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        saveUsecase.saveStory(database, allStory[storyUsecase.currentIndex].id);
+                        saveUsecase.saveStory(database, allStory[storyState.currentIndex].id);
                         Navigator.of(dialogContext).pop(true);
                       },
                       child: const Text('OK'),

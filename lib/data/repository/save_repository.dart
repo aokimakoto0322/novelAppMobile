@@ -4,6 +4,12 @@ import 'package:flutter_nobel_app/views/save_view_model.dart';
 import 'package:intl/intl.dart';
 
 class SaveRepository {
+  final MyDatabase db;
+
+  SaveRepository(
+    this.db
+  );
+  
   // 進行状況をセーブ
   Future<void> insertSaveStory(MyDatabase db, int storyId) async {
     DateTime now = DateTime.now();

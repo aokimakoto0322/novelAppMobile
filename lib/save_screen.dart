@@ -1,27 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/game_screen.dart';
-import 'package:flutter_nobel_app/usecase/save_usecase.dart';
+import 'package:flutter_nobel_app/provider/database_provider.dart';
+import 'package:flutter_nobel_app/provider/save_provider.dart';
+import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_nobel_app/views/save_view_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SaveScreen extends StatefulWidget {
-  final MyDatabase database;
-  final List<Story> allStory;
-  const SaveScreen({super.key, required this.database, required this.allStory});
-
-  @override
-  State<StatefulWidget> createState() => _SaveScreenState();
-}
-
-class _SaveScreenState extends State<SaveScreen> {
-  SaveUsecase saveUsecase = SaveUsecase();
+class SaveScreen extends ConsumerWidget {
+  const SaveScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final database = ref.read(databaseProvider);
+    final saveUsecase = ref.read(saveUsecaseProvider);
+    final usecase = ref.read(storyUsecaseProvider.notifier);
+
     return MaterialApp(
       home: Scaffold(
         body: FutureBuilder<List<SaveViewModel>>(
-          future: saveUsecase.fetchSaveList(widget.database),
+          future: saveUsecase.fetchSaveList(database),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
@@ -38,11 +35,12 @@ class _SaveScreenState extends State<SaveScreen> {
                   title: Text(snapshot.data![index].word),
                   subtitle: Text(snapshot.data![index].saveDate),
                   onTap: () {
+                    // 画面遷移の前に画面状態をロードしておく
+                    usecase.initGameScreen(snapshot.data![index].storyId - 1);
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => GameScreen(
-                        database: widget.database,
-                        allStory: widget.allStory,
                         savedIndex: snapshot.data![index].storyId - 1
                       ))
                     );
@@ -55,5 +53,4 @@ class _SaveScreenState extends State<SaveScreen> {
       ),
     );
   }
-  
 }
