@@ -93,6 +93,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                 ElevatedButton(
                   onPressed: () async {
                     if (!isLoading) {
+                      await Future.delayed(Duration(milliseconds: 200));
                       usecase.resetState();
                       await usecase.setCurrentIndex(0);
                       if (!context.mounted) return;
