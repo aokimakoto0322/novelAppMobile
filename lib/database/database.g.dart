@@ -1075,12 +1075,522 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
   }
 }
 
+class $ChoiceLogTableTable extends ChoiceLogTable
+    with TableInfo<$ChoiceLogTableTable, ChoiceLog> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChoiceLogTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _saveIdMeta = const VerificationMeta('saveId');
+  @override
+  late final GeneratedColumn<int> saveId = GeneratedColumn<int>(
+    'save_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _choiceIdMeta = const VerificationMeta(
+    'choiceId',
+  );
+  @override
+  late final GeneratedColumn<int> choiceId = GeneratedColumn<int>(
+    'choice_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, saveId, choiceId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'choice_log_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ChoiceLog> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('save_id')) {
+      context.handle(
+        _saveIdMeta,
+        saveId.isAcceptableOrUnknown(data['save_id']!, _saveIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_saveIdMeta);
+    }
+    if (data.containsKey('choice_id')) {
+      context.handle(
+        _choiceIdMeta,
+        choiceId.isAcceptableOrUnknown(data['choice_id']!, _choiceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_choiceIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ChoiceLog map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChoiceLog(
+      id:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}id'],
+          )!,
+      saveId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}save_id'],
+          )!,
+      choiceId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}choice_id'],
+          )!,
+    );
+  }
+
+  @override
+  $ChoiceLogTableTable createAlias(String alias) {
+    return $ChoiceLogTableTable(attachedDatabase, alias);
+  }
+}
+
+class ChoiceLog extends DataClass implements Insertable<ChoiceLog> {
+  final int id;
+  final int saveId;
+  final int choiceId;
+  const ChoiceLog({
+    required this.id,
+    required this.saveId,
+    required this.choiceId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['save_id'] = Variable<int>(saveId);
+    map['choice_id'] = Variable<int>(choiceId);
+    return map;
+  }
+
+  ChoiceLogTableCompanion toCompanion(bool nullToAbsent) {
+    return ChoiceLogTableCompanion(
+      id: Value(id),
+      saveId: Value(saveId),
+      choiceId: Value(choiceId),
+    );
+  }
+
+  factory ChoiceLog.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChoiceLog(
+      id: serializer.fromJson<int>(json['id']),
+      saveId: serializer.fromJson<int>(json['saveId']),
+      choiceId: serializer.fromJson<int>(json['choiceId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'saveId': serializer.toJson<int>(saveId),
+      'choiceId': serializer.toJson<int>(choiceId),
+    };
+  }
+
+  ChoiceLog copyWith({int? id, int? saveId, int? choiceId}) => ChoiceLog(
+    id: id ?? this.id,
+    saveId: saveId ?? this.saveId,
+    choiceId: choiceId ?? this.choiceId,
+  );
+  ChoiceLog copyWithCompanion(ChoiceLogTableCompanion data) {
+    return ChoiceLog(
+      id: data.id.present ? data.id.value : this.id,
+      saveId: data.saveId.present ? data.saveId.value : this.saveId,
+      choiceId: data.choiceId.present ? data.choiceId.value : this.choiceId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChoiceLog(')
+          ..write('id: $id, ')
+          ..write('saveId: $saveId, ')
+          ..write('choiceId: $choiceId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, saveId, choiceId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChoiceLog &&
+          other.id == this.id &&
+          other.saveId == this.saveId &&
+          other.choiceId == this.choiceId);
+}
+
+class ChoiceLogTableCompanion extends UpdateCompanion<ChoiceLog> {
+  final Value<int> id;
+  final Value<int> saveId;
+  final Value<int> choiceId;
+  const ChoiceLogTableCompanion({
+    this.id = const Value.absent(),
+    this.saveId = const Value.absent(),
+    this.choiceId = const Value.absent(),
+  });
+  ChoiceLogTableCompanion.insert({
+    this.id = const Value.absent(),
+    required int saveId,
+    required int choiceId,
+  }) : saveId = Value(saveId),
+       choiceId = Value(choiceId);
+  static Insertable<ChoiceLog> custom({
+    Expression<int>? id,
+    Expression<int>? saveId,
+    Expression<int>? choiceId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (saveId != null) 'save_id': saveId,
+      if (choiceId != null) 'choice_id': choiceId,
+    });
+  }
+
+  ChoiceLogTableCompanion copyWith({
+    Value<int>? id,
+    Value<int>? saveId,
+    Value<int>? choiceId,
+  }) {
+    return ChoiceLogTableCompanion(
+      id: id ?? this.id,
+      saveId: saveId ?? this.saveId,
+      choiceId: choiceId ?? this.choiceId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (saveId.present) {
+      map['save_id'] = Variable<int>(saveId.value);
+    }
+    if (choiceId.present) {
+      map['choice_id'] = Variable<int>(choiceId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChoiceLogTableCompanion(')
+          ..write('id: $id, ')
+          ..write('saveId: $saveId, ')
+          ..write('choiceId: $choiceId')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ChoiceLogSelectTableTable extends ChoiceLogSelectTable
+    with TableInfo<$ChoiceLogSelectTableTable, ChoiceLogSelect> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChoiceLogSelectTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _choiceLogIdMeta = const VerificationMeta(
+    'choiceLogId',
+  );
+  @override
+  late final GeneratedColumn<int> choiceLogId = GeneratedColumn<int>(
+    'choice_log_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _orderMeta = const VerificationMeta('order');
+  @override
+  late final GeneratedColumn<int> order = GeneratedColumn<int>(
+    'order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, choiceLogId, order];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'choice_log_select_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ChoiceLogSelect> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('choice_log_id')) {
+      context.handle(
+        _choiceLogIdMeta,
+        choiceLogId.isAcceptableOrUnknown(
+          data['choice_log_id']!,
+          _choiceLogIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_choiceLogIdMeta);
+    }
+    if (data.containsKey('order')) {
+      context.handle(
+        _orderMeta,
+        order.isAcceptableOrUnknown(data['order']!, _orderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_orderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ChoiceLogSelect map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChoiceLogSelect(
+      id:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}id'],
+          )!,
+      choiceLogId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}choice_log_id'],
+          )!,
+      order:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}order'],
+          )!,
+    );
+  }
+
+  @override
+  $ChoiceLogSelectTableTable createAlias(String alias) {
+    return $ChoiceLogSelectTableTable(attachedDatabase, alias);
+  }
+}
+
+class ChoiceLogSelect extends DataClass implements Insertable<ChoiceLogSelect> {
+  final int id;
+  final int choiceLogId;
+  final int order;
+  const ChoiceLogSelect({
+    required this.id,
+    required this.choiceLogId,
+    required this.order,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['choice_log_id'] = Variable<int>(choiceLogId);
+    map['order'] = Variable<int>(order);
+    return map;
+  }
+
+  ChoiceLogSelectTableCompanion toCompanion(bool nullToAbsent) {
+    return ChoiceLogSelectTableCompanion(
+      id: Value(id),
+      choiceLogId: Value(choiceLogId),
+      order: Value(order),
+    );
+  }
+
+  factory ChoiceLogSelect.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChoiceLogSelect(
+      id: serializer.fromJson<int>(json['id']),
+      choiceLogId: serializer.fromJson<int>(json['choiceLogId']),
+      order: serializer.fromJson<int>(json['order']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'choiceLogId': serializer.toJson<int>(choiceLogId),
+      'order': serializer.toJson<int>(order),
+    };
+  }
+
+  ChoiceLogSelect copyWith({int? id, int? choiceLogId, int? order}) =>
+      ChoiceLogSelect(
+        id: id ?? this.id,
+        choiceLogId: choiceLogId ?? this.choiceLogId,
+        order: order ?? this.order,
+      );
+  ChoiceLogSelect copyWithCompanion(ChoiceLogSelectTableCompanion data) {
+    return ChoiceLogSelect(
+      id: data.id.present ? data.id.value : this.id,
+      choiceLogId:
+          data.choiceLogId.present ? data.choiceLogId.value : this.choiceLogId,
+      order: data.order.present ? data.order.value : this.order,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChoiceLogSelect(')
+          ..write('id: $id, ')
+          ..write('choiceLogId: $choiceLogId, ')
+          ..write('order: $order')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, choiceLogId, order);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChoiceLogSelect &&
+          other.id == this.id &&
+          other.choiceLogId == this.choiceLogId &&
+          other.order == this.order);
+}
+
+class ChoiceLogSelectTableCompanion extends UpdateCompanion<ChoiceLogSelect> {
+  final Value<int> id;
+  final Value<int> choiceLogId;
+  final Value<int> order;
+  const ChoiceLogSelectTableCompanion({
+    this.id = const Value.absent(),
+    this.choiceLogId = const Value.absent(),
+    this.order = const Value.absent(),
+  });
+  ChoiceLogSelectTableCompanion.insert({
+    this.id = const Value.absent(),
+    required int choiceLogId,
+    required int order,
+  }) : choiceLogId = Value(choiceLogId),
+       order = Value(order);
+  static Insertable<ChoiceLogSelect> custom({
+    Expression<int>? id,
+    Expression<int>? choiceLogId,
+    Expression<int>? order,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (choiceLogId != null) 'choice_log_id': choiceLogId,
+      if (order != null) 'order': order,
+    });
+  }
+
+  ChoiceLogSelectTableCompanion copyWith({
+    Value<int>? id,
+    Value<int>? choiceLogId,
+    Value<int>? order,
+  }) {
+    return ChoiceLogSelectTableCompanion(
+      id: id ?? this.id,
+      choiceLogId: choiceLogId ?? this.choiceLogId,
+      order: order ?? this.order,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (choiceLogId.present) {
+      map['choice_log_id'] = Variable<int>(choiceLogId.value);
+    }
+    if (order.present) {
+      map['order'] = Variable<int>(order.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChoiceLogSelectTableCompanion(')
+          ..write('id: $id, ')
+          ..write('choiceLogId: $choiceLogId, ')
+          ..write('order: $order')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$MyDatabase extends GeneratedDatabase {
   _$MyDatabase(QueryExecutor e) : super(e);
   $MyDatabaseManager get managers => $MyDatabaseManager(this);
   late final $StoryTableTable storyTable = $StoryTableTable(this);
   late final $SaveTableTable saveTable = $SaveTableTable(this);
   late final $ChoiseTableTable choiseTable = $ChoiseTableTable(this);
+  late final $ChoiceLogTableTable choiceLogTable = $ChoiceLogTableTable(this);
+  late final $ChoiceLogSelectTableTable choiceLogSelectTable =
+      $ChoiceLogSelectTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1089,6 +1599,8 @@ abstract class _$MyDatabase extends GeneratedDatabase {
     storyTable,
     saveTable,
     choiseTable,
+    choiceLogTable,
+    choiceLogSelectTable,
   ];
 }
 
@@ -1686,6 +2198,357 @@ typedef $$ChoiseTableTableProcessedTableManager =
       Choice,
       PrefetchHooks Function()
     >;
+typedef $$ChoiceLogTableTableCreateCompanionBuilder =
+    ChoiceLogTableCompanion Function({
+      Value<int> id,
+      required int saveId,
+      required int choiceId,
+    });
+typedef $$ChoiceLogTableTableUpdateCompanionBuilder =
+    ChoiceLogTableCompanion Function({
+      Value<int> id,
+      Value<int> saveId,
+      Value<int> choiceId,
+    });
+
+class $$ChoiceLogTableTableFilterComposer
+    extends Composer<_$MyDatabase, $ChoiceLogTableTable> {
+  $$ChoiceLogTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get saveId => $composableBuilder(
+    column: $table.saveId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get choiceId => $composableBuilder(
+    column: $table.choiceId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ChoiceLogTableTableOrderingComposer
+    extends Composer<_$MyDatabase, $ChoiceLogTableTable> {
+  $$ChoiceLogTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get saveId => $composableBuilder(
+    column: $table.saveId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get choiceId => $composableBuilder(
+    column: $table.choiceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ChoiceLogTableTableAnnotationComposer
+    extends Composer<_$MyDatabase, $ChoiceLogTableTable> {
+  $$ChoiceLogTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get saveId =>
+      $composableBuilder(column: $table.saveId, builder: (column) => column);
+
+  GeneratedColumn<int> get choiceId =>
+      $composableBuilder(column: $table.choiceId, builder: (column) => column);
+}
+
+class $$ChoiceLogTableTableTableManager
+    extends
+        RootTableManager<
+          _$MyDatabase,
+          $ChoiceLogTableTable,
+          ChoiceLog,
+          $$ChoiceLogTableTableFilterComposer,
+          $$ChoiceLogTableTableOrderingComposer,
+          $$ChoiceLogTableTableAnnotationComposer,
+          $$ChoiceLogTableTableCreateCompanionBuilder,
+          $$ChoiceLogTableTableUpdateCompanionBuilder,
+          (
+            ChoiceLog,
+            BaseReferences<_$MyDatabase, $ChoiceLogTableTable, ChoiceLog>,
+          ),
+          ChoiceLog,
+          PrefetchHooks Function()
+        > {
+  $$ChoiceLogTableTableTableManager(_$MyDatabase db, $ChoiceLogTableTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$ChoiceLogTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer:
+              () =>
+                  $$ChoiceLogTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer:
+              () => $$ChoiceLogTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> saveId = const Value.absent(),
+                Value<int> choiceId = const Value.absent(),
+              }) => ChoiceLogTableCompanion(
+                id: id,
+                saveId: saveId,
+                choiceId: choiceId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int saveId,
+                required int choiceId,
+              }) => ChoiceLogTableCompanion.insert(
+                id: id,
+                saveId: saveId,
+                choiceId: choiceId,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          BaseReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ChoiceLogTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$MyDatabase,
+      $ChoiceLogTableTable,
+      ChoiceLog,
+      $$ChoiceLogTableTableFilterComposer,
+      $$ChoiceLogTableTableOrderingComposer,
+      $$ChoiceLogTableTableAnnotationComposer,
+      $$ChoiceLogTableTableCreateCompanionBuilder,
+      $$ChoiceLogTableTableUpdateCompanionBuilder,
+      (
+        ChoiceLog,
+        BaseReferences<_$MyDatabase, $ChoiceLogTableTable, ChoiceLog>,
+      ),
+      ChoiceLog,
+      PrefetchHooks Function()
+    >;
+typedef $$ChoiceLogSelectTableTableCreateCompanionBuilder =
+    ChoiceLogSelectTableCompanion Function({
+      Value<int> id,
+      required int choiceLogId,
+      required int order,
+    });
+typedef $$ChoiceLogSelectTableTableUpdateCompanionBuilder =
+    ChoiceLogSelectTableCompanion Function({
+      Value<int> id,
+      Value<int> choiceLogId,
+      Value<int> order,
+    });
+
+class $$ChoiceLogSelectTableTableFilterComposer
+    extends Composer<_$MyDatabase, $ChoiceLogSelectTableTable> {
+  $$ChoiceLogSelectTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get choiceLogId => $composableBuilder(
+    column: $table.choiceLogId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get order => $composableBuilder(
+    column: $table.order,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ChoiceLogSelectTableTableOrderingComposer
+    extends Composer<_$MyDatabase, $ChoiceLogSelectTableTable> {
+  $$ChoiceLogSelectTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get choiceLogId => $composableBuilder(
+    column: $table.choiceLogId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get order => $composableBuilder(
+    column: $table.order,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ChoiceLogSelectTableTableAnnotationComposer
+    extends Composer<_$MyDatabase, $ChoiceLogSelectTableTable> {
+  $$ChoiceLogSelectTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get choiceLogId => $composableBuilder(
+    column: $table.choiceLogId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get order =>
+      $composableBuilder(column: $table.order, builder: (column) => column);
+}
+
+class $$ChoiceLogSelectTableTableTableManager
+    extends
+        RootTableManager<
+          _$MyDatabase,
+          $ChoiceLogSelectTableTable,
+          ChoiceLogSelect,
+          $$ChoiceLogSelectTableTableFilterComposer,
+          $$ChoiceLogSelectTableTableOrderingComposer,
+          $$ChoiceLogSelectTableTableAnnotationComposer,
+          $$ChoiceLogSelectTableTableCreateCompanionBuilder,
+          $$ChoiceLogSelectTableTableUpdateCompanionBuilder,
+          (
+            ChoiceLogSelect,
+            BaseReferences<
+              _$MyDatabase,
+              $ChoiceLogSelectTableTable,
+              ChoiceLogSelect
+            >,
+          ),
+          ChoiceLogSelect,
+          PrefetchHooks Function()
+        > {
+  $$ChoiceLogSelectTableTableTableManager(
+    _$MyDatabase db,
+    $ChoiceLogSelectTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$ChoiceLogSelectTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer:
+              () => $$ChoiceLogSelectTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer:
+              () => $$ChoiceLogSelectTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> choiceLogId = const Value.absent(),
+                Value<int> order = const Value.absent(),
+              }) => ChoiceLogSelectTableCompanion(
+                id: id,
+                choiceLogId: choiceLogId,
+                order: order,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int choiceLogId,
+                required int order,
+              }) => ChoiceLogSelectTableCompanion.insert(
+                id: id,
+                choiceLogId: choiceLogId,
+                order: order,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          BaseReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ChoiceLogSelectTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$MyDatabase,
+      $ChoiceLogSelectTableTable,
+      ChoiceLogSelect,
+      $$ChoiceLogSelectTableTableFilterComposer,
+      $$ChoiceLogSelectTableTableOrderingComposer,
+      $$ChoiceLogSelectTableTableAnnotationComposer,
+      $$ChoiceLogSelectTableTableCreateCompanionBuilder,
+      $$ChoiceLogSelectTableTableUpdateCompanionBuilder,
+      (
+        ChoiceLogSelect,
+        BaseReferences<
+          _$MyDatabase,
+          $ChoiceLogSelectTableTable,
+          ChoiceLogSelect
+        >,
+      ),
+      ChoiceLogSelect,
+      PrefetchHooks Function()
+    >;
 
 class $MyDatabaseManager {
   final _$MyDatabase _db;
@@ -1696,4 +2559,8 @@ class $MyDatabaseManager {
       $$SaveTableTableTableManager(_db, _db.saveTable);
   $$ChoiseTableTableTableManager get choiseTable =>
       $$ChoiseTableTableTableManager(_db, _db.choiseTable);
+  $$ChoiceLogTableTableTableManager get choiceLogTable =>
+      $$ChoiceLogTableTableTableManager(_db, _db.choiceLogTable);
+  $$ChoiceLogSelectTableTableTableManager get choiceLogSelectTable =>
+      $$ChoiceLogSelectTableTableTableManager(_db, _db.choiceLogSelectTable);
 }

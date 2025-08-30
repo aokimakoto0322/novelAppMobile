@@ -1,4 +1,5 @@
 import 'package:flutter_nobel_app/data/repository/choice_repository.dart';
+import 'package:flutter_nobel_app/data/repository/choicelog_repository.dart';
 import 'package:flutter_nobel_app/data/repository/story_repository.dart';
 import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/state/story_state.dart';
@@ -11,13 +12,15 @@ class StoryUsecase extends StateNotifier<StoryState> {
   final ChoiceRepository choiceRepository;
   final StoryRepository storyRepository;
   final CommonStoryApi commonStoryApi;
+  final ChoicelogRepository choicelogRepository;
 
 
   StoryUsecase({
     required this.db,
     required this.choiceRepository,
     required this.storyRepository,
-    required this.commonStoryApi
+    required this.commonStoryApi,
+    required this.choicelogRepository
   }) : super(StoryState.initial);
 
   List<Choice> get currentChoice => state.currentChoices;
@@ -94,6 +97,8 @@ class StoryUsecase extends StateNotifier<StoryState> {
   // 選択肢がクリックされたとき
   // クリックされた選択肢状態を保存し、選択肢に応じた話にジャンプする
   Future<void> tabSelect(Choice choice, List<Story> allStory) async {
+    // バックログ表示用の選択した選択肢情報を格納する
+    choicelogRepository.insertChoiceLog(choice);
     state = state.copyWith(
       selectedChoice: choice,
       isWaiting: true,

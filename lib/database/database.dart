@@ -46,7 +46,21 @@ class ChoiseTable extends Table {
   IntColumn get warpStoryId => integer()(); // 選択肢に応じた物語が終わり、通常ルートに戻る先のstory_id
 }
 
-@DriftDatabase(tables: [StoryTable, SaveTable, ChoiseTable])
+@DataClassName('ChoiceLog')
+class ChoiceLogTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get saveId => integer()();
+  IntColumn get choiceId => integer()(); // 選択した選択肢ID
+}
+
+@DataClassName('ChoiceLogSelect')
+class ChoiceLogSelectTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get choiceLogId => integer()(); // ChoiceLog.Id
+  IntColumn get order => integer()(); // 選択肢の表示順
+}
+
+@DriftDatabase(tables: [StoryTable, SaveTable, ChoiseTable, ChoiceLogTable, ChoiceLogSelectTable])
 class MyDatabase extends _$MyDatabase {
 
   MyDatabase(): super(_openConnection());
