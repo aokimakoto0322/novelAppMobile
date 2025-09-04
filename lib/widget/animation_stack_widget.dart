@@ -1,5 +1,6 @@
 import 'package:animated_stack/animated_stack.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_nobel_app/main.dart';
 import 'package:flutter_nobel_app/provider/database_provider.dart';
 import 'package:flutter_nobel_app/provider/save_provider.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
@@ -34,6 +35,7 @@ class AnimationStackWidget extends ConsumerWidget {
             width: 100,
             height: 60,
             iconData: Icons.save,
+            label: 'セーブ',
             onPressed: () {
               saveUsecase.saveStory(database, allStory[storyState.currentIndex].id);
               ScaffoldMessenger.of(context).showSnackBar(
@@ -45,7 +47,8 @@ class AnimationStackWidget extends ConsumerWidget {
           FabIconWidget(
             width: 60,
             height: 60,
-            iconData: Icons.image,
+            iconData: Icons.low_priority,
+            label: 'バックログ',
             onPressed: () {
               print('アイコンテスト画像');
             },
@@ -54,9 +57,37 @@ class AnimationStackWidget extends ConsumerWidget {
           FabIconWidget(
             width: 60,
             height: 60,
-            iconData: Icons.camera_alt,
+            label: 'TOP',
+            iconData: Icons.home,
             onPressed: () {
-              print('アイコンテストカメラ');
+              showDialog<bool>(
+                context: context,
+                builder: (dialogContext) => AlertDialog(
+                  title: const Text('確認'),
+                  content: const Text('セーブしてホーム画面に戻りますか？'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyHomePage()),
+                        (Route<dynamic> route) => false,
+                      ),
+                      child: const Text('セーブしないで戻る'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        saveUsecase.saveStory(database, allStory[storyState.currentIndex].id);
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyHomePage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
             },
           ),
         ],

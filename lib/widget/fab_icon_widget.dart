@@ -4,6 +4,7 @@ class FabIconWidget extends StatelessWidget {
   final double width;
   final double height;
   final IconData iconData;
+  final String label;
   final VoidCallback onPressed;
 
   const FabIconWidget({
@@ -11,6 +12,7 @@ class FabIconWidget extends StatelessWidget {
     required this.width,
     required this.height,
     required this.iconData,
+    required this.label,
     required this.onPressed
   });
 
@@ -25,9 +27,21 @@ class FabIconWidget extends StatelessWidget {
           color: Color(0xff645478),
           borderRadius: BorderRadius.circular(15),
         ),
-        child: Icon(
-          iconData,
-          color: Color(0xffAEA6B6),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              iconData,
+              color: Color(0xffAEA6B6),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                color: Color(0xffAEA6B6),
+                fontSize: 10,
+              ),
+            )
+          ],
         ),
       ),
     );

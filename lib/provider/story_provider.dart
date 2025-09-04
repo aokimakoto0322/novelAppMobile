@@ -12,13 +12,13 @@ final storyUsecaseProvider = StateNotifierProvider<StoryUsecase, StoryState>((re
   final choiceRepository = ref.watch(choiceRepositoryProvider);
   final storyRepository = ref.watch(storyRepositoryProvider);
   final storyApi = ref.watch(commonStoryApiProvider);
-  final choiceLogRepository = ref.watch(choiceLogRepositoryProvider);
+  final choiceLogUseCase = ref.watch(choiceLogUsecaseProvider);
 
   return StoryUsecase(
     db: db,
     choiceRepository: choiceRepository,
     storyRepository: storyRepository,
     commonStoryApi: storyApi,
-    choicelogRepository: choiceLogRepository
+    choicelogUsecase: choiceLogUseCase
   );
 });

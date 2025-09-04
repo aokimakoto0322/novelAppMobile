@@ -45,7 +45,7 @@ class StoryState {
     currentChoices: [],
     isChoice: false,
     isWaiting: false,
-    selectedChoice: Choice(id: 0, storyId: 0, word: '', nextStoryId: 0, returnStoryId: 0, warpStoryId: 0),
+    selectedChoice: Choice(id: 0, storyId: 0, word: '', choiceGroup: 0, nextStoryId: 0, returnStoryId: 0, warpStoryId: 0),
     allStory: []
   );
 }

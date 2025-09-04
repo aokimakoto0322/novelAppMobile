@@ -21,7 +21,7 @@ class ChoicelogRepository {
       await db.into(db.choiceLogSelectTable).insert(
         ChoiceLogSelectTableCompanion(
           choiceLogId: Value(choiceLogId),
-          order: const Value(0)
+          order: Value(choice.choiceGroup)
         )
       );
 
@@ -29,4 +29,10 @@ class ChoicelogRepository {
       print('選択肢ログID: $choiceLogId');
     });
   }
+
+  Future<void> deleteChoicelog() async {
+    await db.customStatement('DELETE FROM choice_log_table WHERE save_id IS NULL');
+    print('削除完了');
+  }
+
 }

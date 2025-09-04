@@ -41,6 +41,7 @@ class ChoiseTable extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get storyId => integer()(); // 選択肢を表示するstory_id
   TextColumn get word => text()();
+  IntColumn get choiceGroup => integer()(); // 選択肢グループ
   IntColumn get nextStoryId => integer()(); // 選択した場合に表示を開始するstory_id
   IntColumn get returnStoryId => integer()(); // 選択した場合に表示を終了するstory_id
   IntColumn get warpStoryId => integer()(); // 選択肢に応じた物語が終わり、通常ルートに戻る先のstory_id
@@ -49,14 +50,14 @@ class ChoiseTable extends Table {
 @DataClassName('ChoiceLog')
 class ChoiceLogTable extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get saveId => integer()();
+  IntColumn get saveId => integer().nullable()();
   IntColumn get choiceId => integer()(); // 選択した選択肢ID
 }
 
 @DataClassName('ChoiceLogSelect')
 class ChoiceLogSelectTable extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get choiceLogId => integer()(); // ChoiceLog.Id
+  IntColumn get choiceLogId => integer().customConstraint('REFERENCES choice_log_table(id) ON DELETE CASCADE NOT NULL')(); // ChoiceLog.Id
   IntColumn get order => integer()(); // 選択肢の表示順
 }
 
@@ -115,12 +116,12 @@ Future<void> _initChoiceDataInsert(MyDatabase db) async {
   await db.into(db.choiseTable).insert(
     // index - 1なので、選択肢を出したいStoryId - 1にすること（例StoryId35で選択肢を出したい場合、34と入力）
     // nextStoryIdも同様
-    ChoiseTableCompanion.insert(storyId: 34, word: 'ヒロインAを選ぶ', nextStoryId: 35, returnStoryId: 57, warpStoryId: 1)
+    ChoiseTableCompanion.insert(storyId: 34, word: 'ヒロインAを選ぶ', choiceGroup: 1, nextStoryId: 35, returnStoryId: 57, warpStoryId: 1)
   );
 
   // 選択肢B // 最後の場合retunStoryId - 1に設定
   await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 34, word: 'ヒロインBを選ぶ', nextStoryId: 57, returnStoryId: 84, warpStoryId: 1)
+    ChoiseTableCompanion.insert(storyId: 34, word: 'ヒロインBを選ぶ', choiceGroup: 1, nextStoryId: 57, returnStoryId: 84, warpStoryId: 1)
   );
 
   print('初期データ挿入完了');

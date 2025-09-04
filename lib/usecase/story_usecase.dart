@@ -1,9 +1,9 @@
 import 'package:flutter_nobel_app/data/repository/choice_repository.dart';
-import 'package:flutter_nobel_app/data/repository/choicelog_repository.dart';
 import 'package:flutter_nobel_app/data/repository/story_repository.dart';
 import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/state/story_state.dart';
 import 'package:flutter_nobel_app/usecase/admob_usecase.dart';
+import 'package:flutter_nobel_app/usecase/choicelog_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/sources/story_api.dart';
 
@@ -12,7 +12,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
   final ChoiceRepository choiceRepository;
   final StoryRepository storyRepository;
   final CommonStoryApi commonStoryApi;
-  final ChoicelogRepository choicelogRepository;
+  final ChoicelogUsecase choicelogUsecase;
 
 
   StoryUsecase({
@@ -20,7 +20,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
     required this.choiceRepository,
     required this.storyRepository,
     required this.commonStoryApi,
-    required this.choicelogRepository
+    required this.choicelogUsecase
   }) : super(StoryState.initial);
 
   List<Choice> get currentChoice => state.currentChoices;
@@ -49,7 +49,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
       currentChoices: [],
       isChoice: false,
       isWaiting: false,
-      selectedChoice: Choice(id: 0, storyId: 0, word: '', nextStoryId: 0, returnStoryId: 0, warpStoryId: 0),
+      selectedChoice: Choice(id: 0, storyId: 0, word: '', choiceGroup: 0, nextStoryId: 0, returnStoryId: 0, warpStoryId: 0),
     );
   }
 
@@ -65,6 +65,9 @@ class StoryUsecase extends StateNotifier<StoryState> {
     final choice = await choiceRepository.fetchChoiceList();
     final isChoice = choice.where((c) => c.storyId == index).length > 1; // StoryIdで選択肢を検索し、行が取得できたら選択肢がある
     final allStory = state.allStory;
+
+    // セーブデータと紐づいていない選択肢選択情報を削除
+    choicelogUsecase.deleteChoicelog();
     
     // riverPodで画面に通知
     state = state.copyWith(
@@ -98,7 +101,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
   // クリックされた選択肢状態を保存し、選択肢に応じた話にジャンプする
   Future<void> tabSelect(Choice choice, List<Story> allStory) async {
     // バックログ表示用の選択した選択肢情報を格納する
-    choicelogRepository.insertChoiceLog(choice);
+    choicelogUsecase.insertChoiceLog(choice);
     state = state.copyWith(
       selectedChoice: choice,
       isWaiting: true,
