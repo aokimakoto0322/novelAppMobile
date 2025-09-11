@@ -17,4 +17,14 @@ class ChoicelogUsecase {
   Future<void> deleteChoicelog() async {
     await choiceLogRepository.deleteChoicelog();
   }
+
+  // バックログをリストで生成して返却する
+  Future<List<Story>> getBacklog(List<Story> allStory, int index) async {
+    //indexがallStoryからはみ出ないようにする、また、現在画面に表示されている文言もバックログに含める
+    final safeIndex = index.clamp(0, allStory.length) + 1;
+    final result = allStory.sublist(0, safeIndex);
+
+    print(allStory);
+    return result;
+  }
 }

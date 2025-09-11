@@ -73,6 +73,21 @@ class $StoryTableTable extends StoryTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isChoiceMeta = const VerificationMeta(
+    'isChoice',
+  );
+  @override
+  late final GeneratedColumn<bool> isChoice = GeneratedColumn<bool>(
+    'is_choice',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_choice" IN (0, 1))',
+    ),
+    defaultValue: Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -81,6 +96,7 @@ class $StoryTableTable extends StoryTable
     speaker,
     description,
     imageName,
+    isChoice,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -140,6 +156,12 @@ class $StoryTableTable extends StoryTable
     } else if (isInserting) {
       context.missing(_imageNameMeta);
     }
+    if (data.containsKey('is_choice')) {
+      context.handle(
+        _isChoiceMeta,
+        isChoice.isAcceptableOrUnknown(data['is_choice']!, _isChoiceMeta),
+      );
+    }
     return context;
   }
 
@@ -179,6 +201,11 @@ class $StoryTableTable extends StoryTable
             DriftSqlType.string,
             data['${effectivePrefix}image_name'],
           )!,
+      isChoice:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}is_choice'],
+          )!,
     );
   }
 
@@ -195,6 +222,7 @@ class Story extends DataClass implements Insertable<Story> {
   final String speaker;
   final String description;
   final String imageName;
+  final bool isChoice;
   const Story({
     required this.id,
     required this.sortId,
@@ -202,6 +230,7 @@ class Story extends DataClass implements Insertable<Story> {
     required this.speaker,
     required this.description,
     required this.imageName,
+    required this.isChoice,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -212,6 +241,7 @@ class Story extends DataClass implements Insertable<Story> {
     map['speaker'] = Variable<String>(speaker);
     map['description'] = Variable<String>(description);
     map['image_name'] = Variable<String>(imageName);
+    map['is_choice'] = Variable<bool>(isChoice);
     return map;
   }
 
@@ -223,6 +253,7 @@ class Story extends DataClass implements Insertable<Story> {
       speaker: Value(speaker),
       description: Value(description),
       imageName: Value(imageName),
+      isChoice: Value(isChoice),
     );
   }
 
@@ -238,6 +269,7 @@ class Story extends DataClass implements Insertable<Story> {
       speaker: serializer.fromJson<String>(json['speaker']),
       description: serializer.fromJson<String>(json['description']),
       imageName: serializer.fromJson<String>(json['image_name']),
+      isChoice: serializer.fromJson<bool>(json['is_choice'] == "TRUE"),
     );
   }
   @override
@@ -250,6 +282,7 @@ class Story extends DataClass implements Insertable<Story> {
       'speaker': serializer.toJson<String>(speaker),
       'description': serializer.toJson<String>(description),
       'image_name': serializer.toJson<String>(imageName),
+      'is_choice': serializer.toJson<bool>(isChoice),
     };
   }
 
@@ -260,6 +293,7 @@ class Story extends DataClass implements Insertable<Story> {
     String? speaker,
     String? description,
     String? imageName,
+    bool? isChoice,
   }) => Story(
     id: id ?? this.id,
     sortId: sortId ?? this.sortId,
@@ -267,6 +301,7 @@ class Story extends DataClass implements Insertable<Story> {
     speaker: speaker ?? this.speaker,
     description: description ?? this.description,
     imageName: imageName ?? this.imageName,
+    isChoice: isChoice ?? this.isChoice,
   );
   Story copyWithCompanion(StoryTableCompanion data) {
     return Story(
@@ -277,6 +312,7 @@ class Story extends DataClass implements Insertable<Story> {
       description:
           data.description.present ? data.description.value : this.description,
       imageName: data.imageName.present ? data.imageName.value : this.imageName,
+      isChoice: data.isChoice.present ? data.isChoice.value : this.isChoice,
     );
   }
 
@@ -288,14 +324,15 @@ class Story extends DataClass implements Insertable<Story> {
           ..write('word: $word, ')
           ..write('speaker: $speaker, ')
           ..write('description: $description, ')
-          ..write('imageName: $imageName')
+          ..write('imageName: $imageName, ')
+          ..write('isChoice: $isChoice')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode =>
-      Object.hash(id, sortId, word, speaker, description, imageName);
+      Object.hash(id, sortId, word, speaker, description, imageName, isChoice);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -305,7 +342,8 @@ class Story extends DataClass implements Insertable<Story> {
           other.word == this.word &&
           other.speaker == this.speaker &&
           other.description == this.description &&
-          other.imageName == this.imageName);
+          other.imageName == this.imageName &&
+          other.isChoice == this.isChoice);
 }
 
 class StoryTableCompanion extends UpdateCompanion<Story> {
@@ -315,6 +353,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
   final Value<String> speaker;
   final Value<String> description;
   final Value<String> imageName;
+  final Value<bool> isChoice;
   const StoryTableCompanion({
     this.id = const Value.absent(),
     this.sortId = const Value.absent(),
@@ -322,6 +361,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     this.speaker = const Value.absent(),
     this.description = const Value.absent(),
     this.imageName = const Value.absent(),
+    this.isChoice = const Value.absent(),
   });
   StoryTableCompanion.insert({
     this.id = const Value.absent(),
@@ -330,6 +370,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     required String speaker,
     required String description,
     required String imageName,
+    this.isChoice = const Value.absent(),
   }) : sortId = Value(sortId),
        word = Value(word),
        speaker = Value(speaker),
@@ -342,6 +383,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     Expression<String>? speaker,
     Expression<String>? description,
     Expression<String>? imageName,
+    Expression<bool>? isChoice,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -350,6 +392,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
       if (speaker != null) 'speaker': speaker,
       if (description != null) 'description': description,
       if (imageName != null) 'image_name': imageName,
+      if (isChoice != null) 'is_choice': isChoice,
     });
   }
 
@@ -360,6 +403,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     Value<String>? speaker,
     Value<String>? description,
     Value<String>? imageName,
+    Value<bool>? isChoice,
   }) {
     return StoryTableCompanion(
       id: id ?? this.id,
@@ -368,6 +412,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
       speaker: speaker ?? this.speaker,
       description: description ?? this.description,
       imageName: imageName ?? this.imageName,
+      isChoice: isChoice ?? this.isChoice,
     );
   }
 
@@ -392,6 +437,9 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     if (imageName.present) {
       map['image_name'] = Variable<String>(imageName.value);
     }
+    if (isChoice.present) {
+      map['is_choice'] = Variable<bool>(isChoice.value);
+    }
     return map;
   }
 
@@ -403,7 +451,8 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
           ..write('word: $word, ')
           ..write('speaker: $speaker, ')
           ..write('description: $description, ')
-          ..write('imageName: $imageName')
+          ..write('imageName: $imageName, ')
+          ..write('isChoice: $isChoice')
           ..write(')'))
         .toString();
   }
@@ -1682,6 +1731,7 @@ typedef $$StoryTableTableCreateCompanionBuilder =
       required String speaker,
       required String description,
       required String imageName,
+      Value<bool> isChoice,
     });
 typedef $$StoryTableTableUpdateCompanionBuilder =
     StoryTableCompanion Function({
@@ -1691,6 +1741,7 @@ typedef $$StoryTableTableUpdateCompanionBuilder =
       Value<String> speaker,
       Value<String> description,
       Value<String> imageName,
+      Value<bool> isChoice,
     });
 
 class $$StoryTableTableFilterComposer
@@ -1729,6 +1780,11 @@ class $$StoryTableTableFilterComposer
 
   ColumnFilters<String> get imageName => $composableBuilder(
     column: $table.imageName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isChoice => $composableBuilder(
+    column: $table.isChoice,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1771,6 +1827,11 @@ class $$StoryTableTableOrderingComposer
     column: $table.imageName,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isChoice => $composableBuilder(
+    column: $table.isChoice,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$StoryTableTableAnnotationComposer
@@ -1801,6 +1862,9 @@ class $$StoryTableTableAnnotationComposer
 
   GeneratedColumn<String> get imageName =>
       $composableBuilder(column: $table.imageName, builder: (column) => column);
+
+  GeneratedColumn<bool> get isChoice =>
+      $composableBuilder(column: $table.isChoice, builder: (column) => column);
 }
 
 class $$StoryTableTableTableManager
@@ -1837,6 +1901,7 @@ class $$StoryTableTableTableManager
                 Value<String> speaker = const Value.absent(),
                 Value<String> description = const Value.absent(),
                 Value<String> imageName = const Value.absent(),
+                Value<bool> isChoice = const Value.absent(),
               }) => StoryTableCompanion(
                 id: id,
                 sortId: sortId,
@@ -1844,6 +1909,7 @@ class $$StoryTableTableTableManager
                 speaker: speaker,
                 description: description,
                 imageName: imageName,
+                isChoice: isChoice,
               ),
           createCompanionCallback:
               ({
@@ -1853,6 +1919,7 @@ class $$StoryTableTableTableManager
                 required String speaker,
                 required String description,
                 required String imageName,
+                Value<bool> isChoice = const Value.absent(),
               }) => StoryTableCompanion.insert(
                 id: id,
                 sortId: sortId,
@@ -1860,6 +1927,7 @@ class $$StoryTableTableTableManager
                 speaker: speaker,
                 description: description,
                 imageName: imageName,
+                isChoice: isChoice,
               ),
           withReferenceMapper:
               (p0) =>

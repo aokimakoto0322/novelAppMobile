@@ -1,5 +1,6 @@
 import 'package:animated_stack/animated_stack.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_nobel_app/backlog_screen.dart';
 import 'package:flutter_nobel_app/main.dart';
 import 'package:flutter_nobel_app/provider/database_provider.dart';
 import 'package:flutter_nobel_app/provider/save_provider.dart';
@@ -50,7 +51,10 @@ class AnimationStackWidget extends ConsumerWidget {
             iconData: Icons.low_priority,
             label: 'バックログ',
             onPressed: () {
-              print('アイコンテスト画像');
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => BacklogScreen())
+              );
             },
           ),
           SizedBox(height: 20),

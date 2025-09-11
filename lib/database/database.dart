@@ -27,6 +27,9 @@ class StoryTable extends Table {
 
   @JsonKey('image_name')
   TextColumn get imageName => text()();
+
+  @JsonKey('is_choice')
+  BoolColumn get isChoice => boolean().withDefault(Constant(false))();
 }
 
 @DataClassName('Save')
