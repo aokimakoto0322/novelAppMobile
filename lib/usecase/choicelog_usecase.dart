@@ -24,7 +24,10 @@ class ChoicelogUsecase {
     final safeIndex = index.clamp(0, allStory.length) + 1;
     final result = allStory.sublist(0, safeIndex);
 
-    print(allStory);
+    // DEBUG 一旦選択肢情報のみ抽出する
+    final chosenChoices = result.where((story) => story.isChoice).toList();
+
+    print(chosenChoices);
     return result;
   }
 }

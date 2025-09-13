@@ -269,7 +269,7 @@ class Story extends DataClass implements Insertable<Story> {
       speaker: serializer.fromJson<String>(json['speaker']),
       description: serializer.fromJson<String>(json['description']),
       imageName: serializer.fromJson<String>(json['image_name']),
-      isChoice: serializer.fromJson<bool>(json['is_choice'] == "TRUE"),
+      isChoice: json['is_choice'] == true || json['is_choice'] == 1 || json['is_choice'].toString().toLowerCase() == 'true',
     );
   }
   @override
