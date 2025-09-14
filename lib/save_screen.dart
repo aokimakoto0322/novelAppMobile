@@ -27,22 +27,35 @@ class SaveScreen extends ConsumerWidget {
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return Center(child: Text("セーブデータがありません"));
             }
-
+    
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text(snapshot.data![index].word),
                   subtitle: Text(snapshot.data![index].saveDate),
+                  leading: Text(snapshot.data![index].id.toString()),
                   onTap: () {
                     // 画面遷移の前に画面状態をロードしておく
-                    usecase.initGameScreen(snapshot.data![index].storyId - 1);
+                    usecase.initGameScreen(
+                      snapshot.data![index].storyId - 1,
+                      snapshot.data![index].id
+                    );
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => GameScreen(
-                        savedIndex: snapshot.data![index].storyId - 1
-                      ))
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => GameScreen(savedIndex: snapshot.data![index].storyId - 1, saveId: snapshot.data![index].id),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        transitionDuration: Duration(milliseconds: 500),
+                        reverseTransitionDuration: Duration(milliseconds: 500),
+                        settings: RouteSettings(name: 'GameScreen'),
+                        fullscreenDialog: true
+                      )
                     );
                   },
                 );

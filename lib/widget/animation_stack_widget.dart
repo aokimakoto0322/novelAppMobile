@@ -2,6 +2,7 @@ import 'package:animated_stack/animated_stack.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_nobel_app/backlog_screen.dart';
 import 'package:flutter_nobel_app/main.dart';
+import 'package:flutter_nobel_app/provider/backlog_provider.dart';
 import 'package:flutter_nobel_app/provider/database_provider.dart';
 import 'package:flutter_nobel_app/provider/save_provider.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
@@ -17,6 +18,7 @@ class AnimationStackWidget extends ConsumerWidget {
     final database = ref.read(databaseProvider);
     final saveUsecase = ref.read(saveUsecaseProvider);
     final storyState = ref.read(storyUsecaseProvider);
+    final backlogUsecase = ref.read(backlogUsecaseProvider);
     final allStory = storyState.allStory;
 
     return AnimatedStack(
@@ -71,15 +73,22 @@ class AnimationStackWidget extends ConsumerWidget {
                   content: const Text('セーブしてホーム画面に戻りますか？'),
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => MyHomePage()),
-                        (Route<dynamic> route) => false,
-                      ),
+                      onPressed: () {
+                        Navigator.of(dialogContext).pop(); // ダイアログを閉じる
+
+                        backlogUsecase.deleteBackLog();
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyHomePage()),
+                          (Route<dynamic> route) => false,
+                        );
+                      },
                       child: const Text('セーブしないで戻る'),
                     ),
                     TextButton(
                       onPressed: () {
+                        Navigator.of(dialogContext).pop(); // ダイアログを閉じる
+                        
                         saveUsecase.saveStory(database, allStory[storyState.currentIndex].id);
                         Navigator.pushAndRemoveUntil(
                           context,

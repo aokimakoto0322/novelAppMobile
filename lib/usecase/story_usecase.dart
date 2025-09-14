@@ -3,7 +3,7 @@ import 'package:flutter_nobel_app/data/repository/story_repository.dart';
 import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/state/story_state.dart';
 import 'package:flutter_nobel_app/usecase/admob_usecase.dart';
-import 'package:flutter_nobel_app/usecase/choicelog_usecase.dart';
+import 'package:flutter_nobel_app/usecase/backlog_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/sources/story_api.dart';
 
@@ -12,7 +12,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
   final ChoiceRepository choiceRepository;
   final StoryRepository storyRepository;
   final CommonStoryApi commonStoryApi;
-  final ChoicelogUsecase choicelogUsecase;
+  final BacklogUsecase backlogUsecase;
 
 
   StoryUsecase({
@@ -20,7 +20,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
     required this.choiceRepository,
     required this.storyRepository,
     required this.commonStoryApi,
-    required this.choicelogUsecase
+    required this.backlogUsecase
   }) : super(StoryState.initial);
 
   List<Choice> get currentChoice => state.currentChoices;
@@ -50,6 +50,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
       isChoice: false,
       isWaiting: false,
       selectedChoice: Choice(id: 0, storyId: 0, word: '', choiceGroup: 0, nextStoryId: 0, returnStoryId: 0, warpStoryId: 0),
+      saveId: 0
     );
   }
 
@@ -60,21 +61,19 @@ class StoryUsecase extends StateNotifier<StoryState> {
 
   // ロードした場合、ロードしたところからスタートする
   // 新規の場合は最初からスタートする
-  Future<void> initGameScreen(int savedIndex) async {
+  Future<void> initGameScreen(int savedIndex, [int? saveId]) async {
     final index = savedIndex;
     final choice = await choiceRepository.fetchChoiceList();
     final isChoice = choice.where((c) => c.storyId == index).length > 1; // StoryIdで選択肢を検索し、行が取得できたら選択肢がある
     final allStory = state.allStory;
-
-    // セーブデータと紐づいていない選択肢選択情報を削除
-    choicelogUsecase.deleteChoicelog();
     
     // riverPodで画面に通知
     state = state.copyWith(
       currentIndex: index,
       backGroundImage: allStory[index].imageName,
       currentChoices: choice,
-      isChoice: isChoice
+      isChoice: isChoice,
+      saveId: saveId
     );
   }
 
@@ -100,14 +99,16 @@ class StoryUsecase extends StateNotifier<StoryState> {
   // 選択肢がクリックされたとき
   // クリックされた選択肢状態を保存し、選択肢に応じた話にジャンプする
   Future<void> tabSelect(Choice choice, List<Story> allStory) async {
-    // バックログ表示用の選択した選択肢情報を格納する
-    choicelogUsecase.insertChoiceLog(choice);
     state = state.copyWith(
       selectedChoice: choice,
       isWaiting: true,
       backGroundImage: allStory[choice.nextStoryId].imageName,
       isChoice: false
     );
+
+    // 選択肢情報のみを格納した後、ストーリーを格納する
+    await backlogUsecase.insertBackLogStory(null, choice);
+    await backlogUsecase.insertBackLogStory(allStory[choice.nextStoryId], null);
 
     await Future.delayed(const Duration(seconds: 4));
 
@@ -119,7 +120,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
 
 
   // 次の話に進める
-  void _advanceStory(List<Story> allStory) {
+  Future<void> _advanceStory(List<Story> allStory) async {
     var nextIndex = state.currentIndex + 1;
     var isChoice = state.currentChoices.where((c) => c.storyId == nextIndex).length > 1;
 
@@ -128,6 +129,9 @@ class StoryUsecase extends StateNotifier<StoryState> {
       backGroundImage: allStory[nextIndex].imageName,
       isChoice: isChoice,
     );
+
+    // バックログ用に話の内容をBacklogテーブルに格納する
+    await backlogUsecase.insertBackLogStory(allStory[nextIndex], null);
 
     // 選択肢に応じたストーリーを表示し、表示し終わったとき
     if (state.selectedChoice.id != 0 && nextIndex == state.selectedChoice.returnStoryId) {

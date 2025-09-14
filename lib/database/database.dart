@@ -27,9 +27,6 @@ class StoryTable extends Table {
 
   @JsonKey('image_name')
   TextColumn get imageName => text()();
-
-  @JsonKey('is_choice')
-  BoolColumn get isChoice => boolean().withDefault(Constant(false))();
 }
 
 @DataClassName('Save')
@@ -50,21 +47,16 @@ class ChoiseTable extends Table {
   IntColumn get warpStoryId => integer()(); // 選択肢に応じた物語が終わり、通常ルートに戻る先のstory_id
 }
 
-@DataClassName('ChoiceLog')
-class ChoiceLogTable extends Table {
+@DataClassName('BackLog')
+class BackLogTable extends Table {
   IntColumn get id => integer().autoIncrement()();
+  TextColumn get word => text()();
+  TextColumn get speaker => text()();
+  TextColumn get choiceWord => text()();
   IntColumn get saveId => integer().nullable()();
-  IntColumn get choiceId => integer()(); // 選択した選択肢ID
 }
 
-@DataClassName('ChoiceLogSelect')
-class ChoiceLogSelectTable extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  IntColumn get choiceLogId => integer().customConstraint('REFERENCES choice_log_table(id) ON DELETE CASCADE NOT NULL')(); // ChoiceLog.Id
-  IntColumn get order => integer()(); // 選択肢の表示順
-}
-
-@DriftDatabase(tables: [StoryTable, SaveTable, ChoiseTable, ChoiceLogTable, ChoiceLogSelectTable])
+@DriftDatabase(tables: [StoryTable, SaveTable, ChoiseTable, BackLogTable])
 class MyDatabase extends _$MyDatabase {
 
   MyDatabase(): super(_openConnection());

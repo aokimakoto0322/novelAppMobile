@@ -28,8 +28,7 @@ class StoryRepository {
             word: story.word,
             speaker: story.speaker,
             description: story.description,
-            imageName: story.imageName,
-            isChoice: Value(story.isChoice)
+            imageName: story.imageName
           ),
           onConflict: DoNothing()
         );

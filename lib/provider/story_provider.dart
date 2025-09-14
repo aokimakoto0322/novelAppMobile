@@ -1,5 +1,5 @@
+import 'package:flutter_nobel_app/provider/backlog_provider.dart';
 import 'package:flutter_nobel_app/provider/choice_provider.dart';
-import 'package:flutter_nobel_app/provider/choicelog_provider.dart';
 import 'package:flutter_nobel_app/provider/database_provider.dart';
 import 'package:flutter_nobel_app/provider/common_story_api_provider.dart';
 import 'package:flutter_nobel_app/provider/story_repository_provider.dart';
@@ -12,13 +12,13 @@ final storyUsecaseProvider = StateNotifierProvider<StoryUsecase, StoryState>((re
   final choiceRepository = ref.watch(choiceRepositoryProvider);
   final storyRepository = ref.watch(storyRepositoryProvider);
   final storyApi = ref.watch(commonStoryApiProvider);
-  final choiceLogUseCase = ref.watch(choiceLogUsecaseProvider);
+  final backlogUsecase = ref.watch(backlogUsecaseProvider);
 
   return StoryUsecase(
     db: db,
     choiceRepository: choiceRepository,
     storyRepository: storyRepository,
     commonStoryApi: storyApi,
-    choicelogUsecase: choiceLogUseCase
+    backlogUsecase: backlogUsecase
   );
 });

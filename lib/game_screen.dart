@@ -6,15 +6,16 @@ import 'package:flutter_nobel_app/widget/choose_screen_widget.dart';
 import 'package:flutter_nobel_app/widget/image_screen_widget.dart';
 import 'package:flutter_nobel_app/widget/speaker_area_widget.dart';
 import 'package:flutter_nobel_app/widget/text_area_widget.dart';
-import 'package:flutter_nobel_app/widget/will_scope_dialog_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class GameScreen extends ConsumerStatefulWidget {
   final int savedIndex;
+  final int saveId;
 
   const GameScreen({
     super.key,
-    this.savedIndex = 0
+    this.savedIndex = 0,
+    this.saveId = 0
   });
 
   @override
@@ -29,7 +30,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     admobUsecase.loadInterstitialAd();
     
     final usecase = ref.read(storyUsecaseProvider.notifier);
-    usecase.initGameScreen(widget.savedIndex);
+    usecase.initGameScreen(widget.savedIndex, widget.saveId);
 
     super.initState();
   }
@@ -41,15 +42,16 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final allStory = state.allStory;
 
 
-    return WillPopScopeDialogWidget(
+    return PopScope(
+      canPop: false,
       child: AnimationStackWidget(
         foregroundWidget: Scaffold(
           body: GestureDetector(
-            onTap: () {
-              if (!state.isChoice && !state.isWaiting) {
+            onTap: (state.isChoice || state.isWaiting)
+              ? null
+              : () {
                 usecase.showNextItem(usecase.db, allStory, admobUsecase);
-              }
-            },
+              },
             behavior: HitTestBehavior.deferToChild,
             child: Stack(
               children: <Widget>[

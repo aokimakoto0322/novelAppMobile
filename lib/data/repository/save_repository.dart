@@ -10,16 +10,19 @@ class SaveRepository {
     this.db
   );
   
-  // 進行状況をセーブ
-  Future<void> insertSaveStory(MyDatabase db, int storyId) async {
+  // 進行状況をセーブしてDBIDを返却する
+  Future<int> insertSaveStory(MyDatabase db, int storyId) async {
     DateTime now = DateTime.now();
     String formatDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-    await db.into(db.saveTable).insert(
+
+    final insertRow = await db.into(db.saveTable).insertReturning(
       SaveTableCompanion(
         storyId: Value(storyId),
         saveDate: Value(formatDate)
       )
     );
+
+    return insertRow.id;
   }
 
   // 進行状態を取得

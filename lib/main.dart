@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/game_screen.dart';
+import 'package:flutter_nobel_app/provider/backlog_provider.dart';
 import 'package:flutter_nobel_app/provider/database_provider.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_nobel_app/save_screen.dart';
@@ -75,6 +76,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final usecase = ref.read(storyUsecaseProvider.notifier);
+    final backlogUsecase = ref.read(backlogUsecaseProvider);
     
     return Scaffold(
       body: Container(
@@ -95,6 +97,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                     if (!isLoading) {
                       await Future.delayed(Duration(milliseconds: 200));
                       usecase.resetState();
+                      await backlogUsecase.deleteBackLog();
                       await usecase.setCurrentIndex(0);
                       if (!context.mounted) return;
                       Navigator.of(context).push(
@@ -121,7 +124,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                     if (!isLoading) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SaveScreen())
+                        MaterialPageRoute(
+                          builder: (context) => SaveScreen()
+                        )
                       );
                     }
                   },

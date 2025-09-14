@@ -8,6 +8,7 @@ class StoryState {
   final bool isWaiting; // ロード状態を管理
   final Choice selectedChoice; // 選択された選択肢情報を格納
   final List<Story> allStory;
+  final int saveId; // ロードされたとき、セーブ状況を格納したDBID
 
   const StoryState({
     required this.currentIndex,
@@ -16,7 +17,8 @@ class StoryState {
     required this.isChoice,
     required this.isWaiting,
     required this.selectedChoice,
-    required this.allStory
+    required this.allStory,
+    required this.saveId
   });
 
   StoryState copyWith({
@@ -26,7 +28,8 @@ class StoryState {
     bool? isChoice,
     bool? isWaiting,
     Choice? selectedChoice,
-    List<Story>? allStory
+    List<Story>? allStory,
+    int? saveId
   }) {
     return StoryState(
       currentIndex: currentIndex ?? this.currentIndex,
@@ -35,7 +38,8 @@ class StoryState {
       isChoice: isChoice ?? this.isChoice,
       isWaiting: isWaiting ?? this.isWaiting,
       selectedChoice: selectedChoice ?? this.selectedChoice,
-      allStory: allStory ?? this.allStory
+      allStory: allStory ?? this.allStory,
+      saveId: saveId ?? this.saveId
     );
   }
 
@@ -46,6 +50,7 @@ class StoryState {
     isChoice: false,
     isWaiting: false,
     selectedChoice: Choice(id: 0, storyId: 0, word: '', choiceGroup: 0, nextStoryId: 0, returnStoryId: 0, warpStoryId: 0),
-    allStory: []
+    allStory: [],
+    saveId: 0
   );
 }
