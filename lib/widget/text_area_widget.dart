@@ -25,17 +25,48 @@ class TextAreaWidget extends ConsumerWidget {
             alignment: Alignment.topLeft,
             child: storyState.isWaiting
                 ? SizedBox.shrink()
-                : AnimatedTextKit(
-                    key: ValueKey<String>(allStory[storyState.currentIndex].word),
-                    animatedTexts: [
-                      TyperAnimatedText(
-                        allStory[storyState.currentIndex].word,
-                        textStyle: const TextStyle(fontSize: 18),
-                      )
-                    ],
-                    totalRepeatCount: 1,
-                    displayFullTextOnTap: true,
-                  ),
+                : Stack(
+                  children: [
+                    // 袋文字のふち（黒）
+                    AnimatedTextKit(
+                      key: ValueKey<String>('stroke_${allStory[storyState.currentIndex].word}'),
+                      animatedTexts: [
+                        TyperAnimatedText(
+                          allStory[storyState.currentIndex].word,
+                          textStyle: TextStyle(
+                            fontFamily: 'NotoSansJP',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                            foreground: Paint()
+                              ..style = PaintingStyle.stroke
+                              ..strokeWidth = 2
+                              ..color = Colors.black
+                          ),
+                        )
+                      ],
+                      totalRepeatCount: 1,
+                      displayFullTextOnTap: true,
+                    ),
+
+                    // 袋文字の本体（白）
+                    AnimatedTextKit(
+                      key: ValueKey<String>('fill_${allStory[storyState.currentIndex].word}'),
+                      animatedTexts: [
+                        TyperAnimatedText(
+                          allStory[storyState.currentIndex].word,
+                          textStyle: TextStyle(
+                            fontFamily: 'NotoSansJP',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                            color: Colors.white
+                          ),
+                        )
+                      ],
+                      totalRepeatCount: 1,
+                      displayFullTextOnTap: true,
+                    ),
+                  ],
+                ),
           ),
         ),
       ),
