@@ -41,6 +41,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     final state = ref.watch(storyUsecaseProvider);
     final allStory = state.allStory;
 
+    // debug キャラクターをふわっと表示させるようの変数
+    bool show = state.currentIndex > 4 && state.currentIndex <= 9;
+    bool show2 = state.currentIndex > 9 && state.currentIndex <= 11;
+    bool show3 = state.currentIndex > 11 && state.currentIndex <= 13;
+
 
     return PopScope(
       canPop: false,
@@ -59,7 +64,55 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 ImageScreenWidget(
                   backgroundImage: state.backGroundImage
                 ),
-                      
+
+                // debug currentIndexが4~10くらいでキャラを出す
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: AnimatedOpacity(
+                      opacity: show ? 1.0 : 0.0,
+                      duration: Duration(seconds: 1),
+                      curve: Curves.easeInOut,
+                      child: Image.asset(
+                        'images/sample.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // debug currentIndexが4~10くらいでキャラを出す
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: AnimatedOpacity(
+                      opacity: show2 ? 1.0 : 0.0,
+                      duration: Duration(seconds: 1),
+                      curve: Curves.easeInOut,
+                      child: Image.asset(
+                        'images/sample2.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // debug currentIndexが4~10くらいでキャラを出す
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: AnimatedOpacity(
+                      opacity: show3 ? 1.0 : 0.0,
+                      duration: Duration(seconds: 1),
+                      curve: Curves.easeInOut,
+                      child: Image.asset(
+                        'images/sample3.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+                    
                 // テキストエリア
                 TextAreaWidget(),
                 
