@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_nobel_app/game_screen.dart';
 import 'package:flutter_nobel_app/provider/database_provider.dart';
 import 'package:flutter_nobel_app/provider/save_provider.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_nobel_app/views/save_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class SaveScreen extends ConsumerWidget {
   const SaveScreen({super.key});
@@ -41,22 +41,7 @@ class SaveScreen extends ConsumerWidget {
                       snapshot.data![index].storyId - 1,
                       snapshot.data![index].id
                     );
-
-                    Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) => GameScreen(savedIndex: snapshot.data![index].storyId - 1, saveId: snapshot.data![index].id),
-                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                          return FadeTransition(
-                            opacity: animation,
-                            child: child,
-                          );
-                        },
-                        transitionDuration: Duration(milliseconds: 500),
-                        reverseTransitionDuration: Duration(milliseconds: 500),
-                        settings: RouteSettings(name: 'GameScreen'),
-                        fullscreenDialog: true
-                      )
-                    );
+                    context.go('/game/${snapshot.data![index].storyId - 1}/${snapshot.data![index].id}');
                   },
                 );
               }

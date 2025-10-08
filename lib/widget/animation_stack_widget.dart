@@ -1,13 +1,12 @@
 import 'package:animated_stack/animated_stack.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_nobel_app/backlog_screen.dart';
-import 'package:flutter_nobel_app/main.dart';
 import 'package:flutter_nobel_app/provider/backlog_provider.dart';
 import 'package:flutter_nobel_app/provider/database_provider.dart';
 import 'package:flutter_nobel_app/provider/save_provider.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_nobel_app/widget/fab_icon_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class AnimationStackWidget extends ConsumerWidget {
   final Widget foregroundWidget;
@@ -53,10 +52,7 @@ class AnimationStackWidget extends ConsumerWidget {
             iconData: Icons.low_priority,
             label: 'バックログ',
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => BacklogScreen())
-              );
+              context.push('/backlog');
             },
           ),
           SizedBox(height: 20),
@@ -77,11 +73,7 @@ class AnimationStackWidget extends ConsumerWidget {
                         Navigator.of(dialogContext).pop(); // ダイアログを閉じる
 
                         backlogUsecase.deleteBackLog();
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => MyHomePage()),
-                          (Route<dynamic> route) => false,
-                        );
+                        context.go('/');
                       },
                       child: const Text('セーブしないで戻る'),
                     ),
@@ -90,11 +82,7 @@ class AnimationStackWidget extends ConsumerWidget {
                         Navigator.of(dialogContext).pop(); // ダイアログを閉じる
                         
                         saveUsecase.saveStory(database, allStory[storyState.currentIndex].id);
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => MyHomePage()),
-                          (Route<dynamic> route) => false,
-                        );
+                        context.go('/');
                       },
                       child: const Text('OK'),
                     ),

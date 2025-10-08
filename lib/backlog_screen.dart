@@ -23,6 +23,7 @@ class _BacklogScreenState extends ConsumerState<BacklogScreen> {
     final state = ref.watch(storyUsecaseProvider);
     
     return Scaffold(
+      key: ValueKey('${DateTime.now().millisecond}'), // keyを設定してGoRouterが画面情報を再利用するのを防ぐ
       body: FutureBuilder<List<BackLog>>(
         future: usecase.getBacklog(state.saveId),
         builder: (context, snapshot) {

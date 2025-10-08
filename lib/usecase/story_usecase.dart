@@ -66,6 +66,11 @@ class StoryUsecase extends StateNotifier<StoryState> {
     final choice = await choiceRepository.fetchChoiceList();
     final isChoice = choice.where((c) => c.storyId == index).length > 1; // StoryIdで選択肢を検索し、行が取得できたら選択肢がある
     final allStory = state.allStory;
+
+    if (saveId == 0) {
+      // バックログ用に話の内容をBacklogテーブルに格納する
+      await backlogUsecase.insertBackLogStory(allStory[index], null);
+    }
     
     // riverPodで画面に通知
     state = state.copyWith(
