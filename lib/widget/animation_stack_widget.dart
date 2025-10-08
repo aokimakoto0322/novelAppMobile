@@ -66,25 +66,22 @@ class AnimationStackWidget extends ConsumerWidget {
                 context: context,
                 builder: (dialogContext) => AlertDialog(
                   title: const Text('確認'),
-                  content: const Text('セーブしてホーム画面に戻りますか？'),
+                  content: const Text('ホーム画面に戻りますか？'),
                   actions: [
                     TextButton(
                       onPressed: () {
                         Navigator.of(dialogContext).pop(); // ダイアログを閉じる
-
-                        backlogUsecase.deleteBackLog();
-                        context.go('/');
                       },
-                      child: const Text('セーブしないで戻る'),
+                      child: const Text('いいえ'),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.of(dialogContext).pop(); // ダイアログを閉じる
+                        backlogUsecase.deleteBackLog();
                         
-                        saveUsecase.saveStory(database, allStory[storyState.currentIndex].id);
                         context.go('/');
                       },
-                      child: const Text('OK'),
+                      child: const Text('はい'),
                     ),
                   ],
                 ),
