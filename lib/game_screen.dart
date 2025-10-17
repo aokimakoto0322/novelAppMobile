@@ -61,8 +61,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 ),
 
                 // キャラクター表示エリア
-                if (allStory[state.currentIndex].character1 != '')
-                  CharacterWidget(character1: allStory[state.currentIndex].character1),
+                CharacterWidget(character1: allStory[state.currentIndex].character1),
                     
                 // テキストエリア
                 TextAreaWidget(),

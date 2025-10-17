@@ -14,17 +14,39 @@ class CharacterWidget extends StatefulWidget {
 
 class _CharacterWidgetState extends State<CharacterWidget> {
   double _opacity = 0;
+  String? _currentCharacter;
 
   @override
   void initState() {
     super.initState();
+    _currentCharacter = widget.character1.isNotEmpty ? widget.character1 : null;
+    _opacity = widget.character1.isNotEmpty ? 1 : 0;
+  }
 
-    // フレーム描画後にopacityを変更し、ふわっと表示させる
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        _opacity = 1;
-      });
-    });
+  @override
+  void didUpdateWidget(covariant CharacterWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.character1 != widget.character1) {
+      if (widget.character1.isNotEmpty) {
+        setState(() {
+          _currentCharacter = widget.character1;
+          _opacity = 1;
+        });
+      } else {
+        setState(() {
+          _opacity = 0;
+        });
+        // 画像を消した後に履歴も消す（アニメーション後）
+        Future.delayed(Duration(milliseconds: 500), () {
+          if (mounted) {
+            setState(() {
+              _currentCharacter = null;
+            });
+          }
+        });
+      }
+    }
   }
 
   @override
@@ -36,10 +58,12 @@ class _CharacterWidgetState extends State<CharacterWidget> {
           duration: Duration(milliseconds: 500),
           curve: Curves.easeInOut,
           opacity: _opacity,
-          child: Image.asset(
-            'images/character/${widget.character1}',
-            fit: BoxFit.contain,
-          ),
+          child: _currentCharacter != null
+              ? Image.asset(
+                  'images/character/$_currentCharacter',
+                  fit: BoxFit.contain,
+                )
+              : const SizedBox.shrink(),
         ),
       ),
     );

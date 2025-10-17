@@ -136,8 +136,6 @@ class StoryUsecase extends StateNotifier<StoryState> {
       isChoice: isChoice,
     );
 
-    print(allStory[nextIndex]);
-
     // バックログ用に話の内容をBacklogテーブルに格納する
     await backlogUsecase.insertBackLogStory(allStory[nextIndex], null);
 
