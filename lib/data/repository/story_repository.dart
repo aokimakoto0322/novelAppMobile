@@ -28,7 +28,8 @@ class StoryRepository {
             word: story.word,
             speaker: story.speaker,
             description: story.description,
-            imageName: story.imageName
+            imageName: story.imageName,
+            character1: story.character1
           ),
           onConflict: DoNothing()
         );

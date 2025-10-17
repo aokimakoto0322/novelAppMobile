@@ -73,6 +73,17 @@ class $StoryTableTable extends StoryTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _character1Meta = const VerificationMeta(
+    'character1',
+  );
+  @override
+  late final GeneratedColumn<String> character1 = GeneratedColumn<String>(
+    'character1',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -81,6 +92,7 @@ class $StoryTableTable extends StoryTable
     speaker,
     description,
     imageName,
+    character1,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -140,6 +152,14 @@ class $StoryTableTable extends StoryTable
     } else if (isInserting) {
       context.missing(_imageNameMeta);
     }
+    if (data.containsKey('character1')) {
+      context.handle(
+        _character1Meta,
+        character1.isAcceptableOrUnknown(data['character1']!, _character1Meta),
+      );
+    } else if (isInserting) {
+      context.missing(_character1Meta);
+    }
     return context;
   }
 
@@ -179,6 +199,11 @@ class $StoryTableTable extends StoryTable
             DriftSqlType.string,
             data['${effectivePrefix}image_name'],
           )!,
+      character1:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character1'],
+          )!,
     );
   }
 
@@ -195,6 +220,7 @@ class Story extends DataClass implements Insertable<Story> {
   final String speaker;
   final String description;
   final String imageName;
+  final String character1;
   const Story({
     required this.id,
     required this.sortId,
@@ -202,6 +228,7 @@ class Story extends DataClass implements Insertable<Story> {
     required this.speaker,
     required this.description,
     required this.imageName,
+    required this.character1,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -212,6 +239,7 @@ class Story extends DataClass implements Insertable<Story> {
     map['speaker'] = Variable<String>(speaker);
     map['description'] = Variable<String>(description);
     map['image_name'] = Variable<String>(imageName);
+    map['character1'] = Variable<String>(character1);
     return map;
   }
 
@@ -223,6 +251,7 @@ class Story extends DataClass implements Insertable<Story> {
       speaker: Value(speaker),
       description: Value(description),
       imageName: Value(imageName),
+      character1: Value(character1),
     );
   }
 
@@ -238,6 +267,7 @@ class Story extends DataClass implements Insertable<Story> {
       speaker: serializer.fromJson<String>(json['speaker']),
       description: serializer.fromJson<String>(json['description']),
       imageName: serializer.fromJson<String>(json['image_name']),
+      character1: serializer.fromJson<String>(json['character1']),
     );
   }
   @override
@@ -250,6 +280,7 @@ class Story extends DataClass implements Insertable<Story> {
       'speaker': serializer.toJson<String>(speaker),
       'description': serializer.toJson<String>(description),
       'image_name': serializer.toJson<String>(imageName),
+      'character1': serializer.toJson<String>(character1),
     };
   }
 
@@ -260,6 +291,7 @@ class Story extends DataClass implements Insertable<Story> {
     String? speaker,
     String? description,
     String? imageName,
+    String? character1,
   }) => Story(
     id: id ?? this.id,
     sortId: sortId ?? this.sortId,
@@ -267,6 +299,7 @@ class Story extends DataClass implements Insertable<Story> {
     speaker: speaker ?? this.speaker,
     description: description ?? this.description,
     imageName: imageName ?? this.imageName,
+    character1: character1 ?? this.character1,
   );
   Story copyWithCompanion(StoryTableCompanion data) {
     return Story(
@@ -277,6 +310,8 @@ class Story extends DataClass implements Insertable<Story> {
       description:
           data.description.present ? data.description.value : this.description,
       imageName: data.imageName.present ? data.imageName.value : this.imageName,
+      character1:
+          data.character1.present ? data.character1.value : this.character1,
     );
   }
 
@@ -288,14 +323,22 @@ class Story extends DataClass implements Insertable<Story> {
           ..write('word: $word, ')
           ..write('speaker: $speaker, ')
           ..write('description: $description, ')
-          ..write('imageName: $imageName')
+          ..write('imageName: $imageName, ')
+          ..write('character1: $character1')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, sortId, word, speaker, description, imageName);
+  int get hashCode => Object.hash(
+    id,
+    sortId,
+    word,
+    speaker,
+    description,
+    imageName,
+    character1,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -305,7 +348,8 @@ class Story extends DataClass implements Insertable<Story> {
           other.word == this.word &&
           other.speaker == this.speaker &&
           other.description == this.description &&
-          other.imageName == this.imageName);
+          other.imageName == this.imageName &&
+          other.character1 == this.character1);
 }
 
 class StoryTableCompanion extends UpdateCompanion<Story> {
@@ -315,6 +359,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
   final Value<String> speaker;
   final Value<String> description;
   final Value<String> imageName;
+  final Value<String> character1;
   const StoryTableCompanion({
     this.id = const Value.absent(),
     this.sortId = const Value.absent(),
@@ -322,6 +367,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     this.speaker = const Value.absent(),
     this.description = const Value.absent(),
     this.imageName = const Value.absent(),
+    this.character1 = const Value.absent(),
   });
   StoryTableCompanion.insert({
     this.id = const Value.absent(),
@@ -330,11 +376,13 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     required String speaker,
     required String description,
     required String imageName,
+    required String character1,
   }) : sortId = Value(sortId),
        word = Value(word),
        speaker = Value(speaker),
        description = Value(description),
-       imageName = Value(imageName);
+       imageName = Value(imageName),
+       character1 = Value(character1);
   static Insertable<Story> custom({
     Expression<int>? id,
     Expression<String>? sortId,
@@ -342,6 +390,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     Expression<String>? speaker,
     Expression<String>? description,
     Expression<String>? imageName,
+    Expression<String>? character1,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -350,6 +399,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
       if (speaker != null) 'speaker': speaker,
       if (description != null) 'description': description,
       if (imageName != null) 'image_name': imageName,
+      if (character1 != null) 'character1': character1,
     });
   }
 
@@ -360,6 +410,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     Value<String>? speaker,
     Value<String>? description,
     Value<String>? imageName,
+    Value<String>? character1,
   }) {
     return StoryTableCompanion(
       id: id ?? this.id,
@@ -368,6 +419,7 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
       speaker: speaker ?? this.speaker,
       description: description ?? this.description,
       imageName: imageName ?? this.imageName,
+      character1: character1 ?? this.character1,
     );
   }
 
@@ -392,6 +444,9 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     if (imageName.present) {
       map['image_name'] = Variable<String>(imageName.value);
     }
+    if (character1.present) {
+      map['character1'] = Variable<String>(character1.value);
+    }
     return map;
   }
 
@@ -403,7 +458,8 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
           ..write('word: $word, ')
           ..write('speaker: $speaker, ')
           ..write('description: $description, ')
-          ..write('imageName: $imageName')
+          ..write('imageName: $imageName, ')
+          ..write('character1: $character1')
           ..write(')'))
         .toString();
   }
@@ -1508,6 +1564,7 @@ typedef $$StoryTableTableCreateCompanionBuilder =
       required String speaker,
       required String description,
       required String imageName,
+      required String character1,
     });
 typedef $$StoryTableTableUpdateCompanionBuilder =
     StoryTableCompanion Function({
@@ -1517,6 +1574,7 @@ typedef $$StoryTableTableUpdateCompanionBuilder =
       Value<String> speaker,
       Value<String> description,
       Value<String> imageName,
+      Value<String> character1,
     });
 
 class $$StoryTableTableFilterComposer
@@ -1555,6 +1613,11 @@ class $$StoryTableTableFilterComposer
 
   ColumnFilters<String> get imageName => $composableBuilder(
     column: $table.imageName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get character1 => $composableBuilder(
+    column: $table.character1,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1597,6 +1660,11 @@ class $$StoryTableTableOrderingComposer
     column: $table.imageName,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get character1 => $composableBuilder(
+    column: $table.character1,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$StoryTableTableAnnotationComposer
@@ -1627,6 +1695,11 @@ class $$StoryTableTableAnnotationComposer
 
   GeneratedColumn<String> get imageName =>
       $composableBuilder(column: $table.imageName, builder: (column) => column);
+
+  GeneratedColumn<String> get character1 => $composableBuilder(
+    column: $table.character1,
+    builder: (column) => column,
+  );
 }
 
 class $$StoryTableTableTableManager
@@ -1663,6 +1736,7 @@ class $$StoryTableTableTableManager
                 Value<String> speaker = const Value.absent(),
                 Value<String> description = const Value.absent(),
                 Value<String> imageName = const Value.absent(),
+                Value<String> character1 = const Value.absent(),
               }) => StoryTableCompanion(
                 id: id,
                 sortId: sortId,
@@ -1670,6 +1744,7 @@ class $$StoryTableTableTableManager
                 speaker: speaker,
                 description: description,
                 imageName: imageName,
+                character1: character1,
               ),
           createCompanionCallback:
               ({
@@ -1679,6 +1754,7 @@ class $$StoryTableTableTableManager
                 required String speaker,
                 required String description,
                 required String imageName,
+                required String character1,
               }) => StoryTableCompanion.insert(
                 id: id,
                 sortId: sortId,
@@ -1686,6 +1762,7 @@ class $$StoryTableTableTableManager
                 speaker: speaker,
                 description: description,
                 imageName: imageName,
+                character1: character1,
               ),
           withReferenceMapper:
               (p0) =>

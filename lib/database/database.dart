@@ -27,6 +27,9 @@ class StoryTable extends Table {
 
   @JsonKey('image_name')
   TextColumn get imageName => text()();
+
+  @JsonKey('character1')
+  TextColumn get character1 => text()();
 }
 
 @DataClassName('Save')

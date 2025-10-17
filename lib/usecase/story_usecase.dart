@@ -50,7 +50,8 @@ class StoryUsecase extends StateNotifier<StoryState> {
       isChoice: false,
       isWaiting: false,
       selectedChoice: Choice(id: 0, storyId: 0, word: '', choiceGroup: 0, nextStoryId: 0, returnStoryId: 0, warpStoryId: 0),
-      saveId: 0
+      saveId: 0,
+      character1: ''
     );
   }
 
@@ -134,6 +135,8 @@ class StoryUsecase extends StateNotifier<StoryState> {
       backGroundImage: allStory[nextIndex].imageName,
       isChoice: isChoice,
     );
+
+    print(allStory[nextIndex]);
 
     // バックログ用に話の内容をBacklogテーブルに格納する
     await backlogUsecase.insertBackLogStory(allStory[nextIndex], null);
