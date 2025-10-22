@@ -28,12 +28,12 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   @override
   void initState() {
-    admobUsecase.loadInterstitialAd();
+    super.initState();
     
+    admobUsecase.loadInterstitialAd();
+
     final usecase = ref.read(storyUsecaseProvider.notifier);
     usecase.initGameScreen(widget.savedIndex, widget.saveId);
-
-    super.initState();
   }
 
   @override

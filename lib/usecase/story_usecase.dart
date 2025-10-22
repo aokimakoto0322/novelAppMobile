@@ -15,6 +15,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
   final CommonStoryApi commonStoryApi;
   final BacklogUsecase backlogUsecase;
   final AudioPlayer audioPlayer;
+  bool _isFadingOut = false;
 
 
   StoryUsecase({
@@ -76,9 +77,6 @@ class StoryUsecase extends StateNotifier<StoryState> {
       // バックログ用に話の内容をBacklogテーブルに格納する
       await backlogUsecase.insertBackLogStory(allStory[index], null);
     }
-
-    // BGM再生
-    await _playBgmIfNeeded(allStory[index].bgm);
     
     // riverPodで画面に通知
     state = state.copyWith(
@@ -86,9 +84,11 @@ class StoryUsecase extends StateNotifier<StoryState> {
       backGroundImage: allStory[index].imageName,
       currentChoices: choice,
       isChoice: isChoice,
-      saveId: saveId,
-      currentBgm: allStory[index].bgm
+      saveId: saveId
     );
+
+    // BGM再生
+    await _playBgmIfNeeded(allStory[index].bgm);
   }
 
   // ゲーム画面クリック時の業務処理
@@ -107,8 +107,9 @@ class StoryUsecase extends StateNotifier<StoryState> {
     // 話の終わりを判定
     if (state.currentIndex + 1 >= allStory.length) return;
 
-    _advanceStory(allStory);
-    _playBgmIfNeeded(allStory[state.currentIndex].bgm);
+    await _advanceStory(allStory);
+    // BGM再生
+    await _playBgmIfNeeded(allStory[state.currentIndex].bgm);
   }
 
   // 選択肢がクリックされたとき
@@ -131,6 +132,9 @@ class StoryUsecase extends StateNotifier<StoryState> {
       currentIndex: choice.nextStoryId,
       isWaiting: false
     );
+
+    // 選択肢を選択後、すぐにBGM指定があった場合は再生
+    await _playBgmIfNeeded(allStory[choice.nextStoryId].bgm);
   }
 
 
@@ -165,20 +169,30 @@ class StoryUsecase extends StateNotifier<StoryState> {
 
   // BGMを流す
   Future<void> _playBgmIfNeeded(String? nextBgm) async {
-    if (nextBgm == null || nextBgm.isEmpty) return;
-
     final currentBgm = state.currentBgm;
-    print('現在再生中のBGM: $currentBgm → 次のBGM: $nextBgm');
 
-    if (currentBgm == nextBgm) return; // 同じBGMなら何もしない
+    print('現在再生中：${currentBgm}, 次の再生：$nextBgm');
+
+    if (nextBgm == null || nextBgm.isEmpty) {
+      // BGMを停止する処理
+      try {
+        await fadeOut(audioPlayer); // フェードアウト
+        await audioPlayer.stop();
+        state = state.copyWith(currentBgm: null); // 状態を更新
+      } catch (e) {
+        print('BGM停止エラー: $e');
+      }
+      return;
+    }
+
+    if (currentBgm == nextBgm && audioPlayer.playing) return; // 同じBGMなら何もしない
 
     try {
-      await fadeOut(audioPlayer); // フェードアウト
       await audioPlayer.stop();
-      await audioPlayer.setAsset('bgm/$nextBgm.mp3');
+      await audioPlayer.setAsset('bgm/$nextBgm');
       await audioPlayer.setLoopMode(LoopMode.one);
+      await audioPlayer.setVolume(1.0);
       await audioPlayer.play();
-      await fadeIn(audioPlayer); // フェードイン
 
       // BGMが正常に切り替わったら状態を更新
       state = state.copyWith(currentBgm: nextBgm);
@@ -199,6 +213,9 @@ class StoryUsecase extends StateNotifier<StoryState> {
   }
 
   Future<void> fadeOut(AudioPlayer player, {Duration duration = const Duration(seconds: 1)}) async {
+    if (_isFadingOut) return; // すでにフェードアウト中なら処理をスキップ
+    _isFadingOut = true;
+
     const steps = 10;
     final interval = duration ~/ steps;
 
@@ -207,5 +224,8 @@ class StoryUsecase extends StateNotifier<StoryState> {
       await player.setVolume(volume);
       await Future.delayed(interval);
     }
+
+    // フェードアウトが終わったら終わったことを知らせる
+    _isFadingOut = false;
   }
 }
