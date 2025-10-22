@@ -6,6 +6,7 @@ import 'package:flutter_nobel_app/provider/story_repository_provider.dart';
 import 'package:flutter_nobel_app/state/story_state.dart';
 import 'package:flutter_nobel_app/usecase/story_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio/just_audio.dart';
 
 final storyUsecaseProvider = StateNotifierProvider<StoryUsecase, StoryState>((ref) {
   final db = ref.watch(databaseProvider);
@@ -14,11 +15,14 @@ final storyUsecaseProvider = StateNotifierProvider<StoryUsecase, StoryState>((re
   final storyApi = ref.watch(commonStoryApiProvider);
   final backlogUsecase = ref.watch(backlogUsecaseProvider);
 
+  final audioPlayer = AudioPlayer();
+
   return StoryUsecase(
     db: db,
     choiceRepository: choiceRepository,
     storyRepository: storyRepository,
     commonStoryApi: storyApi,
-    backlogUsecase: backlogUsecase
+    backlogUsecase: backlogUsecase,
+    audioPlayer: audioPlayer
   );
 });

@@ -5,6 +5,7 @@ import 'package:flutter_nobel_app/state/story_state.dart';
 import 'package:flutter_nobel_app/usecase/admob_usecase.dart';
 import 'package:flutter_nobel_app/usecase/backlog_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio/just_audio.dart';
 import '../data/sources/story_api.dart';
 
 class StoryUsecase extends StateNotifier<StoryState> {
@@ -13,6 +14,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
   final StoryRepository storyRepository;
   final CommonStoryApi commonStoryApi;
   final BacklogUsecase backlogUsecase;
+  final AudioPlayer audioPlayer;
 
 
   StoryUsecase({
@@ -20,7 +22,8 @@ class StoryUsecase extends StateNotifier<StoryState> {
     required this.choiceRepository,
     required this.storyRepository,
     required this.commonStoryApi,
-    required this.backlogUsecase
+    required this.backlogUsecase,
+    required this.audioPlayer
   }) : super(StoryState.initial);
 
   List<Choice> get currentChoice => state.currentChoices;
@@ -50,7 +53,9 @@ class StoryUsecase extends StateNotifier<StoryState> {
       isChoice: false,
       isWaiting: false,
       selectedChoice: Choice(id: 0, storyId: 0, word: '', choiceGroup: 0, nextStoryId: 0, returnStoryId: 0, warpStoryId: 0),
-      saveId: 0
+      saveId: 0,
+      character1: '',
+      currentBgm: ''
     );
   }
 
@@ -71,6 +76,9 @@ class StoryUsecase extends StateNotifier<StoryState> {
       // バックログ用に話の内容をBacklogテーブルに格納する
       await backlogUsecase.insertBackLogStory(allStory[index], null);
     }
+
+    // BGM再生
+    await _playBgmIfNeeded("rainy");
     
     // riverPodで画面に通知
     state = state.copyWith(
@@ -78,7 +86,8 @@ class StoryUsecase extends StateNotifier<StoryState> {
       backGroundImage: allStory[index].imageName,
       currentChoices: choice,
       isChoice: isChoice,
-      saveId: saveId
+      saveId: saveId,
+      currentBgm: allStory[index].bgm
     );
   }
 
@@ -99,6 +108,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
     if (state.currentIndex + 1 >= allStory.length) return;
 
     _advanceStory(allStory);
+    _playBgmIfNeeded(allStory[state.currentIndex].bgm);
   }
 
   // 選択肢がクリックされたとき
@@ -133,6 +143,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
       currentIndex: nextIndex,
       backGroundImage: allStory[nextIndex].imageName,
       isChoice: isChoice,
+      currentBgm: allStory[nextIndex].bgm
     );
 
     // バックログ用に話の内容をBacklogテーブルに格納する
@@ -145,9 +156,56 @@ class StoryUsecase extends StateNotifier<StoryState> {
         currentIndex: nextIndex,
         backGroundImage: allStory[nextIndex].imageName,
         selectedChoice: StoryState.initial.selectedChoice,
+        currentBgm: allStory[nextIndex].bgm
       );
     }
 
     state = newState;
+  }
+
+  // BGMを流す
+  Future<void> _playBgmIfNeeded(String? nextBgm) async {
+    if (nextBgm == null || nextBgm.isEmpty) return;
+
+    final currentBgm = state.currentBgm;
+    print('現在再生中のBGM: $currentBgm → 次のBGM: $nextBgm');
+
+    if (currentBgm == nextBgm) return; // 同じBGMなら何もしない
+
+    try {
+      await fadeOut(audioPlayer); // フェードアウト
+      await audioPlayer.stop();
+      await audioPlayer.setAsset('bgm/$nextBgm.mp3');
+      await audioPlayer.setLoopMode(LoopMode.one);
+      await audioPlayer.play();
+      await fadeIn(audioPlayer); // フェードイン
+
+      // BGMが正常に切り替わったら状態を更新
+      state = state.copyWith(currentBgm: nextBgm);
+    } catch (e) {
+      print('BGM再生エラー: $e');
+    }
+  }
+
+  Future<void> fadeIn(AudioPlayer player, {double targetVolume = 1.0, Duration duration = const Duration(seconds: 1)}) async {
+    const steps = 10;
+    final interval = duration ~/ steps;
+
+    for (int i = 0; i <= steps; i++) {
+      final volume = (i / steps) * targetVolume;
+      await player.setVolume(volume);
+      await Future.delayed(interval);
+    }
+  }
+
+  Future<void> fadeOut(AudioPlayer player, {Duration duration = const Duration(seconds: 1)}) async {
+    const steps = 10;
+    final interval = duration ~/ steps;
+
+    for (int i = steps; i >= 0; i--) {
+      final volume = i / steps;
+      await player.setVolume(volume);
+      await Future.delayed(interval);
+    }
   }
 }

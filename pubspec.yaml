@@ -48,6 +48,7 @@ dependencies:
   animated_stack: ^0.3.3
   flutter_riverpod: ^2.6.1
   go_router: ^6.5.0
+  just_audio: ^0.10.5
 
 
 dev_dependencies:
@@ -78,6 +79,7 @@ flutter:
   assets:
     - images/
     - images/character/
+    - bgm/
     - .env
   #   - images/a_dot_ham.jpeg
 
