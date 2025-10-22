@@ -78,7 +78,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
     }
 
     // BGM再生
-    await _playBgmIfNeeded("rainy");
+    await _playBgmIfNeeded(allStory[index].bgm);
     
     // riverPodで画面に通知
     state = state.copyWith(
