@@ -88,7 +88,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
     );
 
     // BGM再生
-    await _playBgmIfNeeded(allStory[index].bgm);
+    await playBgmIfNeeded(allStory[index].bgm);
   }
 
   // ゲーム画面クリック時の業務処理
@@ -109,7 +109,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
 
     await _advanceStory(allStory);
     // BGM再生
-    await _playBgmIfNeeded(allStory[state.currentIndex].bgm);
+    await playBgmIfNeeded(allStory[state.currentIndex].bgm);
   }
 
   // 選択肢がクリックされたとき
@@ -134,7 +134,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
     );
 
     // 選択肢を選択後、すぐにBGM指定があった場合は再生
-    await _playBgmIfNeeded(allStory[choice.nextStoryId].bgm);
+    await playBgmIfNeeded(allStory[choice.nextStoryId].bgm);
   }
 
 
@@ -168,7 +168,7 @@ class StoryUsecase extends StateNotifier<StoryState> {
   }
 
   // BGMを流す
-  Future<void> _playBgmIfNeeded(String? nextBgm) async {
+  Future<void> playBgmIfNeeded(String? nextBgm) async {
     final currentBgm = state.currentBgm;
 
     print('現在再生中：${currentBgm}, 次の再生：$nextBgm');
@@ -227,5 +227,9 @@ class StoryUsecase extends StateNotifier<StoryState> {
 
     // フェードアウトが終わったら終わったことを知らせる
     _isFadingOut = false;
+  }
+
+  void stopBgm() {
+    audioPlayer.stop();
   }
 }

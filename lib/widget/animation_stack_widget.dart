@@ -18,6 +18,7 @@ class AnimationStackWidget extends ConsumerWidget {
     final saveUsecase = ref.read(saveUsecaseProvider);
     final storyState = ref.read(storyUsecaseProvider);
     final backlogUsecase = ref.read(backlogUsecaseProvider);
+    final storyUsecase = ref.read(storyUsecaseProvider.notifier);
     final allStory = storyState.allStory;
 
     return AnimatedStack(
@@ -78,6 +79,7 @@ class AnimationStackWidget extends ConsumerWidget {
                       onPressed: () {
                         Navigator.of(dialogContext).pop(); // ダイアログを閉じる
                         backlogUsecase.deleteBackLog();
+                        storyUsecase.stopBgm();
                         
                         context.go('/');
                       },

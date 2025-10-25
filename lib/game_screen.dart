@@ -23,7 +23,7 @@ class GameScreen extends ConsumerStatefulWidget {
   ConsumerState<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends ConsumerState<GameScreen> {
+class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObserver {
   AdmobUsecase admobUsecase = AdmobUsecase();
 
   @override
@@ -34,6 +34,26 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     final usecase = ref.read(storyUsecaseProvider.notifier);
     usecase.initGameScreen(widget.savedIndex, widget.saveId);
+
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState appState) {
+    final usecase = ref.read(storyUsecaseProvider.notifier);
+    final state = ref.watch(storyUsecaseProvider);
+
+    if (appState == AppLifecycleState.paused || appState == AppLifecycleState.inactive) {
+      usecase.stopBgm(); // ← アプリが非アクティブになったらBGM停止
+    } else if (appState == AppLifecycleState.resumed) {
+      usecase.playBgmIfNeeded(state.allStory[state.currentIndex].bgm);
+    }
   }
 
   @override
