@@ -171,8 +171,6 @@ class StoryUsecase extends StateNotifier<StoryState> {
   Future<void> playBgmIfNeeded(String? nextBgm) async {
     final currentBgm = state.currentBgm;
 
-    print('現在再生中：${currentBgm}, 次の再生：$nextBgm');
-
     if (nextBgm == null || nextBgm.isEmpty) {
       // BGMを停止する処理
       try {

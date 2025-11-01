@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 
 class CharacterWidget extends StatefulWidget {
@@ -51,21 +52,30 @@ class _CharacterWidgetState extends State<CharacterWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: Align(
-        alignment: Alignment.center,
-        child: AnimatedOpacity(
-          duration: Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-          opacity: _opacity,
-          child: _currentCharacter != null
-              ? Image.asset(
-                  'images/character/$_currentCharacter',
-                  fit: BoxFit.contain,
-                )
-              : const SizedBox.shrink(),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned(
+          bottom: -40,
+          left: 0,
+          right: 0,
+          child: AnimatedSwitcher(
+            duration: Duration(milliseconds: 100),
+            switchInCurve: Curves.easeIn,
+            switchOutCurve: Curves.easeOut,
+              transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            child: _currentCharacter != null
+                ? Image.asset(
+                    'images/character/$_currentCharacter',
+                    key: ValueKey(_currentCharacter),
+                    fit: BoxFit.contain,
+                  )
+                : const SizedBox.shrink(),
+          ),
         ),
-      ),
+      ],
     );
   }
 }
