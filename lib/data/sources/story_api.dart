@@ -8,7 +8,7 @@ class CommonStoryApi {
   Future<List<Story>> fetchAllStory() async {
     String baseUrl = dotenv.env['FETCH_STORY_API'] ?? 'https://google.com';
     String token = dotenv.env['TOKEN'] ?? '';
-    String url = "$baseUrl?token=$token";
+    String url = "$baseUrl/story?token=$token";
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {

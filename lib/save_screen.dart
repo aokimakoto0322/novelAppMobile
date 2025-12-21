@@ -17,6 +17,14 @@ class SaveScreen extends ConsumerWidget {
 
     return MaterialApp(
       home: Scaffold(
+        appBar: AppBar(
+          title: Text("セーブデータ"),
+          leading: BackButton(
+            onPressed: () {
+              context.pop();
+            },
+          ),
+        ),
         body: FutureBuilder<List<SaveViewModel>>(
           future: saveUsecase.fetchSaveList(database),
           builder: (context, snapshot) {

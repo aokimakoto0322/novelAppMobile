@@ -4,6 +4,7 @@ import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/provider/backlog_provider.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class BacklogScreen extends ConsumerStatefulWidget {
 
@@ -24,6 +25,12 @@ class _BacklogScreenState extends ConsumerState<BacklogScreen> {
     
     return Scaffold(
       key: ValueKey('${DateTime.now().millisecond}'), // keyを設定してGoRouterが画面情報を再利用するのを防ぐ
+      appBar: AppBar(
+        title: const Text("バックログ"),
+        leading: BackButton(
+          onPressed: () => context.pop(), // ← GoRouter の戻る
+        ),
+      ),
       body: FutureBuilder<List<BackLog>>(
         future: usecase.getBacklog(state.saveId),
         builder: (context, snapshot) {
