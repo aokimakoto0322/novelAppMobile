@@ -81,8 +81,11 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
                 ),
 
                 // キャラクター表示エリア
-                CharacterWidget(character1: allStory[state.currentIndex].character1),
-                    
+                CharacterWidget(
+                  character1: allStory[state.currentIndex].character1,
+                  character1Effect: allStory[state.currentIndex].character1Effect,
+                ),
+                
                 // テキストエリア
                 TextAreaWidget(),
                 

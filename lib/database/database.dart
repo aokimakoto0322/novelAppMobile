@@ -31,6 +31,9 @@ class StoryTable extends Table {
   @JsonKey('character1')
   TextColumn get character1 => text()();
 
+  @JsonKey('character1_effect')
+  TextColumn get character1Effect => text()();
+
   @JsonKey('bgm')
   TextColumn get bgm => text()();
 }

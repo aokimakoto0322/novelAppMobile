@@ -3,10 +3,12 @@ import 'package:animations/animations.dart';
 
 class CharacterWidget extends StatefulWidget {
   final String character1;
+  final String character1Effect;
 
   const CharacterWidget({
     super.key,
     required this.character1,
+    required this.character1Effect
   });
 
   @override
@@ -79,8 +81,37 @@ class _CharacterWidgetState extends State<CharacterWidget> {
                   child: FadeTransition(opacity: secondaryAnimation, child: child),
                 );
               } else {
-                // 表示→表示（クロスフェード）
-                return FadeTransition(opacity: animation, child: child);
+                // 表示 → 表示
+                if (widget.character1Effect == "bounce") {
+                  // 跳ねる＋クロスフェード
+                  final bounceOffset = TweenSequence<Offset>([
+                    TweenSequenceItem(
+                      tween: Tween<Offset>(
+                        begin: Offset.zero,
+                        end: const Offset(0, -0.02),
+                      ).chain(CurveTween(curve: Curves.easeOut)),
+                      weight: 30,
+                    ),
+                    TweenSequenceItem(
+                      tween: Tween<Offset>(
+                        begin: const Offset(0, -0.02),
+                        end: Offset.zero,
+                      ).chain(CurveTween(curve: Curves.easeIn)),
+                      weight: 70,
+                    ),
+                  ]).animate(animation);
+
+                  return SlideTransition(
+                    position: bounceOffset,
+                    child: FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    ),
+                  );
+                } else {
+                  // クロスフェードのみ
+                  return FadeTransition(opacity: animation, child: child);
+                }
               }
             },
             child: _currentCharacter?.isNotEmpty == true
