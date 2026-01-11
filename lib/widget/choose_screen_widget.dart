@@ -11,32 +11,115 @@ class ChooseScreenWidget extends ConsumerWidget {
     final storyState = ref.watch(storyUsecaseProvider);
     final allStory = storyState.allStory;
 
+    final PageController _controller = PageController();
+
+
+    final List<String> characters = [
+      'images/character/seiso_smile.png',
+      'images/character/gal_smile.png'
+    ];
+
+    final List<String> descriptions = [
+      "キャラクター１あいうえお\nかきくけこ\nここに説明文が入ります\nここに説明文が入ります\nここに説明文が入ります",
+      "キャラクター２あいうえお\nかきくけこ\nここに説明文が入ります\nここに説明文が入ります\nここに説明文が入ります"
+    ];
+
     return AnimatedOpacity(
       opacity: storyState.isChoice ? 1.0 : 0.0,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 2000),
       child: IgnorePointer(
         ignoring: !storyState.isChoice,
         child: Container(
-          color: Colors.black.withAlpha(180),
+          color: Colors.lightGreenAccent,
           width: double.infinity,
           height: double.infinity,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ...storyUsecase.currentChoice.map((choice) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        storyUsecase.tabSelect(choice, allStory);
-                      },
-                      child: Text(choice.word)
+          child: Stack(
+            children: [
+              PageView.builder(
+                controller: _controller,
+                itemCount: characters.length,
+                itemBuilder: (context, index) {
+                  final bgColor = index == 0
+                    ? Colors.amber
+                    : Colors.lightBlueAccent;
+
+                  return Container(
+                    color: bgColor,
+                    child: Stack(
+                      children: [
+                        // キャラ表示
+                        Positioned.fill(
+                          child: Center(
+                            child: Image.asset(
+                              characters[index],
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+
+                        // 説明エリア
+                        Positioned(
+                          left: 20,
+                          bottom: 250,
+                          child: Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withAlpha(126),
+                              borderRadius: BorderRadius.circular(12)
+                            ),
+                            child: Text(
+                              descriptions[index],
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // 選択確認ボタン
+                        Positioned(
+                          right: 20,
+                          bottom: 100,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 50),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: const Text("確認"),
+                                      content: Text('このキャラクターを選択しますか？'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text("キャンセル"),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            storyUsecase.tabSelect(storyUsecase.currentChoice[index], allStory);
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text("OK"),
+                                        )
+                                      ],
+                                    );
+                                  }
+                                );
+                              },
+                              child: Text('ボタン$index'),
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                   );
-                })
-              ]
-            ),
+                },
+              ),
+            ],
           ),
         ),
       ),
