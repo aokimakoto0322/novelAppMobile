@@ -40,8 +40,8 @@ class ChooseScreenWidget extends ConsumerWidget {
                 itemCount: characters.length,
                 itemBuilder: (context, index) {
                   final bgColor = index == 0
-                    ? Colors.amber
-                    : Colors.lightBlueAccent;
+                    ? Colors.amber.withAlpha(125)
+                    : Colors.lightBlueAccent.withAlpha(125);
 
                   return Container(
                     color: bgColor,
@@ -110,7 +110,7 @@ class ChooseScreenWidget extends ConsumerWidget {
                                   }
                                 );
                               },
-                              child: Text('ボタン$index'),
+                              child: Text('このヒロインを選ぶ'),
                             ),
                           ),
                         )
@@ -119,6 +119,47 @@ class ChooseScreenWidget extends ConsumerWidget {
                   );
                 },
               ),
+
+              // ← 左ボタン
+              Positioned(
+                left: 10,
+                top: MediaQuery.of(context).size.height * 0.45,
+                child: IconButton(
+                  iconSize: 48,
+                  color: Colors.white,
+                  onPressed: () {
+                    final page = _controller.page?.round() ?? 0;
+                    if (page > 0) {
+                      _controller.previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.arrow_left),
+                ),
+              ),
+
+              // → 右ボタン
+              Positioned(
+                right: 10,
+                top: MediaQuery.of(context).size.height * 0.45,
+                child: IconButton(
+                  iconSize: 48,
+                  color: Colors.white,
+                  onPressed: () {
+                    final page = _controller.page?.round() ?? 0;
+                    if (page < characters.length - 1) {
+                      _controller.nextPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.arrow_right),
+                ),
+              ),
+
             ],
           ),
         ),
