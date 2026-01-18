@@ -116,16 +116,28 @@ LazyDatabase _openConnection() {
 Future<void> _initChoiceDataInsert(MyDatabase db) async {
   print('初期データ投入');
 
+
+  // 選択肢グループ①
   // 選択肢A
   await db.into(db.choiseTable).insert(
-    // index - 1なので、選択肢を出したいStoryId - 1にすること（例StoryId35で選択肢を出したい場合、34と入力）
+    // index - 1なので、選択肢を出したいStoryId - 1にすること（例StoryId35が終わったタイミングで選択肢を出したい場合、34と入力）
+    // returnStoryId: 選択肢に応じた内容が終わるID(IDの指定はStoryIdと同様)
     // nextStoryIdも同様
-    ChoiseTableCompanion.insert(storyId: 39, word: 'ヒロインAを選ぶ', choiceGroup: 1, nextStoryId: 40, returnStoryId: 61, warpStoryId: 1)
+    ChoiseTableCompanion.insert(storyId: 39, word: 'ヒロインAを選ぶ', choiceGroup: 1, nextStoryId: 40, returnStoryId: 62, warpStoryId: 154)
   );
 
   // 選択肢B // 最後の場合retunStoryId - 1に設定
   await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 39, word: 'ヒロインBを選ぶ', choiceGroup: 1, nextStoryId: 62, returnStoryId: 98, warpStoryId: 1)
+    ChoiseTableCompanion.insert(storyId: 39, word: 'ヒロインBを選ぶ', choiceGroup: 1, nextStoryId: 63, returnStoryId: 153, warpStoryId: 154)
+  );
+
+
+  // 選択肢グループ②
+  await db.into(db.choiseTable).insert(
+    ChoiseTableCompanion.insert(storyId: 156, word: '教室に留まる（依茉がいる）', choiceGroup: 2, nextStoryId: 157, returnStoryId: 194, warpStoryId: 1)
+  );
+  await db.into(db.choiseTable).insert(
+    ChoiseTableCompanion.insert(storyId: 156, word: '図書室に行く（美桜がいる）', choiceGroup: 2, nextStoryId: 195, returnStoryId: 216, warpStoryId: 1)
   );
 
   print('初期データ挿入完了');

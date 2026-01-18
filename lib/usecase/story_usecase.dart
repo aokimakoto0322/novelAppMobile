@@ -155,8 +155,8 @@ class StoryUsecase extends StateNotifier<StoryState> {
 
     // 選択肢に応じたストーリーを表示し、表示し終わったとき
     if (state.selectedChoice.id != 0 && nextIndex == state.selectedChoice.returnStoryId) {
-        nextIndex = state.selectedChoice.storyId + 1;
-        newState = newState.copyWith(
+      nextIndex = state.selectedChoice.warpStoryId + 1;
+      newState = newState.copyWith(
         currentIndex: nextIndex,
         backGroundImage: allStory[nextIndex].imageName,
         selectedChoice: StoryState.initial.selectedChoice,
