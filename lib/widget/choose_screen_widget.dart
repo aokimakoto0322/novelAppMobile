@@ -110,7 +110,7 @@ class ChooseScreenWidget extends ConsumerWidget {
                                   }
                                 );
                               },
-                              child: Text('このヒロインを選ぶ'),
+                              child: Text(storyUsecase.currentChoice[index].word),
                             ),
                           ),
                         )

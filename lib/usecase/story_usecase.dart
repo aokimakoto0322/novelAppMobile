@@ -143,12 +143,26 @@ class StoryUsecase extends StateNotifier<StoryState> {
     var nextIndex = state.currentIndex + 1;
     var isChoice = state.currentChoices.where((c) => c.storyId == nextIndex).length > 1;
 
-    var newState = state.copyWith(
-      currentIndex: nextIndex,
-      backGroundImage: allStory[nextIndex].imageName,
-      isChoice: isChoice,
-      currentBgm: allStory[nextIndex].bgm
-    );
+    late StoryState newState;
+
+    // 選択肢が表示されるとき
+    if (isChoice == true) {
+      newState = state.copyWith(
+        currentIndex: nextIndex,
+        backGroundImage: allStory[nextIndex].imageName,
+        isChoice: isChoice,
+        currentChoices: state.currentChoices,
+        currentBgm: allStory[nextIndex].bgm
+      );
+    } else {
+      newState = state.copyWith(
+        currentIndex: nextIndex,
+        backGroundImage: allStory[nextIndex].imageName,
+        isChoice: isChoice,
+        currentBgm: allStory[nextIndex].bgm
+      );
+    }
+    
 
     // バックログ用に話の内容をBacklogテーブルに格納する
     await backlogUsecase.insertBackLogStory(allStory[nextIndex], null);
