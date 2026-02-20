@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class TextAreaWidget extends ConsumerWidget {
   const TextAreaWidget({super.key});
@@ -33,14 +34,12 @@ class TextAreaWidget extends ConsumerWidget {
                       animatedTexts: [
                         TyperAnimatedText(
                           allStory[storyState.currentIndex].word,
-                          textStyle: TextStyle(
-                            fontFamily: 'NotoSansJP',
-                            fontWeight: FontWeight.w600,
+                          textStyle: GoogleFonts.mochiyPopOne(
                             fontSize: 18,
                             foreground: Paint()
                               ..style = PaintingStyle.stroke
                               ..strokeWidth = 2
-                              ..color = Colors.black
+                              ..color = Colors.black,
                           ),
                         )
                       ],
@@ -54,11 +53,9 @@ class TextAreaWidget extends ConsumerWidget {
                       animatedTexts: [
                         TyperAnimatedText(
                           allStory[storyState.currentIndex].word,
-                          textStyle: TextStyle(
-                            fontFamily: 'NotoSansJP',
-                            fontWeight: FontWeight.w600,
+                          textStyle: GoogleFonts.mochiyPopOne(
                             fontSize: 18,
-                            color: Colors.white
+                            color: Colors.white,
                           ),
                         )
                       ],
