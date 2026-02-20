@@ -7,25 +7,31 @@ import 'package:flutter_nobel_app/usecase/backlog_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import '../data/sources/story_api.dart';
+import 'package:flutter_nobel_app/provider/database_provider.dart';
+import 'package:flutter_nobel_app/provider/choice_provider.dart';
+import 'package:flutter_nobel_app/provider/story_repository_provider.dart';
+import 'package:flutter_nobel_app/provider/common_story_api_provider.dart';
+import 'package:flutter_nobel_app/provider/backlog_provider.dart';
 
-class StoryUsecase extends StateNotifier<StoryState> {
-  final MyDatabase db;
-  final ChoiceRepository choiceRepository;
-  final StoryRepository storyRepository;
-  final CommonStoryApi commonStoryApi;
-  final BacklogUsecase backlogUsecase;
-  final AudioPlayer audioPlayer;
+class StoryUsecase extends Notifier<StoryState> {
+  late final MyDatabase db;
+  late final ChoiceRepository choiceRepository;
+  late final StoryRepository storyRepository;
+  late final CommonStoryApi commonStoryApi;
+  late final BacklogUsecase backlogUsecase;
+  late final AudioPlayer audioPlayer;
   bool _isFadingOut = false;
 
-
-  StoryUsecase({
-    required this.db,
-    required this.choiceRepository,
-    required this.storyRepository,
-    required this.commonStoryApi,
-    required this.backlogUsecase,
-    required this.audioPlayer
-  }) : super(StoryState.initial);
+  @override
+  StoryState build() {
+    db = ref.read(databaseProvider);
+    choiceRepository = ref.read(choiceRepositoryProvider);
+    storyRepository = ref.read(storyRepositoryProvider);
+    commonStoryApi = ref.read(commonStoryApiProvider);
+    backlogUsecase = ref.read(backlogUsecaseProvider);
+    audioPlayer = AudioPlayer();
+    return StoryState.initial;
+  }
 
   List<Choice> get currentChoice => state.currentChoices;
 

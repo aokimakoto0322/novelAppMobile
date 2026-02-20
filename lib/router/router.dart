@@ -31,8 +31,8 @@ final _router = GoRouter(
     GoRoute(
       path: '/game/:index/:saveId',
       pageBuilder: (context, state) {
-        final index = int.parse(state.params['index']!);
-        final saveId = int.parse(state.params['saveId']!);
+        final index = int.parse(state.pathParameters['index']!);
+        final saveId = int.parse(state.pathParameters['saveId']!);
 
         return CustomTransitionPage(
           child: GameScreen(savedIndex: index, saveId: saveId),
