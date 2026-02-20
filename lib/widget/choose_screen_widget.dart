@@ -11,6 +11,12 @@ class ChooseScreenWidget extends ConsumerWidget {
     final storyState = ref.watch(storyUsecaseProvider);
     final allStory = storyState.allStory;
 
+    // ① isChoice が false のときは UI を一切作らない
+    if (!storyState.isChoice) {
+      return const SizedBox.shrink();
+    }
+
+    // ② ここから先は isChoice = true のときだけ実行される
     final PageController _controller = PageController();
 
 
