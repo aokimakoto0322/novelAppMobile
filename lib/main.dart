@@ -6,6 +6,7 @@ import 'package:flutter_nobel_app/provider/database_provider.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'router/router.dart';
 
@@ -38,6 +39,7 @@ class MyApp extends ConsumerWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        textTheme: GoogleFonts.notoSansJpTextTheme(),
       ),
       routerConfig: router,
     );
