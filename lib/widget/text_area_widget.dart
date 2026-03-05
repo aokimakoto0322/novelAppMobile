@@ -16,7 +16,7 @@ class TextAreaWidget extends ConsumerWidget {
       right: 0,
       bottom: 0,
       child: Container(
-        color: Colors.brown.withAlpha(200),
+        color: Colors.blue.withAlpha(100),
         alignment: Alignment.topLeft,
         height: 180,
         child: Container(

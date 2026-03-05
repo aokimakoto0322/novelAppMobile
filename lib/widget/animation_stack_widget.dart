@@ -30,7 +30,7 @@ class AnimationStackWidget extends ConsumerWidget {
       slideAnimationDuration: const Duration(milliseconds: 600),
       buttonAnimationDuration: const Duration(milliseconds: 600),
       backgroundColor: Colors.black,
-      fabBackgroundColor: Color(0xffEB456F),
+      fabBackgroundColor: Colors.orangeAccent,
       bottomWidget: SizedBox.shrink(),
       columnWidget: Column(
         children: [
