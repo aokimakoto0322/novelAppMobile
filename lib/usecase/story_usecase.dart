@@ -58,6 +58,7 @@ class StoryUsecase extends Notifier<StoryState> {
       backGroundImage: state.allStory[0].imageName,
       currentChoices: [],
       isChoice: false,
+      isDisplayingChoicePrompt: false,
       isWaiting: false,
       selectedChoice: Choice(id: 0, storyId: 0, word: '', choiceGroup: 0, nextStoryId: 0, returnStoryId: 0, warpStoryId: 0),
       saveId: 0,
@@ -143,6 +144,14 @@ class StoryUsecase extends Notifier<StoryState> {
     await playBgmIfNeeded(allStory[choice.nextStoryId].bgm);
   }
 
+  // 選択肢画面を表示する
+  void displayChoiceScreen() {
+    state = state.copyWith(
+      isChoice: true,
+      isDisplayingChoicePrompt: false,
+    );
+  }
+
 
   // 次の話に進める
   Future<void> _advanceStory(List<Story> allStory) async {
@@ -155,8 +164,8 @@ class StoryUsecase extends Notifier<StoryState> {
     if (isChoice == true) {
       newState = state.copyWith(
         currentIndex: nextIndex,
-        backGroundImage: allStory[nextIndex].imageName,
-        isChoice: isChoice,
+        backGroundImage: allStory[nextIndex].imageName, // 背景はここで変える
+        isDisplayingChoicePrompt: true, // 選択肢表示フラグを立てる
         currentChoices: state.currentChoices,
         currentBgm: allStory[nextIndex].bgm
       );

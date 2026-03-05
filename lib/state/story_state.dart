@@ -11,6 +11,7 @@ class StoryState {
   final int saveId; // ロードされたとき、セーブ状況を格納したDBID
   final String character1; // 画面に表示させるキャラクター
   final String currentBgm; // 現在再生しているBGMのパスを格納する変数
+  final bool isDisplayingChoicePrompt; // 選択肢表示中かどうかを管理するフラグ
 
   const StoryState({
     required this.currentIndex,
@@ -22,7 +23,8 @@ class StoryState {
     required this.allStory,
     required this.saveId,
     required this.character1,
-    required this.currentBgm
+    required this.currentBgm,
+    required this.isDisplayingChoicePrompt
   });
 
   StoryState copyWith({
@@ -35,7 +37,8 @@ class StoryState {
     List<Story>? allStory,
     int? saveId,
     String? character1,
-    String? currentBgm
+    String? currentBgm,
+    bool? isDisplayingChoicePrompt
   }) {
     return StoryState(
       currentIndex: currentIndex ?? this.currentIndex,
@@ -47,7 +50,8 @@ class StoryState {
       allStory: allStory ?? this.allStory,
       saveId: saveId ?? this.saveId,
       character1: character1 ?? this.character1,
-      currentBgm: currentBgm ?? this.currentBgm
+      currentBgm: currentBgm ?? this.currentBgm,
+      isDisplayingChoicePrompt: isDisplayingChoicePrompt ?? this.isDisplayingChoicePrompt
     );
   }
 
@@ -61,6 +65,7 @@ class StoryState {
     allStory: [],
     saveId: 0,
     character1: '',
-    currentBgm: ''
+    currentBgm: '',
+    isDisplayingChoicePrompt: false
   );
 }

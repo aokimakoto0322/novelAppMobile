@@ -67,7 +67,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
       child: AnimationStackWidget(
         foregroundWidget: Scaffold(
           body: GestureDetector(
-            onTap: (state.isChoice || state.isWaiting)
+            onTap: (state.isChoice || state.isWaiting || state.isDisplayingChoicePrompt)
               ? null
               : () {
                 usecase.showNextItem(usecase.db, allStory, admobUsecase);

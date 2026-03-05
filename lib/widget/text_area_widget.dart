@@ -8,7 +8,8 @@ class TextAreaWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final storyState = ref.read(storyUsecaseProvider);
+    final storyUsecase = ref.read(storyUsecaseProvider.notifier);
+    final storyState = ref.watch(storyUsecaseProvider);
     final allStory = storyState.allStory;
 
     return Positioned(
@@ -44,6 +45,11 @@ class TextAreaWidget extends ConsumerWidget {
                       ],
                       totalRepeatCount: 1,
                       displayFullTextOnTap: true,
+                      onTap: () {
+                        if (storyState.isDisplayingChoicePrompt) {
+                          storyUsecase.displayChoiceScreen();
+                        }
+                      },
                     ),
 
                     // 袋文字の本体（白）
@@ -60,6 +66,11 @@ class TextAreaWidget extends ConsumerWidget {
                       ],
                       totalRepeatCount: 1,
                       displayFullTextOnTap: true,
+                      onFinished: () {
+                        if (storyState.isDisplayingChoicePrompt) {
+                          storyUsecase.displayChoiceScreen();
+                        }
+                      },
                     ),
                   ],
                 ),
