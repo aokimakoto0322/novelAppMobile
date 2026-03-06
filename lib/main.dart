@@ -39,7 +39,7 @@ class MyApp extends ConsumerWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        textTheme: GoogleFonts.notoSansJpTextTheme(),
+        textTheme: GoogleFonts.kosugiMaruTextTheme(),
       ),
       routerConfig: router,
     );
