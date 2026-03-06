@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 class ChooseScreenWidget extends ConsumerStatefulWidget {
   const ChooseScreenWidget({super.key});
@@ -20,6 +21,15 @@ class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget>
       vsync: this,
       duration: const Duration(seconds: 30), // スクロール速度（秒数が多いほど遅くなります）
     )..repeat();
+
+    // 初期状態でisChoiceがtrueの場合（ロード時など）、コンテンツを表示する
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ref.read(storyUsecaseProvider).isChoice) {
+        setState(() {
+          _showContent = true;
+        });
+      }
+    });
   }
 
   @override
@@ -95,6 +105,9 @@ class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget>
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
+                            // 一番後ろに白背景を配置
+                            Container(color: Colors.white),
+
                             // 無限スクロールする背景
                             // 2つの画像をそれぞれ動かすことで、継ぎ目のない無限スクロールを実現します
                             AnimatedBuilder(
@@ -120,9 +133,12 @@ class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget>
                               child: SizedBox(
                                 width: double.infinity,
                                 height: height,
-                                child: Image.asset(
-                                  backgroundImages[index],
-                                  fit: BoxFit.cover,
+                                child: Opacity(
+                                  opacity: 0.25,
+                                  child: Image.asset(
+                                    backgroundImages[index],
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
                             ),
@@ -167,32 +183,22 @@ class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget>
                                 padding: const EdgeInsets.only(bottom: 50),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return AlertDialog(
-                                            title: const Text("確認"),
-                                            content: Text('このキャラクターを選択しますか？'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: const Text("キャンセル"),
-                                              ),
-                                              TextButton(
-                                                onPressed: () {
-                                                  storyUsecase.tabSelect(
-                                                      storyUsecase
-                                                          .currentChoice[index],
-                                                      allStory);
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: const Text("OK"),
-                                              )
-                                            ],
-                                          );
-                                        });
+                                    final choice = storyUsecase.currentChoice[index];
+                                    AwesomeDialog(
+                                      context: context,
+                                      dialogType: DialogType.success,
+                                      animType: AnimType.bottomSlide,
+                                      desc: 'このキャラクターを選択しますか？',
+                                      descTextStyle: const TextStyle(fontSize: 16),
+                                      btnCancelText: "いいえ",
+                                      btnOkText: "はい",
+                                      btnCancelOnPress: () {},
+                                      btnOkOnPress: () {
+                                        storyUsecase.tabSelect(
+                                            choice,
+                                            allStory);
+                                      },
+                                    ).show();
                                   },
                                   child: Text(
                                       storyUsecase.currentChoice.length > index
@@ -214,7 +220,7 @@ class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget>
                   top: MediaQuery.of(context).size.height * 0.45,
                   child: IconButton(
                     iconSize: 48,
-                    color: Colors.white,
+                    color: Colors.grey,
                     onPressed: () {
                       final page = _controller.page?.round() ?? 0;
                       if (page > 0) {
@@ -234,7 +240,7 @@ class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget>
                   top: MediaQuery.of(context).size.height * 0.45,
                   child: IconButton(
                     iconSize: 48,
-                    color: Colors.white,
+                    color: Colors.grey,
                     onPressed: () {
                       final page = _controller.page?.round() ?? 0;
                       if (page < characters.length - 1) {
