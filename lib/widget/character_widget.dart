@@ -45,6 +45,9 @@ class _CharacterWidgetState extends State<CharacterWidget> {
       children: [
         Positioned(
           bottom: 0,
+          // AppBarとステータスバーの領域を避けるため、上からの位置も指定します。
+          // これにより、キャラクターの上部がセーフエリア内に収まります。
+          top: MediaQuery.of(context).padding.top,
           left: 0,
           right: 0,
           child: PageTransitionSwitcher(

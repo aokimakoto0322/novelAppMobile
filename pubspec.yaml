@@ -81,6 +81,7 @@ flutter:
   assets:
     - images/
     - images/character/
+    - images/background/
     - bgm/
     - .env
   #   - images/a_dot_ham.jpeg

@@ -8,9 +8,19 @@ class ChooseScreenWidget extends ConsumerStatefulWidget {
   @override
   ConsumerState<ChooseScreenWidget> createState() => _ChooseScreenWidgetState();
 }
-
-class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget> {
+class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget>
+    with SingleTickerProviderStateMixin {
   bool _showContent = false;
+  late final AnimationController _backgroundController;
+
+  @override
+  void initState() {
+    super.initState();
+    _backgroundController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 30), // スクロール速度（秒数が多いほど遅くなります）
+    )..repeat();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +62,12 @@ class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget> {
       "キャラクター２あいうえお\nかきくけこ\nここに説明文が入ります\nここに説明文が入ります\nここに説明文が入ります"
     ];
 
+    // 動かす背景画像リスト
+    final List<String> backgroundImages = [
+      'images/background/background_book.png',
+      'images/background/background_flower.png',
+    ];
+
     // 1. isChoiceに応じて、まず黒い画面を2秒かけてフェードインさせます。
     return AnimatedOpacity(
       opacity: storyState.isChoice ? 1.0 : 0.0,
@@ -73,85 +89,122 @@ class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget> {
                   controller: _controller,
                   itemCount: characters.length,
                   itemBuilder: (context, index) {
-                    final bgColor = index == 0
-                        ? Colors.amber
-                        : Colors.lightBlueAccent;
-
-                    return Container(
-                      color: bgColor,
-                      child: Stack(
-                        children: [
-                          // キャラ表示
-                          Positioned.fill(
-                            child: Center(
-                              child: Image.asset(
-                                characters[index],
-                                fit: BoxFit.contain,
+                    return LayoutBuilder(builder: (context, constraints) {
+                      final height = constraints.maxHeight;
+                      return ClipRect(
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            // 無限スクロールする背景
+                            // 2つの画像をそれぞれ動かすことで、継ぎ目のない無限スクロールを実現します
+                            AnimatedBuilder(
+                              animation: _backgroundController,
+                              builder: (context, child) {
+                                final offset = _backgroundController.value * height;
+                                return Stack(
+                                  children: [
+                                    // 1枚目の画像
+                                    Transform.translate(
+                                      offset: Offset(0, offset),
+                                      child: child,
+                                    ),
+                                    // 2枚目の画像（1枚目の真上に配置）
+                                    Transform.translate(
+                                      offset: Offset(0, -height + offset),
+                                      child: child,
+                                    ),
+                                  ],
+                                );
+                              },
+                              // アニメーションさせる子ウィジェット（1枚の画像）
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: height,
+                                child: Image.asset(
+                                  backgroundImages[index],
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                          ),
 
-                          // 説明エリア
-                          Positioned(
-                            left: 20,
-                            bottom: 250,
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                  color: Colors.black.withAlpha(126),
-                                  borderRadius: BorderRadius.circular(12)),
-                              child: Text(
-                                descriptions[index],
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 15),
+                            // キャラ表示
+                            Positioned(
+                              // ステータスバーの領域を避けるため、上からの位置を指定します。
+                              top: MediaQuery.of(context).padding.top,
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: Image.asset(
+                                  characters[index],
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
-                          ),
 
-                          // 選択確認ボタン
-                          Positioned(
-                            right: 20,
-                            bottom: 100,
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 50),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          title: const Text("確認"),
-                                          content: Text('このキャラクターを選択しますか？'),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: const Text("キャンセル"),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                storyUsecase.tabSelect(
-                                                    storyUsecase
-                                                        .currentChoice[index],
-                                                    allStory);
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: const Text("OK"),
-                                            )
-                                          ],
-                                        );
-                                      });
-                                },
-                                child: Text(storyUsecase.currentChoice.length > index
-                                    ? storyUsecase.currentChoice[index].word
-                                    : ''),
+                            // 説明エリア
+                            Positioned(
+                              left: 20,
+                              bottom: 250,
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                    color: Colors.black.withAlpha(126),
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: Text(
+                                  descriptions[index],
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 15),
+                                ),
                               ),
                             ),
-                          )
-                        ],
-                      ),
-                    );
+
+                            // 選択確認ボタン
+                            Positioned(
+                              right: 20,
+                              bottom: 100,
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 50),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            title: const Text("確認"),
+                                            content: Text('このキャラクターを選択しますか？'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text("キャンセル"),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  storyUsecase.tabSelect(
+                                                      storyUsecase
+                                                          .currentChoice[index],
+                                                      allStory);
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text("OK"),
+                                              )
+                                            ],
+                                          );
+                                        });
+                                  },
+                                  child: Text(
+                                      storyUsecase.currentChoice.length > index
+                                          ? storyUsecase.currentChoice[index].word
+                                          : ''),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    });
                   },
                 ),
 
@@ -200,5 +253,11 @@ class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _backgroundController.dispose();
+    super.dispose();
   }
 }

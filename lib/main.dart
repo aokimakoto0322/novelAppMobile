@@ -88,7 +88,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
         body: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('images/home.jpg'),
+              image: AssetImage('images/title.png'),
               fit: BoxFit.cover
             )
           ),
