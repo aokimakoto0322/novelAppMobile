@@ -898,6 +898,17 @@ class $ChoiseTableTable extends ChoiseTable
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _saveDivMeta = const VerificationMeta(
+    'saveDiv',
+  );
+  @override
+  late final GeneratedColumn<int> saveDiv = GeneratedColumn<int>(
+    'save_div',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -907,6 +918,7 @@ class $ChoiseTableTable extends ChoiseTable
     nextStoryId,
     returnStoryId,
     warpStoryId,
+    saveDiv,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -983,6 +995,12 @@ class $ChoiseTableTable extends ChoiseTable
     } else if (isInserting) {
       context.missing(_warpStoryIdMeta);
     }
+    if (data.containsKey('save_div')) {
+      context.handle(
+        _saveDivMeta,
+        saveDiv.isAcceptableOrUnknown(data['save_div']!, _saveDivMeta),
+      );
+    }
     return context;
   }
 
@@ -1027,6 +1045,10 @@ class $ChoiseTableTable extends ChoiseTable
             DriftSqlType.int,
             data['${effectivePrefix}warp_story_id'],
           )!,
+      saveDiv: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}save_div'],
+      ),
     );
   }
 
@@ -1044,6 +1066,7 @@ class Choice extends DataClass implements Insertable<Choice> {
   final int nextStoryId;
   final int returnStoryId;
   final int warpStoryId;
+  final int? saveDiv;
   const Choice({
     required this.id,
     required this.storyId,
@@ -1052,6 +1075,7 @@ class Choice extends DataClass implements Insertable<Choice> {
     required this.nextStoryId,
     required this.returnStoryId,
     required this.warpStoryId,
+    this.saveDiv,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1063,6 +1087,9 @@ class Choice extends DataClass implements Insertable<Choice> {
     map['next_story_id'] = Variable<int>(nextStoryId);
     map['return_story_id'] = Variable<int>(returnStoryId);
     map['warp_story_id'] = Variable<int>(warpStoryId);
+    if (!nullToAbsent || saveDiv != null) {
+      map['save_div'] = Variable<int>(saveDiv);
+    }
     return map;
   }
 
@@ -1075,6 +1102,10 @@ class Choice extends DataClass implements Insertable<Choice> {
       nextStoryId: Value(nextStoryId),
       returnStoryId: Value(returnStoryId),
       warpStoryId: Value(warpStoryId),
+      saveDiv:
+          saveDiv == null && nullToAbsent
+              ? const Value.absent()
+              : Value(saveDiv),
     );
   }
 
@@ -1091,6 +1122,7 @@ class Choice extends DataClass implements Insertable<Choice> {
       nextStoryId: serializer.fromJson<int>(json['nextStoryId']),
       returnStoryId: serializer.fromJson<int>(json['returnStoryId']),
       warpStoryId: serializer.fromJson<int>(json['warpStoryId']),
+      saveDiv: serializer.fromJson<int?>(json['saveDiv']),
     );
   }
   @override
@@ -1104,6 +1136,7 @@ class Choice extends DataClass implements Insertable<Choice> {
       'nextStoryId': serializer.toJson<int>(nextStoryId),
       'returnStoryId': serializer.toJson<int>(returnStoryId),
       'warpStoryId': serializer.toJson<int>(warpStoryId),
+      'saveDiv': serializer.toJson<int?>(saveDiv),
     };
   }
 
@@ -1115,6 +1148,7 @@ class Choice extends DataClass implements Insertable<Choice> {
     int? nextStoryId,
     int? returnStoryId,
     int? warpStoryId,
+    Value<int?> saveDiv = const Value.absent(),
   }) => Choice(
     id: id ?? this.id,
     storyId: storyId ?? this.storyId,
@@ -1123,6 +1157,7 @@ class Choice extends DataClass implements Insertable<Choice> {
     nextStoryId: nextStoryId ?? this.nextStoryId,
     returnStoryId: returnStoryId ?? this.returnStoryId,
     warpStoryId: warpStoryId ?? this.warpStoryId,
+    saveDiv: saveDiv.present ? saveDiv.value : this.saveDiv,
   );
   Choice copyWithCompanion(ChoiseTableCompanion data) {
     return Choice(
@@ -1139,6 +1174,7 @@ class Choice extends DataClass implements Insertable<Choice> {
               : this.returnStoryId,
       warpStoryId:
           data.warpStoryId.present ? data.warpStoryId.value : this.warpStoryId,
+      saveDiv: data.saveDiv.present ? data.saveDiv.value : this.saveDiv,
     );
   }
 
@@ -1151,7 +1187,8 @@ class Choice extends DataClass implements Insertable<Choice> {
           ..write('choiceGroup: $choiceGroup, ')
           ..write('nextStoryId: $nextStoryId, ')
           ..write('returnStoryId: $returnStoryId, ')
-          ..write('warpStoryId: $warpStoryId')
+          ..write('warpStoryId: $warpStoryId, ')
+          ..write('saveDiv: $saveDiv')
           ..write(')'))
         .toString();
   }
@@ -1165,6 +1202,7 @@ class Choice extends DataClass implements Insertable<Choice> {
     nextStoryId,
     returnStoryId,
     warpStoryId,
+    saveDiv,
   );
   @override
   bool operator ==(Object other) =>
@@ -1176,7 +1214,8 @@ class Choice extends DataClass implements Insertable<Choice> {
           other.choiceGroup == this.choiceGroup &&
           other.nextStoryId == this.nextStoryId &&
           other.returnStoryId == this.returnStoryId &&
-          other.warpStoryId == this.warpStoryId);
+          other.warpStoryId == this.warpStoryId &&
+          other.saveDiv == this.saveDiv);
 }
 
 class ChoiseTableCompanion extends UpdateCompanion<Choice> {
@@ -1187,6 +1226,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
   final Value<int> nextStoryId;
   final Value<int> returnStoryId;
   final Value<int> warpStoryId;
+  final Value<int?> saveDiv;
   const ChoiseTableCompanion({
     this.id = const Value.absent(),
     this.storyId = const Value.absent(),
@@ -1195,6 +1235,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     this.nextStoryId = const Value.absent(),
     this.returnStoryId = const Value.absent(),
     this.warpStoryId = const Value.absent(),
+    this.saveDiv = const Value.absent(),
   });
   ChoiseTableCompanion.insert({
     this.id = const Value.absent(),
@@ -1204,6 +1245,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     required int nextStoryId,
     required int returnStoryId,
     required int warpStoryId,
+    this.saveDiv = const Value.absent(),
   }) : storyId = Value(storyId),
        word = Value(word),
        choiceGroup = Value(choiceGroup),
@@ -1218,6 +1260,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     Expression<int>? nextStoryId,
     Expression<int>? returnStoryId,
     Expression<int>? warpStoryId,
+    Expression<int>? saveDiv,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1227,6 +1270,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
       if (nextStoryId != null) 'next_story_id': nextStoryId,
       if (returnStoryId != null) 'return_story_id': returnStoryId,
       if (warpStoryId != null) 'warp_story_id': warpStoryId,
+      if (saveDiv != null) 'save_div': saveDiv,
     });
   }
 
@@ -1238,6 +1282,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     Value<int>? nextStoryId,
     Value<int>? returnStoryId,
     Value<int>? warpStoryId,
+    Value<int?>? saveDiv,
   }) {
     return ChoiseTableCompanion(
       id: id ?? this.id,
@@ -1247,6 +1292,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
       nextStoryId: nextStoryId ?? this.nextStoryId,
       returnStoryId: returnStoryId ?? this.returnStoryId,
       warpStoryId: warpStoryId ?? this.warpStoryId,
+      saveDiv: saveDiv ?? this.saveDiv,
     );
   }
 
@@ -1274,6 +1320,9 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     if (warpStoryId.present) {
       map['warp_story_id'] = Variable<int>(warpStoryId.value);
     }
+    if (saveDiv.present) {
+      map['save_div'] = Variable<int>(saveDiv.value);
+    }
     return map;
   }
 
@@ -1286,7 +1335,8 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
           ..write('choiceGroup: $choiceGroup, ')
           ..write('nextStoryId: $nextStoryId, ')
           ..write('returnStoryId: $returnStoryId, ')
-          ..write('warpStoryId: $warpStoryId')
+          ..write('warpStoryId: $warpStoryId, ')
+          ..write('saveDiv: $saveDiv')
           ..write(')'))
         .toString();
   }
@@ -2101,6 +2151,7 @@ typedef $$ChoiseTableTableCreateCompanionBuilder =
       required int nextStoryId,
       required int returnStoryId,
       required int warpStoryId,
+      Value<int?> saveDiv,
     });
 typedef $$ChoiseTableTableUpdateCompanionBuilder =
     ChoiseTableCompanion Function({
@@ -2111,6 +2162,7 @@ typedef $$ChoiseTableTableUpdateCompanionBuilder =
       Value<int> nextStoryId,
       Value<int> returnStoryId,
       Value<int> warpStoryId,
+      Value<int?> saveDiv,
     });
 
 class $$ChoiseTableTableFilterComposer
@@ -2154,6 +2206,11 @@ class $$ChoiseTableTableFilterComposer
 
   ColumnFilters<int> get warpStoryId => $composableBuilder(
     column: $table.warpStoryId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get saveDiv => $composableBuilder(
+    column: $table.saveDiv,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2201,6 +2258,11 @@ class $$ChoiseTableTableOrderingComposer
     column: $table.warpStoryId,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get saveDiv => $composableBuilder(
+    column: $table.saveDiv,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ChoiseTableTableAnnotationComposer
@@ -2240,6 +2302,9 @@ class $$ChoiseTableTableAnnotationComposer
     column: $table.warpStoryId,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get saveDiv =>
+      $composableBuilder(column: $table.saveDiv, builder: (column) => column);
 }
 
 class $$ChoiseTableTableTableManager
@@ -2278,6 +2343,7 @@ class $$ChoiseTableTableTableManager
                 Value<int> nextStoryId = const Value.absent(),
                 Value<int> returnStoryId = const Value.absent(),
                 Value<int> warpStoryId = const Value.absent(),
+                Value<int?> saveDiv = const Value.absent(),
               }) => ChoiseTableCompanion(
                 id: id,
                 storyId: storyId,
@@ -2286,6 +2352,7 @@ class $$ChoiseTableTableTableManager
                 nextStoryId: nextStoryId,
                 returnStoryId: returnStoryId,
                 warpStoryId: warpStoryId,
+                saveDiv: saveDiv,
               ),
           createCompanionCallback:
               ({
@@ -2296,6 +2363,7 @@ class $$ChoiseTableTableTableManager
                 required int nextStoryId,
                 required int returnStoryId,
                 required int warpStoryId,
+                Value<int?> saveDiv = const Value.absent(),
               }) => ChoiseTableCompanion.insert(
                 id: id,
                 storyId: storyId,
@@ -2304,6 +2372,7 @@ class $$ChoiseTableTableTableManager
                 nextStoryId: nextStoryId,
                 returnStoryId: returnStoryId,
                 warpStoryId: warpStoryId,
+                saveDiv: saveDiv,
               ),
           withReferenceMapper:
               (p0) =>

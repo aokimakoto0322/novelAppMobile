@@ -33,7 +33,7 @@ class StoryUsecase extends Notifier<StoryState> {
     return StoryState.initial;
   }
 
-  List<Choice> get currentChoice => state.currentChoices;
+  List<Choice> get currentChoice => state.allChoiceList;
 
   Future<void> getAllStory() async {
     List<Story> result = [];
@@ -56,7 +56,7 @@ class StoryUsecase extends Notifier<StoryState> {
       allStory: state.allStory,
       currentIndex: 0,
       backGroundImage: state.allStory[0].imageName,
-      currentChoices: [],
+      allChoiceList: [],
       isChoice: false,
       isDisplayingChoicePrompt: false,
       isWaiting: false,
@@ -89,7 +89,7 @@ class StoryUsecase extends Notifier<StoryState> {
     state = state.copyWith(
       currentIndex: index,
       backGroundImage: allStory[index].imageName,
-      currentChoices: choice,
+      allChoiceList: choice,
       isChoice: isChoice,
       saveId: saveId
     );
@@ -156,7 +156,7 @@ class StoryUsecase extends Notifier<StoryState> {
   // 次の話に進める
   Future<void> _advanceStory(List<Story> allStory) async {
     var nextIndex = state.currentIndex + 1;
-    var isChoice = state.currentChoices.where((c) => c.storyId == nextIndex).length > 1;
+    var isChoice = state.allChoiceList.where((c) => c.storyId == nextIndex).length > 1;
 
     late StoryState newState;
 
@@ -166,7 +166,7 @@ class StoryUsecase extends Notifier<StoryState> {
         currentIndex: nextIndex,
         backGroundImage: allStory[nextIndex].imageName, // 背景はここで変える
         isDisplayingChoicePrompt: true, // 選択肢表示フラグを立てる
-        currentChoices: state.currentChoices,
+        allChoiceList: state.allChoiceList,
         currentBgm: allStory[nextIndex].bgm
       );
     } else {

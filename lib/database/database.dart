@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_nobel_app/constants/const.dart';
 
 part 'database.g.dart';
 
@@ -54,6 +55,7 @@ class ChoiseTable extends Table {
   IntColumn get nextStoryId => integer()(); // 選択した場合に表示を開始するstory_id
   IntColumn get returnStoryId => integer()(); // 選択した場合に表示を終了するstory_id
   IntColumn get warpStoryId => integer()(); // 選択肢に応じた物語が終わり、通常ルートに戻る先のstory_id
+  IntColumn get saveDiv => integer().nullable()(); // セーブデータの区分（例：キャラクター選択画面、場所選択画面、選択肢画面など）
 }
 
 @DataClassName('BackLog')
@@ -123,21 +125,21 @@ Future<void> _initChoiceDataInsert(MyDatabase db) async {
     // index - 1なので、選択肢を出したいStoryId - 1にすること（例StoryId35が終わったタイミングで選択肢を出したい場合、34と入力）
     // returnStoryId: 選択肢に応じた内容が終わるID(IDの指定はStoryIdと同様)
     // nextStoryIdも同様
-    ChoiseTableCompanion.insert(storyId: 84, word: 'ヒロインAを選ぶ', choiceGroup: 1, nextStoryId: 85, returnStoryId: 107, warpStoryId: 199)
+    ChoiseTableCompanion.insert(storyId: 84, word: 'ヒロインAを選ぶ', choiceGroup: 1, nextStoryId: 85, returnStoryId: 107, warpStoryId: 199, saveDiv: Value(Const.SAVEDIV['キャラクター選択画面']))
   );
 
   // 選択肢B // 最後の場合retunStoryId - 1に設定
   await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 84, word: 'ヒロインBを選ぶ', choiceGroup: 1, nextStoryId: 133, returnStoryId: 198, warpStoryId: 199)
+    ChoiseTableCompanion.insert(storyId: 84, word: 'ヒロインBを選ぶ', choiceGroup: 1, nextStoryId: 108, returnStoryId: 198, warpStoryId: 199, saveDiv: Value(Const.SAVEDIV['キャラクター選択画面']))
   );
 
 
   // 選択肢グループ②
   await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 201, word: '教室に留まる（依茉がいる）', choiceGroup: 2, nextStoryId: 202, returnStoryId: 218, warpStoryId: 350)
+    ChoiseTableCompanion.insert(storyId: 201, word: '教室に留まる（依茉がいる）', choiceGroup: 2, nextStoryId: 202, returnStoryId: 218, warpStoryId: 350, saveDiv: Value(Const.SAVEDIV['場所選択画面']))
   );
   await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 201, word: '図書室に行く（美桜がいる）', choiceGroup: 2, nextStoryId: 219, returnStoryId: 220, warpStoryId: 350)
+    ChoiseTableCompanion.insert(storyId: 201, word: '図書室に行く（美桜がいる）', choiceGroup: 2, nextStoryId: 219, returnStoryId: 220, warpStoryId: 350, saveDiv: Value(Const.SAVEDIV['場所選択画面']))
   );
 
   print('初期データ挿入完了');
