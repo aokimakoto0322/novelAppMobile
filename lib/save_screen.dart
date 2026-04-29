@@ -15,8 +15,7 @@ class SaveScreen extends ConsumerWidget {
     final saveUsecase = ref.read(saveUsecaseProvider);
     final usecase = ref.read(storyUsecaseProvider.notifier);
 
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: Text("セーブデータ"),
           leading: BackButton(
@@ -56,7 +55,6 @@ class SaveScreen extends ConsumerWidget {
             );
           }
         ),
-      ),
-    );
+      );
   }
 }
