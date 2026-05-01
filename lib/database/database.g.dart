@@ -909,6 +909,39 @@ class $ChoiseTableTable extends ChoiseTable
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _buttonLabelMeta = const VerificationMeta(
+    'buttonLabel',
+  );
+  @override
+  late final GeneratedColumn<String> buttonLabel = GeneratedColumn<String>(
+    'button_label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bottonXMeta = const VerificationMeta(
+    'bottonX',
+  );
+  @override
+  late final GeneratedColumn<double> bottonX = GeneratedColumn<double>(
+    'botton_x',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _bottonYMeta = const VerificationMeta(
+    'bottonY',
+  );
+  @override
+  late final GeneratedColumn<double> bottonY = GeneratedColumn<double>(
+    'botton_y',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -919,6 +952,9 @@ class $ChoiseTableTable extends ChoiseTable
     returnStoryId,
     warpStoryId,
     saveDiv,
+    buttonLabel,
+    bottonX,
+    bottonY,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1001,6 +1037,27 @@ class $ChoiseTableTable extends ChoiseTable
         saveDiv.isAcceptableOrUnknown(data['save_div']!, _saveDivMeta),
       );
     }
+    if (data.containsKey('button_label')) {
+      context.handle(
+        _buttonLabelMeta,
+        buttonLabel.isAcceptableOrUnknown(
+          data['button_label']!,
+          _buttonLabelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('botton_x')) {
+      context.handle(
+        _bottonXMeta,
+        bottonX.isAcceptableOrUnknown(data['botton_x']!, _bottonXMeta),
+      );
+    }
+    if (data.containsKey('botton_y')) {
+      context.handle(
+        _bottonYMeta,
+        bottonY.isAcceptableOrUnknown(data['botton_y']!, _bottonYMeta),
+      );
+    }
     return context;
   }
 
@@ -1049,6 +1106,18 @@ class $ChoiseTableTable extends ChoiseTable
         DriftSqlType.int,
         data['${effectivePrefix}save_div'],
       ),
+      buttonLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}button_label'],
+      ),
+      bottonX: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}botton_x'],
+      ),
+      bottonY: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}botton_y'],
+      ),
     );
   }
 
@@ -1067,6 +1136,9 @@ class Choice extends DataClass implements Insertable<Choice> {
   final int returnStoryId;
   final int warpStoryId;
   final int? saveDiv;
+  final String? buttonLabel;
+  final double? bottonX;
+  final double? bottonY;
   const Choice({
     required this.id,
     required this.storyId,
@@ -1076,6 +1148,9 @@ class Choice extends DataClass implements Insertable<Choice> {
     required this.returnStoryId,
     required this.warpStoryId,
     this.saveDiv,
+    this.buttonLabel,
+    this.bottonX,
+    this.bottonY,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1089,6 +1164,15 @@ class Choice extends DataClass implements Insertable<Choice> {
     map['warp_story_id'] = Variable<int>(warpStoryId);
     if (!nullToAbsent || saveDiv != null) {
       map['save_div'] = Variable<int>(saveDiv);
+    }
+    if (!nullToAbsent || buttonLabel != null) {
+      map['button_label'] = Variable<String>(buttonLabel);
+    }
+    if (!nullToAbsent || bottonX != null) {
+      map['botton_x'] = Variable<double>(bottonX);
+    }
+    if (!nullToAbsent || bottonY != null) {
+      map['botton_y'] = Variable<double>(bottonY);
     }
     return map;
   }
@@ -1106,6 +1190,18 @@ class Choice extends DataClass implements Insertable<Choice> {
           saveDiv == null && nullToAbsent
               ? const Value.absent()
               : Value(saveDiv),
+      buttonLabel:
+          buttonLabel == null && nullToAbsent
+              ? const Value.absent()
+              : Value(buttonLabel),
+      bottonX:
+          bottonX == null && nullToAbsent
+              ? const Value.absent()
+              : Value(bottonX),
+      bottonY:
+          bottonY == null && nullToAbsent
+              ? const Value.absent()
+              : Value(bottonY),
     );
   }
 
@@ -1123,6 +1219,9 @@ class Choice extends DataClass implements Insertable<Choice> {
       returnStoryId: serializer.fromJson<int>(json['returnStoryId']),
       warpStoryId: serializer.fromJson<int>(json['warpStoryId']),
       saveDiv: serializer.fromJson<int?>(json['saveDiv']),
+      buttonLabel: serializer.fromJson<String?>(json['buttonLabel']),
+      bottonX: serializer.fromJson<double?>(json['bottonX']),
+      bottonY: serializer.fromJson<double?>(json['bottonY']),
     );
   }
   @override
@@ -1137,6 +1236,9 @@ class Choice extends DataClass implements Insertable<Choice> {
       'returnStoryId': serializer.toJson<int>(returnStoryId),
       'warpStoryId': serializer.toJson<int>(warpStoryId),
       'saveDiv': serializer.toJson<int?>(saveDiv),
+      'buttonLabel': serializer.toJson<String?>(buttonLabel),
+      'bottonX': serializer.toJson<double?>(bottonX),
+      'bottonY': serializer.toJson<double?>(bottonY),
     };
   }
 
@@ -1149,6 +1251,9 @@ class Choice extends DataClass implements Insertable<Choice> {
     int? returnStoryId,
     int? warpStoryId,
     Value<int?> saveDiv = const Value.absent(),
+    Value<String?> buttonLabel = const Value.absent(),
+    Value<double?> bottonX = const Value.absent(),
+    Value<double?> bottonY = const Value.absent(),
   }) => Choice(
     id: id ?? this.id,
     storyId: storyId ?? this.storyId,
@@ -1158,6 +1263,9 @@ class Choice extends DataClass implements Insertable<Choice> {
     returnStoryId: returnStoryId ?? this.returnStoryId,
     warpStoryId: warpStoryId ?? this.warpStoryId,
     saveDiv: saveDiv.present ? saveDiv.value : this.saveDiv,
+    buttonLabel: buttonLabel.present ? buttonLabel.value : this.buttonLabel,
+    bottonX: bottonX.present ? bottonX.value : this.bottonX,
+    bottonY: bottonY.present ? bottonY.value : this.bottonY,
   );
   Choice copyWithCompanion(ChoiseTableCompanion data) {
     return Choice(
@@ -1175,6 +1283,10 @@ class Choice extends DataClass implements Insertable<Choice> {
       warpStoryId:
           data.warpStoryId.present ? data.warpStoryId.value : this.warpStoryId,
       saveDiv: data.saveDiv.present ? data.saveDiv.value : this.saveDiv,
+      buttonLabel:
+          data.buttonLabel.present ? data.buttonLabel.value : this.buttonLabel,
+      bottonX: data.bottonX.present ? data.bottonX.value : this.bottonX,
+      bottonY: data.bottonY.present ? data.bottonY.value : this.bottonY,
     );
   }
 
@@ -1188,7 +1300,10 @@ class Choice extends DataClass implements Insertable<Choice> {
           ..write('nextStoryId: $nextStoryId, ')
           ..write('returnStoryId: $returnStoryId, ')
           ..write('warpStoryId: $warpStoryId, ')
-          ..write('saveDiv: $saveDiv')
+          ..write('saveDiv: $saveDiv, ')
+          ..write('buttonLabel: $buttonLabel, ')
+          ..write('bottonX: $bottonX, ')
+          ..write('bottonY: $bottonY')
           ..write(')'))
         .toString();
   }
@@ -1203,6 +1318,9 @@ class Choice extends DataClass implements Insertable<Choice> {
     returnStoryId,
     warpStoryId,
     saveDiv,
+    buttonLabel,
+    bottonX,
+    bottonY,
   );
   @override
   bool operator ==(Object other) =>
@@ -1215,7 +1333,10 @@ class Choice extends DataClass implements Insertable<Choice> {
           other.nextStoryId == this.nextStoryId &&
           other.returnStoryId == this.returnStoryId &&
           other.warpStoryId == this.warpStoryId &&
-          other.saveDiv == this.saveDiv);
+          other.saveDiv == this.saveDiv &&
+          other.buttonLabel == this.buttonLabel &&
+          other.bottonX == this.bottonX &&
+          other.bottonY == this.bottonY);
 }
 
 class ChoiseTableCompanion extends UpdateCompanion<Choice> {
@@ -1227,6 +1348,9 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
   final Value<int> returnStoryId;
   final Value<int> warpStoryId;
   final Value<int?> saveDiv;
+  final Value<String?> buttonLabel;
+  final Value<double?> bottonX;
+  final Value<double?> bottonY;
   const ChoiseTableCompanion({
     this.id = const Value.absent(),
     this.storyId = const Value.absent(),
@@ -1236,6 +1360,9 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     this.returnStoryId = const Value.absent(),
     this.warpStoryId = const Value.absent(),
     this.saveDiv = const Value.absent(),
+    this.buttonLabel = const Value.absent(),
+    this.bottonX = const Value.absent(),
+    this.bottonY = const Value.absent(),
   });
   ChoiseTableCompanion.insert({
     this.id = const Value.absent(),
@@ -1246,6 +1373,9 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     required int returnStoryId,
     required int warpStoryId,
     this.saveDiv = const Value.absent(),
+    this.buttonLabel = const Value.absent(),
+    this.bottonX = const Value.absent(),
+    this.bottonY = const Value.absent(),
   }) : storyId = Value(storyId),
        word = Value(word),
        choiceGroup = Value(choiceGroup),
@@ -1261,6 +1391,9 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     Expression<int>? returnStoryId,
     Expression<int>? warpStoryId,
     Expression<int>? saveDiv,
+    Expression<String>? buttonLabel,
+    Expression<double>? bottonX,
+    Expression<double>? bottonY,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1271,6 +1404,9 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
       if (returnStoryId != null) 'return_story_id': returnStoryId,
       if (warpStoryId != null) 'warp_story_id': warpStoryId,
       if (saveDiv != null) 'save_div': saveDiv,
+      if (buttonLabel != null) 'button_label': buttonLabel,
+      if (bottonX != null) 'botton_x': bottonX,
+      if (bottonY != null) 'botton_y': bottonY,
     });
   }
 
@@ -1283,6 +1419,9 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     Value<int>? returnStoryId,
     Value<int>? warpStoryId,
     Value<int?>? saveDiv,
+    Value<String?>? buttonLabel,
+    Value<double?>? bottonX,
+    Value<double?>? bottonY,
   }) {
     return ChoiseTableCompanion(
       id: id ?? this.id,
@@ -1293,6 +1432,9 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
       returnStoryId: returnStoryId ?? this.returnStoryId,
       warpStoryId: warpStoryId ?? this.warpStoryId,
       saveDiv: saveDiv ?? this.saveDiv,
+      buttonLabel: buttonLabel ?? this.buttonLabel,
+      bottonX: bottonX ?? this.bottonX,
+      bottonY: bottonY ?? this.bottonY,
     );
   }
 
@@ -1323,6 +1465,15 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     if (saveDiv.present) {
       map['save_div'] = Variable<int>(saveDiv.value);
     }
+    if (buttonLabel.present) {
+      map['button_label'] = Variable<String>(buttonLabel.value);
+    }
+    if (bottonX.present) {
+      map['botton_x'] = Variable<double>(bottonX.value);
+    }
+    if (bottonY.present) {
+      map['botton_y'] = Variable<double>(bottonY.value);
+    }
     return map;
   }
 
@@ -1336,7 +1487,10 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
           ..write('nextStoryId: $nextStoryId, ')
           ..write('returnStoryId: $returnStoryId, ')
           ..write('warpStoryId: $warpStoryId, ')
-          ..write('saveDiv: $saveDiv')
+          ..write('saveDiv: $saveDiv, ')
+          ..write('buttonLabel: $buttonLabel, ')
+          ..write('bottonX: $bottonX, ')
+          ..write('bottonY: $bottonY')
           ..write(')'))
         .toString();
   }
@@ -2152,6 +2306,9 @@ typedef $$ChoiseTableTableCreateCompanionBuilder =
       required int returnStoryId,
       required int warpStoryId,
       Value<int?> saveDiv,
+      Value<String?> buttonLabel,
+      Value<double?> bottonX,
+      Value<double?> bottonY,
     });
 typedef $$ChoiseTableTableUpdateCompanionBuilder =
     ChoiseTableCompanion Function({
@@ -2163,6 +2320,9 @@ typedef $$ChoiseTableTableUpdateCompanionBuilder =
       Value<int> returnStoryId,
       Value<int> warpStoryId,
       Value<int?> saveDiv,
+      Value<String?> buttonLabel,
+      Value<double?> bottonX,
+      Value<double?> bottonY,
     });
 
 class $$ChoiseTableTableFilterComposer
@@ -2211,6 +2371,21 @@ class $$ChoiseTableTableFilterComposer
 
   ColumnFilters<int> get saveDiv => $composableBuilder(
     column: $table.saveDiv,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get buttonLabel => $composableBuilder(
+    column: $table.buttonLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get bottonX => $composableBuilder(
+    column: $table.bottonX,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get bottonY => $composableBuilder(
+    column: $table.bottonY,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -2263,6 +2438,21 @@ class $$ChoiseTableTableOrderingComposer
     column: $table.saveDiv,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get buttonLabel => $composableBuilder(
+    column: $table.buttonLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get bottonX => $composableBuilder(
+    column: $table.bottonX,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get bottonY => $composableBuilder(
+    column: $table.bottonY,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ChoiseTableTableAnnotationComposer
@@ -2305,6 +2495,17 @@ class $$ChoiseTableTableAnnotationComposer
 
   GeneratedColumn<int> get saveDiv =>
       $composableBuilder(column: $table.saveDiv, builder: (column) => column);
+
+  GeneratedColumn<String> get buttonLabel => $composableBuilder(
+    column: $table.buttonLabel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get bottonX =>
+      $composableBuilder(column: $table.bottonX, builder: (column) => column);
+
+  GeneratedColumn<double> get bottonY =>
+      $composableBuilder(column: $table.bottonY, builder: (column) => column);
 }
 
 class $$ChoiseTableTableTableManager
@@ -2344,6 +2545,9 @@ class $$ChoiseTableTableTableManager
                 Value<int> returnStoryId = const Value.absent(),
                 Value<int> warpStoryId = const Value.absent(),
                 Value<int?> saveDiv = const Value.absent(),
+                Value<String?> buttonLabel = const Value.absent(),
+                Value<double?> bottonX = const Value.absent(),
+                Value<double?> bottonY = const Value.absent(),
               }) => ChoiseTableCompanion(
                 id: id,
                 storyId: storyId,
@@ -2353,6 +2557,9 @@ class $$ChoiseTableTableTableManager
                 returnStoryId: returnStoryId,
                 warpStoryId: warpStoryId,
                 saveDiv: saveDiv,
+                buttonLabel: buttonLabel,
+                bottonX: bottonX,
+                bottonY: bottonY,
               ),
           createCompanionCallback:
               ({
@@ -2364,6 +2571,9 @@ class $$ChoiseTableTableTableManager
                 required int returnStoryId,
                 required int warpStoryId,
                 Value<int?> saveDiv = const Value.absent(),
+                Value<String?> buttonLabel = const Value.absent(),
+                Value<double?> bottonX = const Value.absent(),
+                Value<double?> bottonY = const Value.absent(),
               }) => ChoiseTableCompanion.insert(
                 id: id,
                 storyId: storyId,
@@ -2373,6 +2583,9 @@ class $$ChoiseTableTableTableManager
                 returnStoryId: returnStoryId,
                 warpStoryId: warpStoryId,
                 saveDiv: saveDiv,
+                buttonLabel: buttonLabel,
+                bottonX: bottonX,
+                bottonY: bottonY,
               ),
           withReferenceMapper:
               (p0) =>

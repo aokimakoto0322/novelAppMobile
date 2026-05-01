@@ -97,7 +97,10 @@ class _ChooseScreenWidgetState extends ConsumerState<ChooseScreenWidget>
         showContent: _showContent,
       );
     } else if (saveDiv == Const.SAVEDIV['場所選択画面']) {
-      return const AreaChooseWidget();
+      return AreaChooseWidget(
+        storyUsecase: storyUsecase,
+        storyState: storyState,
+      );
     }
 
     return SizedBox.shrink();

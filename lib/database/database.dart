@@ -56,6 +56,9 @@ class ChoiseTable extends Table {
   IntColumn get returnStoryId => integer()(); // 選択した場合に表示を終了するstory_id
   IntColumn get warpStoryId => integer()(); // 選択肢に応じた物語が終わり、通常ルートに戻る先のstory_id
   IntColumn get saveDiv => integer().nullable()(); // セーブデータの区分（例：キャラクター選択画面、場所選択画面、選択肢画面など）
+  TextColumn get buttonLabel => text().nullable()(); // ボタンのラベル(どこへ行く画面で使用。ボタンのラベルを指定する)
+  RealColumn get bottonX => real().nullable()(); // ボタンのX座標(どこへ行く画面で使用。ボタンの位置を指定する)
+  RealColumn get bottonY => real().nullable()(); // ボタンのY座標(どこへ行く画面で使用。ボタンの位置を指定する)
 }
 
 @DataClassName('BackLog')
@@ -136,10 +139,32 @@ Future<void> _initChoiceDataInsert(MyDatabase db) async {
 
   // 選択肢グループ②
   await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 201, word: '教室に留まる（依茉がいる）', choiceGroup: 2, nextStoryId: 202, returnStoryId: 218, warpStoryId: 350, saveDiv: Value(Const.SAVEDIV['場所選択画面']))
+    ChoiseTableCompanion.insert(
+      storyId: 201,
+      word: '教室に留まりますか？\n依茉がいる',
+      choiceGroup: 2,
+      nextStoryId: 202,
+      returnStoryId: 218,
+      warpStoryId: 350,
+      saveDiv: Value(Const.SAVEDIV['場所選択画面']),
+      buttonLabel: Value('教室'),
+      bottonX: Value(0.6),
+      bottonY: Value(0.23)
+    )
   );
   await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 201, word: '図書室に行く（美桜がいる）', choiceGroup: 2, nextStoryId: 219, returnStoryId: 220, warpStoryId: 350, saveDiv: Value(Const.SAVEDIV['場所選択画面']))
+    ChoiseTableCompanion.insert(
+      storyId: 201,
+      word: '図書室に行きますか？\n美桜がいる',
+      choiceGroup: 2,
+      nextStoryId: 219,
+      returnStoryId: 220,
+      warpStoryId: 350,
+      saveDiv: Value(Const.SAVEDIV['場所選択画面']),
+      buttonLabel: Value('図書室'),
+      bottonX: Value(0.2),
+      bottonY: Value(0.24)
+    )
   );
 
   print('初期データ挿入完了');
