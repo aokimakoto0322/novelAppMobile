@@ -15,7 +15,8 @@ platform :ios do
       scheme: "Runner",
       workspace: "Runner.xcworkspace",
       export_method: "app-store",
-      # 自動署名をオフにして、手動設定を尊重させる
+      # XcodeにApple Distribution証明書を使うよう指示
+      codesigning_identity: "Apple Distribution", 
       xcargs: "CODE_SIGN_STYLE=Manual",
       export_options: {
         provisioningProfiles: {
