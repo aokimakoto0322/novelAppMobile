@@ -2,7 +2,7 @@ name: Deploy to TestFlight
 
 on:
   push:
-    branches: [ develop ] # developブランチにプッシュされたら自動実行
+    branches: [ develop ]
 
 jobs:
   deploy:
@@ -12,11 +12,17 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      # 1. リポジトリのコードをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. 証明書とプロファイルをインストール（署名に必須のステップ）
+      # 1. 【追加】Rubyのセットアップ
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3' # ログに合わせて3.3を指定します
+          bundler-cache: true # これをいれて2回目以降を早くする
+          working-directory: ios
+
       - name: Install Certificates
         env:
           CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
@@ -37,37 +43,37 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      # 3. Flutter環境のセットアップ
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
-      # 4. Flutterのパッケージをインストール
       - name: Install Flutter dependencies
         run: flutter pub get
 
-      # 5. 【★重要】Secretsから .env ファイルを復元
       - name: Create .env file
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
 
-      # 6. iOSのビルド設定ファイルを生成
       - name: Flutter Build iOS (No Codesign)
         run: flutter build ios --release --no-codesign
 
-      # 7. CocoaPodsのインストール（ライブラリの準備）
+      # 2. 【追加/修正】Fastlane自体のインストール
+      - name: Install Fastlane
+        run: |
+          cd ios
+          bundle install
+
       - name: Install Pods
         run: |
           cd ios
           pod install
 
-      # 8. Fastlaneの実行（TestFlightへアップロード！）
       - name: Run Fastlane
         run: |
           cd ios
           bundle exec fastlane beta
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
