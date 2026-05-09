@@ -2,11 +2,13 @@ name: Deploy to TestFlight
 
 on:
   push:
+    # developでもmainでも、お好きな方に合わせてくださいね
     branches: [ develop ]
 
 jobs:
   deploy:
-    runs-on: macos-latest
+    # 2026年現在の最新Xcodeを使うために macos-15 を指定します
+    runs-on: macos-15
     
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -15,15 +17,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. 【追加】Rubyのセットアップ
+      # 【追加】Xcode 26 を選択するステップ
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_26.app
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.3' # ログに合わせて3.3を指定します
-          bundler-cache: true # これをいれて2回目以降を早くする
+          ruby-version: '3.3'
+          bundler-cache: true
           working-directory: ios
 
       - name: Install Certificates
+        id: install_certs # IDを追加して後で参照できるようにします
         env:
           CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
@@ -33,15 +39,21 @@ jobs:
           CERT_PATH=$RUNNER_TEMP/build_certificate.p12
           PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          
           echo -n "$CERTIFICATE_P12_BASE64" | base64 --decode --output $CERT_PATH
           echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode --output $PP_PATH
+          
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security import $CERT_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
+          
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
+          
+          # 作成したキーチェーンのパスを後続のステップで使えるように出力します
+          echo "keychain_path=$KEYCHAIN_PATH" >> $GITHUB_OUTPUT
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -55,18 +67,14 @@ jobs:
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
 
+      # 署名はFastlaneに任せるので、FlutterビルドはNo CodesignでOKです
       - name: Flutter Build iOS (No Codesign)
         run: flutter build ios --release --no-codesign
 
-      # 2. 【追加/修正】Fastlane自体のインストール
-      - name: Install Fastlane
+      - name: Install Fastlane & Pods
         run: |
           cd ios
           bundle install
-
-      - name: Install Pods
-        run: |
-          cd ios
           pod install
 
       - name: Run Fastlane
@@ -77,3 +85,6 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          # 【重要】Fastlaneが証明書を見つけられるよう、作成したキーチェーンを教えてあげます
+          MATCH_KEYCHAIN_NAME: ${{ steps.install_certs.outputs.keychain_path }}
+          MATCH_KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
