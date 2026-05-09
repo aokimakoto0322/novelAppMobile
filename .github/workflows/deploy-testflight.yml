@@ -41,6 +41,7 @@ jobs:
       - name: Set up Fastlane
         run: |
           gem install fastlane
+          fastlane beta --verbose
           # もしGemfileがある場合は bundle install を使う
 
       # 3. デプロイ実行
