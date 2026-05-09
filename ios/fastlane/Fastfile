@@ -12,13 +12,18 @@ platform :ios do
 
     # 2. ビルド
     build_app(
-      scheme: "Runner", # Flutterなら大抵Runnerです
+      scheme: "Runner",
       workspace: "Runner.xcworkspace",
       export_method: "app-store",
+      xcargs: "-allowProvisioningUpdates", # 必要に応じてプロファイルを更新
       export_options: {
         provisioningProfiles: {
           "com.example.flutterNobelApp" => "NovelProvisioningFile"
         }
+      },
+      # ↓この行を build_app の直下（export_optionsの外）に追加してみてください
+      provisioning_profiles: {
+        "com.example.flutterNobelApp" => "NovelProvisioningFile"
       }
     )
     
