@@ -1,0 +1,28 @@
+default_platform(:ios)
+
+platform :ios do
+  lane :beta do
+    # 1. API Keyの読み込み
+    api_key = app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_API_KEY_KEY"],
+      is_key_content_base64: false
+    )
+
+    # 2. ビルド（Scheme名とBundle IDを自分のものに書き換えてくださいね！）
+    build_app(
+      scheme: "Runner", # Flutterなら大抵Runnerです
+      workspace: "Runner.xcworkspace",
+      export_method: "app-store",
+      export_options: {
+        provisioningProfiles: {
+          "com.example.flutterNobelApp" => "NovelProvisioningFile"
+        }
+      }
+    )
+    
+    # 3. アップロード
+    upload_to_testflight(api_key: api_key)
+  end
+end
