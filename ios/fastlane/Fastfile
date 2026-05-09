@@ -10,7 +10,7 @@ platform :ios do
       is_key_content_base64: true
     )
 
-    # 2. ビルド（Scheme名とBundle IDを自分のものに書き換えてくださいね！）
+    # 2. ビルド
     build_app(
       scheme: "Runner", # Flutterなら大抵Runnerです
       workspace: "Runner.xcworkspace",

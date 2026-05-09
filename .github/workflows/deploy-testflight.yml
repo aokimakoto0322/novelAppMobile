@@ -8,16 +8,15 @@ jobs:
   deploy:
     runs-on: macos-latest
     
-    # Node.jsの警告を回避し、最新の環境で動かすための設定
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      # 1. リポジトリのコードをチェックアウト
+      # 1. コードのチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. 証明書とプロビジョニングプロファイルを仮想マシンのキーチェーンにインストール
+      # 2. 【重要】証明書とプロファイルをインストール
       - name: Install Certificates
         env:
           CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
@@ -28,31 +27,42 @@ jobs:
           CERT_PATH=$RUNNER_TEMP/build_certificate.p12
           PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          
-          # Base64からデコードしてファイルに戻します
           echo -n "$CERTIFICATE_P12_BASE64" | base64 --decode --output $CERT_PATH
           echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode --output $PP_PATH
-          
-          # 一時的なキーチェーンを作成して証明書をインポート
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security import $CERT_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
-          
-          # プロビジョニングプロファイルを規定の場所に配置
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      # 3. Fastlaneの実行
-      # Flutterの構成に合わせて、cd ios で移動してから実行
+      # 3. Flutter環境のセットアップ
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # 4. Flutterの依存関係を解決
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      # 5. 【追加】iOSのビルド設定ファイルを生成
+      - name: Flutter Build iOS (No Codesign)
+        run: flutter build ios --release --no-codesign
+
+      # 6. 【追加】CocoaPodsのインストール
+      - name: Install Pods
+        run: |
+          cd ios
+          pod install
+
+      # 7. Fastlaneの実行
       - name: Run Fastlane
         run: |
-          gem install fastlane
           cd ios
-          fastlane beta --verbose
+          bundle exec fastlane beta
         env:
-          # App Store Connect API接続用の情報です
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
