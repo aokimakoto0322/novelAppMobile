@@ -2,19 +2,23 @@ name: Deploy to TestFlight
 
 on:
   push:
-    branches:
-      - develop  # developブランチにマージされた時に発動
+    branches: [ develop ] # developブランチにプッシュされたら自動実行
 
 jobs:
   deploy:
     runs-on: macos-latest
+    
+    # Node.jsの警告を回避し、最新の環境で動かすための設定
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
+      # 1. リポジトリのコードをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. 証明書とプロビジョニングプロファイルのインストール
-      - name: Install the Apple certificate and provisioning profile
+      # 2. 証明書とプロビジョニングプロファイルを仮想マシンのキーチェーンにインストール
+      - name: Install Certificates
         env:
           CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
@@ -24,30 +28,31 @@ jobs:
           CERT_PATH=$RUNNER_TEMP/build_certificate.p12
           PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-
+          
+          # Base64からデコードしてファイルに戻します
           echo -n "$CERTIFICATE_P12_BASE64" | base64 --decode --output $CERT_PATH
           echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode --output $PP_PATH
-
+          
+          # 一時的なキーチェーンを作成して証明書をインポート
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security import $CERT_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
-
+          
+          # プロビジョニングプロファイルを規定の場所に配置
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      # 2. Fastlaneのセットアップ
-      - name: Set up Fastlane
+      # 3. Fastlaneの実行
+      # Flutterの構成に合わせて、cd ios で移動してから実行
+      - name: Run Fastlane
         run: |
           gem install fastlane
+          cd ios
           fastlane beta --verbose
-          # もしGemfileがある場合は bundle install を使う
-
-      # 3. デプロイ実行
-      - name: Deploy to TestFlight
-        run: fastlane beta
         env:
+          # App Store Connect API接続用の情報です
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
