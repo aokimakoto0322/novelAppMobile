@@ -15,8 +15,8 @@ platform :ios do
       scheme: "Runner",
       workspace: "Runner.xcworkspace",
       export_method: "app-store",
-      # xcargs に手動署名を使う命令追加
-      xcargs: "PROVISIONING_PROFILE_SPECIFIER='NovelProvisioningFile' PRODUCT_BUNDLE_IDENTIFIER='com.example.flutterNobelApp'",
+      # 自動署名をオフにして、手動設定を尊重させる
+      xcargs: "CODE_SIGN_STYLE=Manual",
       export_options: {
         provisioningProfiles: {
           "com.example.flutterNobelApp" => "NovelProvisioningFile"
