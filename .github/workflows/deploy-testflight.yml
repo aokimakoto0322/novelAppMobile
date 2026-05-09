@@ -12,11 +12,11 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      # 1. コードのチェックアウト
+      # 1. リポジトリのコードをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. 【重要】証明書とプロファイルをインストール
+      # 2. 証明書とプロファイルをインストール（署名に必須のステップ）
       - name: Install Certificates
         env:
           CERTIFICATE_P12_BASE64: ${{ secrets.CERTIFICATE_P12_BASE64 }}
@@ -43,21 +43,26 @@ jobs:
         with:
           channel: 'stable'
 
-      # 4. Flutterの依存関係を解決
+      # 4. Flutterのパッケージをインストール
       - name: Install Flutter dependencies
         run: flutter pub get
 
-      # 5. 【追加】iOSのビルド設定ファイルを生成
+      # 5. 【★重要】Secretsから .env ファイルを復元
+      - name: Create .env file
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+      # 6. iOSのビルド設定ファイルを生成
       - name: Flutter Build iOS (No Codesign)
         run: flutter build ios --release --no-codesign
 
-      # 6. 【追加】CocoaPodsのインストール
+      # 7. CocoaPodsのインストール（ライブラリの準備）
       - name: Install Pods
         run: |
           cd ios
           pod install
 
-      # 7. Fastlaneの実行
+      # 8. Fastlaneの実行（TestFlightへアップロード！）
       - name: Run Fastlane
         run: |
           cd ios
