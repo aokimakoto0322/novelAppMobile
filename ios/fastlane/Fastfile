@@ -15,15 +15,12 @@ platform :ios do
       scheme: "Runner",
       workspace: "Runner.xcworkspace",
       export_method: "app-store",
-      xcargs: "-allowProvisioningUpdates", # 必要に応じてプロファイルを更新
+      # xcargs に手動署名を使う命令追加
+      xcargs: "PROVISIONING_PROFILE_SPECIFIER='NovelProvisioningFile' PRODUCT_BUNDLE_IDENTIFIER='com.example.flutterNobelApp'",
       export_options: {
         provisioningProfiles: {
           "com.example.flutterNobelApp" => "NovelProvisioningFile"
         }
-      },
-      # ↓この行を build_app の直下（export_optionsの外）に追加してみてください
-      provisioning_profiles: {
-        "com.example.flutterNobelApp" => "NovelProvisioningFile"
       }
     )
     
