@@ -72,7 +72,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
               : () {
                 usecase.showNextItem(usecase.db, allStory, admobUsecase);
               },
-            behavior: HitTestBehavior.deferToChild,
+            behavior: HitTestBehavior.opaque,
             child: Stack(
               children: <Widget>[
                 // 画像表示エリア

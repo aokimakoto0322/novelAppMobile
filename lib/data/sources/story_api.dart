@@ -9,7 +9,12 @@ class CommonStoryApi {
     String baseUrl = dotenv.env['FETCH_STORY_API'] ?? 'https://google.com';
     String token = dotenv.env['TOKEN'] ?? '';
     String url = "$baseUrl/story?token=$token";
-    final response = await http.get(Uri.parse(url));
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Accept-Encoding': 'gzip, deflate, br',
+      },
+    );
 
     if (response.statusCode == 200) {
       String decodedBody = utf8.decode(response.bodyBytes);

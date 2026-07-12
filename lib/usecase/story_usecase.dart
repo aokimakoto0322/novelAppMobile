@@ -36,19 +36,23 @@ class StoryUsecase extends Notifier<StoryState> {
   List<Choice> get currentChoice => state.allChoiceList;
 
   Future<void> getAllStory() async {
-    List<Story> result = [];
-
-    // データを一括削除してから新しいデータを取得する
-    storyRepository.deleteAllStory();
-
-    // APIで話を取得し格納
-    List<Story> apiStoryList = await commonStoryApi.fetchAllStory();
-    storyRepository.insertStory(db, apiStoryList);
+    print('★APIから最新データを取得開始します...');
     
-    // DBから話を取得する
-    result = await storyRepository.fetchAllStory();
+    // 1. 先に古いデータを消す（await で完了を待つ）
+    await storyRepository.deleteAllStory();
 
+    // 2. APIで最新の話を取得
+    List<Story> apiStoryList = await commonStoryApi.fetchAllStory();
+    
+    // 3. DBに格納（ここも完了をしっかり待ちます）
+    await storyRepository.insertStory(db, apiStoryList);
+    
+    // 4. 最新のデータをDBから全件取得
+    final result = await storyRepository.fetchAllStory();
+
+    // 5. 最後にstateを更新する
     state = state.copyWith(allStory: result);
+    print('★データの同期がすべて完了しました！全 ${result.length} 件');
   }
 
   void resetState() {
@@ -180,7 +184,7 @@ class StoryUsecase extends Notifier<StoryState> {
     
 
     // バックログ用に話の内容をBacklogテーブルに格納する
-    await backlogUsecase.insertBackLogStory(allStory[nextIndex], null);
+    // await backlogUsecase.insertBackLogStory(allStory[nextIndex], null);
 
     // 選択肢に応じたストーリーを表示し、表示し終わったとき
     if (state.selectedChoice.id != 0 && nextIndex == state.selectedChoice.returnStoryId) {
