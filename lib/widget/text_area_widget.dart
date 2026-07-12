@@ -57,7 +57,7 @@ class TextAreaWidget extends ConsumerWidget {
                       key: ValueKey<String>('fill_${allStory[storyState.currentIndex].word}'),
                       animatedTexts: [
                         TyperAnimatedText(
-                          allStory[storyState.currentIndex].word,
+                          allStory[storyState.currentIndex].word + '[${storyState.currentIndex + 1}]',
                           textStyle: TextStyle(
                             fontSize: 18,
                             color: Colors.white,
