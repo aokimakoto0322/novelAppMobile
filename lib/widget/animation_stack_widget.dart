@@ -81,7 +81,7 @@ class AnimationStackWidget extends ConsumerWidget {
                         backlogUsecase.deleteBackLog();
                         storyUsecase.stopBgm();
                         
-                        context.go('/');
+                        context.go('/title');
                       },
                       child: const Text('はい'),
                     ),

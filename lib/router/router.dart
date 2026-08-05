@@ -6,10 +6,33 @@ import 'package:flutter_nobel_app/save_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:flutter_nobel_app/splash_screen.dart';
+
 final _router = GoRouter(
   initialLocation: '/',
   routes: [
-    GoRoute(path: '/', builder: (context, state) => const MyHomePage()),
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: '/title',
+      pageBuilder: (context, state) {
+        return CustomTransitionPage(
+          child: const MyHomePage(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut,
+              ),
+              child: child,
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 1500),
+        );
+      },
+    ),
     // セーブデータがなく、新規作成する場合
     GoRoute(
       path: '/game',
