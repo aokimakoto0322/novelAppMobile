@@ -39,8 +39,9 @@ class AnimationStackWidget extends ConsumerWidget {
             height: 60,
             iconData: Icons.save,
             label: 'セーブ',
-            onPressed: () {
-              saveUsecase.saveStory(database, allStory[storyState.currentIndex].id);
+            onPressed: () async { // asyncを追加
+              final newSaveId = await saveUsecase.saveStory(database, allStory[storyState.currentIndex].id);
+              storyUsecase.initGameScreen(storyState.currentIndex, newSaveId); // saveIdを更新
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('ストーリーを保存しました'))
               );

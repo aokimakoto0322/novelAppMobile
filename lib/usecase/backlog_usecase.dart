@@ -18,18 +18,21 @@ class BacklogUsecase {
     List<BackLog> result = [];
 
     if (saveId == 0) {
+      // TODO: バックログ表示→セーブ→バックログ表示すると何も表示されなくなってしまうため解消すること
       result = await backlogRepository.getBacklog();
     } else {
-      result = await backlogRepository.getSavedBacklog(saveId);
+      // saveIdが0以外の場合は、指定されたsaveIdに紐づくバックログと、
+      // 現在セーブデータに紐づいていないバックログを結合して表示
+      final savedBacklog = await backlogRepository.getSavedBacklog(saveId);
+      final unlinkedBacklog = await backlogRepository.getBacklog();
 
-      // セーブした地点から、話を進めたとする。その場合、セーブIDと紐づいているBacklogのみを取得しているため、セーブ時点でのBacklogしか表示されない
-      // そのため、セーブ地点からのBacklogにプラスしてセーブIDと紐づいていないBacklogを追加する
-      var unlinkedBacklog = await backlogRepository.getBacklog();
-
-      result.addAll(unlinkedBacklog);
+      // 重複を排除し、時系列順にソート
+      // idはautoIncrementなので、idでソートすれば時系列順になる
+      final combinedBacklog = [...savedBacklog, ...unlinkedBacklog];
+      combinedBacklog.sort((a, b) => a.id.compareTo(b.id));
+      result = combinedBacklog;
     }
     
-
     return result.reversed.toList();
   }
 
