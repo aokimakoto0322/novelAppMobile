@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: macos-14 # 安定したmacOS環境を指定します
+    runs-on: macos-15
     
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -18,7 +18,7 @@ jobs:
       - name: Select Xcode Version
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: 'latest-stable' # 最新の安定版Xcodeを選択します
+          xcode-version: '26.0'
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
