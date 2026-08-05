@@ -184,7 +184,7 @@ class StoryUsecase extends Notifier<StoryState> {
     
 
     // バックログ用に話の内容をBacklogテーブルに格納する
-    // await backlogUsecase.insertBackLogStory(allStory[nextIndex], null);
+    await backlogUsecase.insertBackLogStory(allStory[nextIndex], null);
 
     // 選択肢に応じたストーリーを表示し、表示し終わったとき
     if (state.selectedChoice.id != 0 && nextIndex == state.selectedChoice.returnStoryId) {
