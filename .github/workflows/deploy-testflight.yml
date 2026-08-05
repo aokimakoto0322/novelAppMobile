@@ -65,15 +65,8 @@ jobs:
         run: |
           echo "${{ secrets.ENV_FILE }}" > .env
 
-      # 【修正点1】ビルド前にCocoaPodsの依存関係を更新・インストールしておきます
-      - name: Install CocoaPods Dependencies
-        run: |
-          cd ios
-          bundle exec pod install --repo-update
-
-      # 【修正点2】--no-pub を付けて自動pod installの発行を防ぎます
       - name: Flutter Build iOS (No Codesign)
-        run: flutter build ios --release --no-codesign --no-pub
+        run: flutter build ios --release --no-codesign
 
       - name: Run Fastlane
         run: |
