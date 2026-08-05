@@ -58,6 +58,9 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Disable Swift Package Manager Integration
+        run: flutter config --no-enable-swift-package-manager
+
       - name: Install Flutter dependencies
         run: flutter pub get
 
