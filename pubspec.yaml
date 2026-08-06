@@ -83,6 +83,7 @@ flutter:
     - images/
     - images/character/
     - images/background/
+    - images/icons/
     - bgm/
     - .env
   #   - images/a_dot_ham.jpeg
