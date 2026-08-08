@@ -24,7 +24,7 @@ class FabIconWidget extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: Color(0xff645478),
+          color: Color.fromARGB(255, 166, 143, 197),
           borderRadius: BorderRadius.circular(15),
         ),
         child: Column(
@@ -32,12 +32,12 @@ class FabIconWidget extends StatelessWidget {
           children: [
             Icon(
               iconData,
-              color: Color(0xffAEA6B6),
+              color: Colors.white,
             ),
             Text(
               label,
               style: TextStyle(
-                color: Color(0xffAEA6B6),
+                color: Colors.white,
                 fontSize: 10,
               ),
             )
