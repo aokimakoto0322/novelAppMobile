@@ -50,7 +50,7 @@ class _AreaChooseWidgetState extends State<AreaChooseWidget> with SingleTickerPr
         return Stack(
           children: [
             Positioned.fill(
-              child: Image.asset('images/background/school_sample.png', fit: BoxFit.fill, width: constraints.maxWidth, height: constraints.maxHeight),
+              child: Image.asset('images/background/m_map_school.png', fit: BoxFit.fill, width: constraints.maxWidth, height: constraints.maxHeight),
             ),
             
             ...currentChoiceList.map((choice) {
@@ -71,74 +71,54 @@ class _AreaChooseWidgetState extends State<AreaChooseWidget> with SingleTickerPr
   }
 
   Widget _buildPyokoButton(Choice choice) {
-    return Container(
-      // ボタンのところに少し黒い影をつける
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent, // ボタンの色
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-          elevation: 0, // Containerの影を使うため、こちらは0に
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30), // 丸いボタン
-          ),
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent, // ボタンの色
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+        elevation: 0, // Containerの影を使うため、こちらは0に
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30), // 丸いボタン
         ),
-        onPressed: () {
-          // ボタンが押されたときの処理
-          AwesomeDialog(
-            context: context,
-            dialogType: DialogType.success,
-            animType: AnimType.bottomSlide,
-            body: Center(
-            child: Text(
-              choice.word, 
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-              ),
+      ),
+      onPressed: () {
+        // ボタンが押されたときの処理
+        AwesomeDialog(
+          context: context,
+          dialogType: DialogType.success,
+          animType: AnimType.bottomSlide,
+          body: Center(
+          child: Text(
+            choice.word, 
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 20,
             ),
           ),
-            btnCancelOnPress: () {},
-            btnOkOnPress: () {} // TODO: ボタンを押した後の分岐を後で実装すること(storyUseCase.tabSelect)
-          ).show();
-        },
-        // ★ここがポイント： AnimatedBuilderで中身だけを動かす
-        child: AnimatedBuilder(
-          animation: _buttonAnimation,
-          builder: (context, child) {
-            // Tweenで定義した値 (0.0 ～ -10.0) をY軸の移動量に適用
-            return Transform.translate(
-              offset: Offset(0, _buttonAnimation.value),
-              child: child, // 実際の中身（下のRow）
-            );
-          },
-          // 動かしたい中身（アイコンとテキスト）
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.location_on, size: 28), // 場所のアイコン
-              const SizedBox(width: 10),
-              Text(
-                choice.buttonLabel ?? '',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ],
-          ),
         ),
+          btnCancelOnPress: () {},
+          btnOkOnPress: () {} // TODO: ボタンを押した後の分岐を後で実装すること(storyUseCase.tabSelect)
+        ).show();
+      },
+      // ★ここがポイント： AnimatedBuilderで中身だけを動かす
+      child: AnimatedBuilder(
+        animation: _buttonAnimation,
+        builder: (context, child) {
+          // Tweenで定義した値 (0.0 ～ -10.0) をY軸の移動量に適用
+          return Transform.translate(
+            offset: Offset(0, _buttonAnimation.value),
+            child: child, // 実際の中身
+          );
+        },
+        // 動かしたい中身（画像）
+        child: choice.buttonImgName != null
+            ? Image.asset(
+                'images/icons/${choice.buttonImgName}',
+                width: 250,
+                height: 250,
+                fit: BoxFit.contain,
+              )
+            : const Icon(Icons.location_on, size: 80),
       ),
     );
   }

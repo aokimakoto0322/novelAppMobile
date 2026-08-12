@@ -909,12 +909,12 @@ class $ChoiseTableTable extends ChoiseTable
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _buttonLabelMeta = const VerificationMeta(
-    'buttonLabel',
+  static const VerificationMeta _buttonImgNameMeta = const VerificationMeta(
+    'buttonImgName',
   );
   @override
-  late final GeneratedColumn<String> buttonLabel = GeneratedColumn<String>(
-    'button_label',
+  late final GeneratedColumn<String> buttonImgName = GeneratedColumn<String>(
+    'button_img_name',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -952,7 +952,7 @@ class $ChoiseTableTable extends ChoiseTable
     returnStoryId,
     warpStoryId,
     saveDiv,
-    buttonLabel,
+    buttonImgName,
     bottonX,
     bottonY,
   ];
@@ -1037,12 +1037,12 @@ class $ChoiseTableTable extends ChoiseTable
         saveDiv.isAcceptableOrUnknown(data['save_div']!, _saveDivMeta),
       );
     }
-    if (data.containsKey('button_label')) {
+    if (data.containsKey('button_img_name')) {
       context.handle(
-        _buttonLabelMeta,
-        buttonLabel.isAcceptableOrUnknown(
-          data['button_label']!,
-          _buttonLabelMeta,
+        _buttonImgNameMeta,
+        buttonImgName.isAcceptableOrUnknown(
+          data['button_img_name']!,
+          _buttonImgNameMeta,
         ),
       );
     }
@@ -1106,9 +1106,9 @@ class $ChoiseTableTable extends ChoiseTable
         DriftSqlType.int,
         data['${effectivePrefix}save_div'],
       ),
-      buttonLabel: attachedDatabase.typeMapping.read(
+      buttonImgName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}button_label'],
+        data['${effectivePrefix}button_img_name'],
       ),
       bottonX: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
@@ -1136,7 +1136,7 @@ class Choice extends DataClass implements Insertable<Choice> {
   final int returnStoryId;
   final int warpStoryId;
   final int? saveDiv;
-  final String? buttonLabel;
+  final String? buttonImgName;
   final double? bottonX;
   final double? bottonY;
   const Choice({
@@ -1148,7 +1148,7 @@ class Choice extends DataClass implements Insertable<Choice> {
     required this.returnStoryId,
     required this.warpStoryId,
     this.saveDiv,
-    this.buttonLabel,
+    this.buttonImgName,
     this.bottonX,
     this.bottonY,
   });
@@ -1165,8 +1165,8 @@ class Choice extends DataClass implements Insertable<Choice> {
     if (!nullToAbsent || saveDiv != null) {
       map['save_div'] = Variable<int>(saveDiv);
     }
-    if (!nullToAbsent || buttonLabel != null) {
-      map['button_label'] = Variable<String>(buttonLabel);
+    if (!nullToAbsent || buttonImgName != null) {
+      map['button_img_name'] = Variable<String>(buttonImgName);
     }
     if (!nullToAbsent || bottonX != null) {
       map['botton_x'] = Variable<double>(bottonX);
@@ -1190,10 +1190,10 @@ class Choice extends DataClass implements Insertable<Choice> {
           saveDiv == null && nullToAbsent
               ? const Value.absent()
               : Value(saveDiv),
-      buttonLabel:
-          buttonLabel == null && nullToAbsent
+      buttonImgName:
+          buttonImgName == null && nullToAbsent
               ? const Value.absent()
-              : Value(buttonLabel),
+              : Value(buttonImgName),
       bottonX:
           bottonX == null && nullToAbsent
               ? const Value.absent()
@@ -1219,7 +1219,7 @@ class Choice extends DataClass implements Insertable<Choice> {
       returnStoryId: serializer.fromJson<int>(json['returnStoryId']),
       warpStoryId: serializer.fromJson<int>(json['warpStoryId']),
       saveDiv: serializer.fromJson<int?>(json['saveDiv']),
-      buttonLabel: serializer.fromJson<String?>(json['buttonLabel']),
+      buttonImgName: serializer.fromJson<String?>(json['buttonImgName']),
       bottonX: serializer.fromJson<double?>(json['bottonX']),
       bottonY: serializer.fromJson<double?>(json['bottonY']),
     );
@@ -1236,7 +1236,7 @@ class Choice extends DataClass implements Insertable<Choice> {
       'returnStoryId': serializer.toJson<int>(returnStoryId),
       'warpStoryId': serializer.toJson<int>(warpStoryId),
       'saveDiv': serializer.toJson<int?>(saveDiv),
-      'buttonLabel': serializer.toJson<String?>(buttonLabel),
+      'buttonImgName': serializer.toJson<String?>(buttonImgName),
       'bottonX': serializer.toJson<double?>(bottonX),
       'bottonY': serializer.toJson<double?>(bottonY),
     };
@@ -1251,7 +1251,7 @@ class Choice extends DataClass implements Insertable<Choice> {
     int? returnStoryId,
     int? warpStoryId,
     Value<int?> saveDiv = const Value.absent(),
-    Value<String?> buttonLabel = const Value.absent(),
+    Value<String?> buttonImgName = const Value.absent(),
     Value<double?> bottonX = const Value.absent(),
     Value<double?> bottonY = const Value.absent(),
   }) => Choice(
@@ -1263,7 +1263,8 @@ class Choice extends DataClass implements Insertable<Choice> {
     returnStoryId: returnStoryId ?? this.returnStoryId,
     warpStoryId: warpStoryId ?? this.warpStoryId,
     saveDiv: saveDiv.present ? saveDiv.value : this.saveDiv,
-    buttonLabel: buttonLabel.present ? buttonLabel.value : this.buttonLabel,
+    buttonImgName:
+        buttonImgName.present ? buttonImgName.value : this.buttonImgName,
     bottonX: bottonX.present ? bottonX.value : this.bottonX,
     bottonY: bottonY.present ? bottonY.value : this.bottonY,
   );
@@ -1283,8 +1284,10 @@ class Choice extends DataClass implements Insertable<Choice> {
       warpStoryId:
           data.warpStoryId.present ? data.warpStoryId.value : this.warpStoryId,
       saveDiv: data.saveDiv.present ? data.saveDiv.value : this.saveDiv,
-      buttonLabel:
-          data.buttonLabel.present ? data.buttonLabel.value : this.buttonLabel,
+      buttonImgName:
+          data.buttonImgName.present
+              ? data.buttonImgName.value
+              : this.buttonImgName,
       bottonX: data.bottonX.present ? data.bottonX.value : this.bottonX,
       bottonY: data.bottonY.present ? data.bottonY.value : this.bottonY,
     );
@@ -1301,7 +1304,7 @@ class Choice extends DataClass implements Insertable<Choice> {
           ..write('returnStoryId: $returnStoryId, ')
           ..write('warpStoryId: $warpStoryId, ')
           ..write('saveDiv: $saveDiv, ')
-          ..write('buttonLabel: $buttonLabel, ')
+          ..write('buttonImgName: $buttonImgName, ')
           ..write('bottonX: $bottonX, ')
           ..write('bottonY: $bottonY')
           ..write(')'))
@@ -1318,7 +1321,7 @@ class Choice extends DataClass implements Insertable<Choice> {
     returnStoryId,
     warpStoryId,
     saveDiv,
-    buttonLabel,
+    buttonImgName,
     bottonX,
     bottonY,
   );
@@ -1334,7 +1337,7 @@ class Choice extends DataClass implements Insertable<Choice> {
           other.returnStoryId == this.returnStoryId &&
           other.warpStoryId == this.warpStoryId &&
           other.saveDiv == this.saveDiv &&
-          other.buttonLabel == this.buttonLabel &&
+          other.buttonImgName == this.buttonImgName &&
           other.bottonX == this.bottonX &&
           other.bottonY == this.bottonY);
 }
@@ -1348,7 +1351,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
   final Value<int> returnStoryId;
   final Value<int> warpStoryId;
   final Value<int?> saveDiv;
-  final Value<String?> buttonLabel;
+  final Value<String?> buttonImgName;
   final Value<double?> bottonX;
   final Value<double?> bottonY;
   const ChoiseTableCompanion({
@@ -1360,7 +1363,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     this.returnStoryId = const Value.absent(),
     this.warpStoryId = const Value.absent(),
     this.saveDiv = const Value.absent(),
-    this.buttonLabel = const Value.absent(),
+    this.buttonImgName = const Value.absent(),
     this.bottonX = const Value.absent(),
     this.bottonY = const Value.absent(),
   });
@@ -1373,7 +1376,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     required int returnStoryId,
     required int warpStoryId,
     this.saveDiv = const Value.absent(),
-    this.buttonLabel = const Value.absent(),
+    this.buttonImgName = const Value.absent(),
     this.bottonX = const Value.absent(),
     this.bottonY = const Value.absent(),
   }) : storyId = Value(storyId),
@@ -1391,7 +1394,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     Expression<int>? returnStoryId,
     Expression<int>? warpStoryId,
     Expression<int>? saveDiv,
-    Expression<String>? buttonLabel,
+    Expression<String>? buttonImgName,
     Expression<double>? bottonX,
     Expression<double>? bottonY,
   }) {
@@ -1404,7 +1407,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
       if (returnStoryId != null) 'return_story_id': returnStoryId,
       if (warpStoryId != null) 'warp_story_id': warpStoryId,
       if (saveDiv != null) 'save_div': saveDiv,
-      if (buttonLabel != null) 'button_label': buttonLabel,
+      if (buttonImgName != null) 'button_img_name': buttonImgName,
       if (bottonX != null) 'botton_x': bottonX,
       if (bottonY != null) 'botton_y': bottonY,
     });
@@ -1419,7 +1422,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     Value<int>? returnStoryId,
     Value<int>? warpStoryId,
     Value<int?>? saveDiv,
-    Value<String?>? buttonLabel,
+    Value<String?>? buttonImgName,
     Value<double?>? bottonX,
     Value<double?>? bottonY,
   }) {
@@ -1432,7 +1435,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
       returnStoryId: returnStoryId ?? this.returnStoryId,
       warpStoryId: warpStoryId ?? this.warpStoryId,
       saveDiv: saveDiv ?? this.saveDiv,
-      buttonLabel: buttonLabel ?? this.buttonLabel,
+      buttonImgName: buttonImgName ?? this.buttonImgName,
       bottonX: bottonX ?? this.bottonX,
       bottonY: bottonY ?? this.bottonY,
     );
@@ -1465,8 +1468,8 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
     if (saveDiv.present) {
       map['save_div'] = Variable<int>(saveDiv.value);
     }
-    if (buttonLabel.present) {
-      map['button_label'] = Variable<String>(buttonLabel.value);
+    if (buttonImgName.present) {
+      map['button_img_name'] = Variable<String>(buttonImgName.value);
     }
     if (bottonX.present) {
       map['botton_x'] = Variable<double>(bottonX.value);
@@ -1488,7 +1491,7 @@ class ChoiseTableCompanion extends UpdateCompanion<Choice> {
           ..write('returnStoryId: $returnStoryId, ')
           ..write('warpStoryId: $warpStoryId, ')
           ..write('saveDiv: $saveDiv, ')
-          ..write('buttonLabel: $buttonLabel, ')
+          ..write('buttonImgName: $buttonImgName, ')
           ..write('bottonX: $bottonX, ')
           ..write('bottonY: $bottonY')
           ..write(')'))
@@ -2306,7 +2309,7 @@ typedef $$ChoiseTableTableCreateCompanionBuilder =
       required int returnStoryId,
       required int warpStoryId,
       Value<int?> saveDiv,
-      Value<String?> buttonLabel,
+      Value<String?> buttonImgName,
       Value<double?> bottonX,
       Value<double?> bottonY,
     });
@@ -2320,7 +2323,7 @@ typedef $$ChoiseTableTableUpdateCompanionBuilder =
       Value<int> returnStoryId,
       Value<int> warpStoryId,
       Value<int?> saveDiv,
-      Value<String?> buttonLabel,
+      Value<String?> buttonImgName,
       Value<double?> bottonX,
       Value<double?> bottonY,
     });
@@ -2374,8 +2377,8 @@ class $$ChoiseTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get buttonLabel => $composableBuilder(
-    column: $table.buttonLabel,
+  ColumnFilters<String> get buttonImgName => $composableBuilder(
+    column: $table.buttonImgName,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2439,8 +2442,8 @@ class $$ChoiseTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get buttonLabel => $composableBuilder(
-    column: $table.buttonLabel,
+  ColumnOrderings<String> get buttonImgName => $composableBuilder(
+    column: $table.buttonImgName,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2496,8 +2499,8 @@ class $$ChoiseTableTableAnnotationComposer
   GeneratedColumn<int> get saveDiv =>
       $composableBuilder(column: $table.saveDiv, builder: (column) => column);
 
-  GeneratedColumn<String> get buttonLabel => $composableBuilder(
-    column: $table.buttonLabel,
+  GeneratedColumn<String> get buttonImgName => $composableBuilder(
+    column: $table.buttonImgName,
     builder: (column) => column,
   );
 
@@ -2545,7 +2548,7 @@ class $$ChoiseTableTableTableManager
                 Value<int> returnStoryId = const Value.absent(),
                 Value<int> warpStoryId = const Value.absent(),
                 Value<int?> saveDiv = const Value.absent(),
-                Value<String?> buttonLabel = const Value.absent(),
+                Value<String?> buttonImgName = const Value.absent(),
                 Value<double?> bottonX = const Value.absent(),
                 Value<double?> bottonY = const Value.absent(),
               }) => ChoiseTableCompanion(
@@ -2557,7 +2560,7 @@ class $$ChoiseTableTableTableManager
                 returnStoryId: returnStoryId,
                 warpStoryId: warpStoryId,
                 saveDiv: saveDiv,
-                buttonLabel: buttonLabel,
+                buttonImgName: buttonImgName,
                 bottonX: bottonX,
                 bottonY: bottonY,
               ),
@@ -2571,7 +2574,7 @@ class $$ChoiseTableTableTableManager
                 required int returnStoryId,
                 required int warpStoryId,
                 Value<int?> saveDiv = const Value.absent(),
-                Value<String?> buttonLabel = const Value.absent(),
+                Value<String?> buttonImgName = const Value.absent(),
                 Value<double?> bottonX = const Value.absent(),
                 Value<double?> bottonY = const Value.absent(),
               }) => ChoiseTableCompanion.insert(
@@ -2583,7 +2586,7 @@ class $$ChoiseTableTableTableManager
                 returnStoryId: returnStoryId,
                 warpStoryId: warpStoryId,
                 saveDiv: saveDiv,
-                buttonLabel: buttonLabel,
+                buttonImgName: buttonImgName,
                 bottonX: bottonX,
                 bottonY: bottonY,
               ),

@@ -56,7 +56,7 @@ class ChoiseTable extends Table {
   IntColumn get returnStoryId => integer()(); // 選択した場合に表示を終了するstory_id
   IntColumn get warpStoryId => integer()(); // 選択肢に応じた物語が終わり、通常ルートに戻る先のstory_id
   IntColumn get saveDiv => integer().nullable()(); // セーブデータの区分（例：キャラクター選択画面、場所選択画面、選択肢画面など）
-  TextColumn get buttonLabel => text().nullable()(); // ボタンのラベル(どこへ行く画面で使用。ボタンのラベルを指定する)
+  TextColumn get buttonImgName => text().nullable()(); // ボタンのラベル(どこへ行く画面で使用。ボタンのラベルを指定する)
   RealColumn get bottonX => real().nullable()(); // ボタンのX座標(どこへ行く画面で使用。ボタンの位置を指定する)
   RealColumn get bottonY => real().nullable()(); // ボタンのY座標(どこへ行く画面で使用。ボタンの位置を指定する)
 }
@@ -147,9 +147,9 @@ Future<void> _initChoiceDataInsert(MyDatabase db) async {
       returnStoryId: 218,
       warpStoryId: 350,
       saveDiv: Value(Const.SAVEDIV['場所選択画面']),
-      buttonLabel: Value('教室'),
-      bottonX: Value(0.6),
-      bottonY: Value(0.23)
+      buttonImgName: Value('i_gal.png'),
+      bottonX: Value(0.23),
+      bottonY: Value(0.09)
     )
   );
   await db.into(db.choiseTable).insert(
@@ -161,9 +161,9 @@ Future<void> _initChoiceDataInsert(MyDatabase db) async {
       returnStoryId: 220,
       warpStoryId: 350,
       saveDiv: Value(Const.SAVEDIV['場所選択画面']),
-      buttonLabel: Value('図書室'),
+      buttonImgName: Value('i_seiso.png'),
       bottonX: Value(0.2),
-      bottonY: Value(0.24)
+      bottonY: Value(0.26)
     )
   );
 

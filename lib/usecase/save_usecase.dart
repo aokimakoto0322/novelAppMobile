@@ -13,13 +13,13 @@ class SaveUsecase {
   });
 
   // 進行状態をセーブする
-  Future<void> saveStory(MyDatabase db, int storyId) async {
+  Future<int> saveStory(MyDatabase db, int storyId) async {
     // 進行状況をセーブ
     var saveId = await saveRepository.insertSaveStory(db, storyId);
 
     // セーブした進行状況と、バックログを紐づける
-    backlogRepository.linkSaveAndBacklog(saveId);
-    print('紐づけ完了');
+    await backlogRepository.linkSaveAndBacklog(saveId); // awaitを追加
+    return saveId; // saveIdを返す
   }
 
   // 進行状況を取得する

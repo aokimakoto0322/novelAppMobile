@@ -5,6 +5,7 @@ import 'package:flutter_nobel_app/provider/backlog_provider.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_nobel_app/constants/const.dart'; // 追加
 
 class BacklogScreen extends ConsumerStatefulWidget {
 
@@ -45,10 +46,18 @@ class _BacklogScreenState extends ConsumerState<BacklogScreen> {
           return ListView.separated(
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
+              final String? characterImage = Const.CHARACTER_IMAGE_MAP[snapshot.data![index].speaker];
+
               return ListTile(
+                leading: characterImage != null
+                    ? CircleAvatar(
+                        backgroundImage: AssetImage(characterImage),
+                        radius: 24, // 丸のサイズを調整
+                      )
+                    : null, // 画像がない場合は何も表示しない
                 title: Text(snapshot.data![index].word),
                 subtitle: Text(snapshot.data![index].speaker),
-                leading: Text(snapshot.data![index].choiceWord),
+                trailing: Text(snapshot.data![index].choiceWord), // choiceWordを右側に移動
               );
             },
             separatorBuilder: (context, index) => Divider(
