@@ -58,6 +58,7 @@ class MyHomePage extends ConsumerStatefulWidget {
 class _MyHomePageState extends ConsumerState<MyHomePage> {
   List<Story> allStory = [];
   bool isLoading = false; // 初期データ取得時のロード状態を管理
+  bool isFading = false; // 暗転用フラグを追加
 
   @override
   void initState() {
@@ -72,11 +73,17 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
       isLoading = true;
     });
 
-    await storyUsecase.getAllStory();
-
-    setState(() {
-      isLoading = false;
-    });
+    try {
+      await storyUsecase.getAllStory();
+    } catch (e) {
+      debugPrint("ストーリー取得エラー: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -99,8 +106,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                     TitleButton(
                       text: '初めから',
                       onPressed: () async {
-                        if (!isLoading) {
-                          await Future.delayed(Duration(milliseconds: 200));
+                        if (!isLoading && !isFading) {
+                          setState(() {
+                            isFading = true; // 暗転開始
+                          });
+
+                          // 暗転アニメーションを待つ
+                          await Future.delayed(const Duration(milliseconds: 1200));
+
                           usecase.resetState();
                           await backlogUsecase.deleteBackLog();
                           await usecase.setCurrentIndex(0);
@@ -114,13 +127,24 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                     TitleButton(
                       text: '続きから',
                       onPressed: () {
-                        if (!isLoading) {
+                        if (!isLoading && !isFading) {
+                          // 念のためここでもフラグを立てるか、即座に遷移させる
+                          if (!context.mounted) return;
                           context.push('/save'); // 戻る許可の画面遷移
                         }
                       }
                     ),
                   ],
                 ),
+              ),
+            ),
+            // 暗転用のオーバーレイ
+            IgnorePointer(
+              ignoring: !isFading,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 1000), // 1秒かけて暗転
+                opacity: isFading ? 1.0 : 0.0,
+                child: Container(color: Colors.black),
               ),
             ),
           ],

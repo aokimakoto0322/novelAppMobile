@@ -29,7 +29,7 @@ final _router = GoRouter(
               child: child,
             );
           },
-          transitionDuration: const Duration(milliseconds: 1500),
+          transitionDuration: const Duration(milliseconds: 3000),
         );
       },
     ),
@@ -40,12 +40,16 @@ final _router = GoRouter(
         return CustomTransitionPage(
           child: GameScreen(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            // ここでフェードインの挙動を調整
             return FadeTransition(
-              opacity: animation,
+              opacity: CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInCirc, // ゆっくり現れるカーブ
+              ),
               child: child,
             );
           },
-          transitionDuration: Duration(milliseconds: 500),
+          transitionDuration: const Duration(milliseconds: 1500), // 1.5秒かけて明るくなる
         );
       },
     ),

@@ -63,7 +63,7 @@ class StoryUsecase extends Notifier<StoryState> {
       allChoiceList: [],
       isChoice: false,
       isDisplayingChoicePrompt: false,
-      isWaiting: false,
+      isWaiting: true, // 待機状態からスタート
       selectedChoice: Choice(id: 0, storyId: 0, word: '', choiceGroup: 0, nextStoryId: 0, returnStoryId: 0, warpStoryId: 0),
       saveId: 0,
       character1: '',
@@ -154,6 +154,11 @@ class StoryUsecase extends Notifier<StoryState> {
       isChoice: true,
       isDisplayingChoicePrompt: false,
     );
+  }
+
+  // 待機状態を解除して物語を開始する
+  void startStory() {
+    state = state.copyWith(isWaiting: false);
   }
 
 
