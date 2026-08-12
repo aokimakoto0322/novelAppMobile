@@ -147,6 +147,24 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                 child: Container(color: Colors.black),
               ),
             ),
+
+            // ローディング表示（追加）
+            Visibility(
+              visible: isLoading,
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.6),
+                child: const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(color: Colors.white),
+                      SizedBox(height: 20),
+                      Text("データを読み込み中...", style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         )
       ),
