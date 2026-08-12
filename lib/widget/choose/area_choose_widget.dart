@@ -11,14 +11,14 @@ class AreaChooseWidget extends StatefulWidget {
   const AreaChooseWidget({
     super.key,
     required this.storyUsecase,
-    required this.storyState
+    required this.storyState,
   });
 
   @override
   State<AreaChooseWidget> createState() => _AreaChooseWidgetState();
 }
 
-class _AreaChooseWidgetState extends State<AreaChooseWidget> with SingleTickerProviderStateMixin {
+class _AreaChooseWidgetState extends State<AreaChooseWidget> with TickerProviderStateMixin {
   late final AnimationController _buttonController;
   late final Animation<double> _buttonAnimation;
 
@@ -45,14 +45,20 @@ class _AreaChooseWidgetState extends State<AreaChooseWidget> with SingleTickerPr
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        List<Choice> currentChoiceList = widget.storyUsecase.currentChoice.where((x) => x.storyId == widget.storyState.currentIndex).toList();
+        List<Choice> currentChoiceList = widget.storyUsecase.currentChoice
+            .where((x) => x.storyId == widget.storyState.currentIndex)
+            .toList();
 
         return Stack(
           children: [
             Positioned.fill(
-              child: Image.asset('images/background/m_map_school.png', fit: BoxFit.fill, width: constraints.maxWidth, height: constraints.maxHeight),
+              child: Image.asset(
+                'images/background/m_map_school.png',
+                fit: BoxFit.fill,
+                width: constraints.maxWidth,
+                height: constraints.maxHeight,
+              ),
             ),
-            
             ...currentChoiceList.map((choice) {
               double x = constraints.maxWidth * (choice.bottonX ?? 0.5);
               double y = constraints.maxHeight * (choice.bottonY ?? 0.5);
@@ -60,60 +66,93 @@ class _AreaChooseWidgetState extends State<AreaChooseWidget> with SingleTickerPr
               return Positioned(
                 left: x,
                 top: y,
-                child: _buildPyokoButton(choice), // 引数にchoiceを渡すと個別に制御しやすくなります
+                child: PyokoButton(
+                  choice: choice,
+                  buttonController: _buttonController,
+                  buttonAnimation: _buttonAnimation,
+                ),
               );
             })
           ],
         );
-      }
-      
+      },
+    );
+  }
+}
+
+class PyokoButton extends StatefulWidget {
+  final Choice choice;
+  final AnimationController buttonController;
+  final Animation<double> buttonAnimation;
+
+  const PyokoButton({
+    super.key,
+    required this.choice,
+    required this.buttonController,
+    required this.buttonAnimation,
+  });
+
+  @override
+  State<PyokoButton> createState() => _PyokoButtonState();
+}
+
+class _PyokoButtonState extends State<PyokoButton> with SingleTickerProviderStateMixin {
+  late final AnimationController _tapController;
+  late final Animation<double> _tapAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _tapController = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _tapAnimation = Tween<double>(begin: 0.0, end: 20.0).animate(
+      CurvedAnimation(parent: _tapController, curve: Curves.easeInOut),
     );
   }
 
-  Widget _buildPyokoButton(Choice choice) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent, // ボタンの色
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-        elevation: 0, // Containerの影を使うため、こちらは0に
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30), // 丸いボタン
-        ),
-      ),
-      onPressed: () {
-        // ボタンが押されたときの処理
-        AwesomeDialog(
-          context: context,
-          dialogType: DialogType.success,
-          animType: AnimType.bottomSlide,
-          body: Center(
-          child: Text(
-            choice.word, 
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20,
-            ),
-          ),
-        ),
-          btnCancelOnPress: () {},
-          btnOkOnPress: () {} // TODO: ボタンを押した後の分岐を後で実装すること(storyUseCase.tabSelect)
-        ).show();
+  @override
+  void dispose() {
+    _tapController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([widget.buttonController, _tapController]),
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, widget.buttonAnimation.value + _tapAnimation.value),
+          child: child,
+        );
       },
-      // ★ここがポイント： AnimatedBuilderで中身だけを動かす
-      child: AnimatedBuilder(
-        animation: _buttonAnimation,
-        builder: (context, child) {
-          // Tweenで定義した値 (0.0 ～ -10.0) をY軸の移動量に適用
-          return Transform.translate(
-            offset: Offset(0, _buttonAnimation.value),
-            child: child, // 実際の中身
-          );
+      child: GestureDetector(
+        onTapDown: (_) => _tapController.forward(),
+        onTapUp: (_) => _tapController.reverse(),
+        onTapCancel: () => _tapController.reverse(),
+        onTap: () {
+          AwesomeDialog(
+            context: context,
+            dialogType: DialogType.success,
+            animType: AnimType.bottomSlide,
+            body: Center(
+              child: Text(
+                widget.choice.word,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+            ),
+            btnCancelOnPress: () {},
+            btnOkOnPress: () {},
+          ).show();
         },
-        // 動かしたい中身（画像）
-        child: choice.buttonImgName != null
+        child: widget.choice.buttonImgName != null && widget.choice.buttonImgName!.isNotEmpty
             ? Image.asset(
-                'images/icons/${choice.buttonImgName}',
+                'images/icons/${widget.choice.buttonImgName}',
                 width: 250,
                 height: 250,
                 fit: BoxFit.contain,

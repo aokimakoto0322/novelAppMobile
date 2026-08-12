@@ -13,7 +13,7 @@ class SpeakerAreaWidget extends ConsumerWidget {
 
     return Positioned(
       left: 10,
-      bottom: 185,
+      bottom: 218,
       child: Container(
         alignment: Alignment.center,
         height: 30,

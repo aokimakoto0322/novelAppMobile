@@ -25,6 +25,7 @@ class GameScreen extends ConsumerStatefulWidget {
 
 class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObserver {
   AdmobUsecase admobUsecase = AdmobUsecase();
+  bool _isVisible = false; // 明転用フラグ
 
   @override
   void initState() {
@@ -34,6 +35,21 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
 
     final usecase = ref.read(storyUsecaseProvider.notifier);
     usecase.initGameScreen(widget.savedIndex, widget.saveId);
+
+    // 明転と待機・文字表示の連鎖処理
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 1. 明転開始
+      if (mounted) setState(() => _isVisible = true);
+      
+      // 2. 明転にかかる時間（2秒）を待つ
+      await Future.delayed(const Duration(milliseconds: 2000));
+      
+      // 3. 文字表示
+      if (mounted) {
+        // 次に進めるのではなく、今のページ（0ページ目）を表示開始する
+        usecase.startStory();
+      }
+    });
 
     WidgetsBinding.instance.addObserver(this);
   }
@@ -64,40 +80,44 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
 
     return PopScope(
       canPop: false,
-      child: AnimationStackWidget(
-        foregroundWidget: Scaffold(
-          body: GestureDetector(
-            onTap: (state.isChoice || state.isWaiting || state.isDisplayingChoicePrompt)
-              ? null
-              : () {
-                usecase.showNextItem(usecase.db, allStory, admobUsecase);
-              },
-            behavior: HitTestBehavior.opaque,
-            child: Stack(
-              children: <Widget>[
-                // 画像表示エリア
-                ImageScreenWidget(
-                  backgroundImage: state.backGroundImage
-                ),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 2000), // 2秒かけて明るく
+        opacity: _isVisible ? 1.0 : 0.0,
+        child: AnimationStackWidget(
+          foregroundWidget: Scaffold(
+            body: GestureDetector(
+              onTap: (state.isChoice || state.isWaiting || state.isDisplayingChoicePrompt)
+                ? null
+                : () {
+                  usecase.showNextItem(usecase.db, allStory, admobUsecase);
+                },
+              behavior: HitTestBehavior.opaque,
+              child: Stack(
+                children: <Widget>[
+                  // 画像表示エリア
+                  ImageScreenWidget(
+                    backgroundImage: state.backGroundImage
+                  ),
 
-                // キャラクター表示エリア
-                CharacterWidget(
-                  character1: allStory[state.currentIndex].character1,
-                  character1Effect: allStory[state.currentIndex].character1Effect,
-                ),
-                
-                // テキストエリア
-                TextAreaWidget(),
-                
-                // しゃべっている人ラベル表示エリア
-                if (allStory[state.currentIndex].speaker != '')
-                  SpeakerAreaWidget(),
-                                  
-                // 選択肢表示エリア
-                ChooseScreenWidget()
-              ],
-            ),
-          )
+                  // キャラクター表示エリア
+                  CharacterWidget(
+                    character1: allStory[state.currentIndex].character1,
+                    character1Effect: allStory[state.currentIndex].character1Effect,
+                  ),
+                  
+                  // テキストエリア
+                  TextAreaWidget(),
+                  
+                  // しゃべっている人ラベル表示エリア
+                  if (allStory[state.currentIndex].speaker != '')
+                    SpeakerAreaWidget(),
+                                    
+                  // 選択肢表示エリア
+                  ChooseScreenWidget()
+                ],
+              ),
+            )
+          ),
         ),
       ),
     );
