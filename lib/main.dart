@@ -9,6 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'router/router.dart';
+import 'package:flutter_nobel_app/widget/title_slideshow.dart';
+import 'package:flutter_nobel_app/widget/button/title_button.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -85,45 +87,43 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('images/title.png'),
-              fit: BoxFit.cover
-            )
-          ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 60),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (!isLoading) {
-                        await Future.delayed(Duration(milliseconds: 200));
-                        usecase.resetState();
-                        await backlogUsecase.deleteBackLog();
-                        await usecase.setCurrentIndex(0);
-                        if (!context.mounted) return;
-                        
-                        context.go('/game'); // 戻る禁止の画面遷移
+        body: Stack(
+          children: [
+            const TitleSlideshow(),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 60),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    TitleButton(
+                      text: '初めから',
+                      onPressed: () async {
+                        if (!isLoading) {
+                          await Future.delayed(Duration(milliseconds: 200));
+                          usecase.resetState();
+                          await backlogUsecase.deleteBackLog();
+                          await usecase.setCurrentIndex(0);
+                          if (!context.mounted) return;
+                          
+                          context.go('/game'); // 戻る禁止の画面遷移
+                        }
                       }
-                    },
-                    child: Text('初めから')
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (!isLoading) {
-                        context.push('/save'); // 戻る許可の画面遷移
+                    ),
+                    const SizedBox(height: 20),
+                    TitleButton(
+                      text: '続きから',
+                      onPressed: () {
+                        if (!isLoading) {
+                          context.push('/save'); // 戻る許可の画面遷移
+                        }
                       }
-                    },
-                    child: Text('続きから')
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
+          ],
         )
       ),
     );
