@@ -5,6 +5,7 @@ import 'package:flutter_nobel_app/widget/animation_stack_widget.dart';
 import 'package:flutter_nobel_app/widget/character_widget.dart';
 import 'package:flutter_nobel_app/widget/choose_screen_widget.dart';
 import 'package:flutter_nobel_app/widget/image_screen_widget.dart';
+import 'package:flutter_nobel_app/widget/live2d_character_widget.dart';
 import 'package:flutter_nobel_app/widget/speaker_area_widget.dart';
 import 'package:flutter_nobel_app/widget/text_area_widget.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -100,10 +101,14 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
                   ),
 
                   // キャラクター表示エリア
-                  CharacterWidget(
-                    character1: allStory[state.currentIndex].character1,
-                    character1Effect: allStory[state.currentIndex].character1Effect,
+                  // CharacterWidget(
+                  //   character1: allStory[state.currentIndex].character1,
+                  //   character1Effect: allStory[state.currentIndex].character1Effect,
+                  // ),
+                  const Positioned.fill(
+                    child: Live2DCharacterWidget(),
                   ),
+
                   
                   // テキストエリア
                   TextAreaWidget(),

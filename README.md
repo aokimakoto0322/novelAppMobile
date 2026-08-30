@@ -25,3 +25,11 @@
 3. このWidgetはテスト対象か？  
    → Yes → 引数で受け取る  
    → No → context.read() でもOK  
+
+# Unityのビルド
+1. Unity -> File -> Build Setting -> WebGL -> Buildをする
+2. できたフォルダを/assets内に入れ替える
+
+# memo
+- Unity初期化したら、下記をやること
+   - Window -> PackageManager -> InputSystemをいれること（入れないとSDKが動作しない）
