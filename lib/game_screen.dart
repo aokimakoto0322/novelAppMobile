@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_nobel_app/usecase/admob_usecase.dart';
 import 'package:flutter_nobel_app/widget/animation_stack_widget.dart';
-import 'package:flutter_nobel_app/widget/character_widget.dart';
 import 'package:flutter_nobel_app/widget/choose_screen_widget.dart';
 import 'package:flutter_nobel_app/widget/image_screen_widget.dart';
 import 'package:flutter_nobel_app/widget/live2d_character_widget.dart';
@@ -105,11 +104,10 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
                   //   character1: allStory[state.currentIndex].character1,
                   //   character1Effect: allStory[state.currentIndex].character1Effect,
                   // ),
-                  const Positioned.fill(
-                    child: Live2DCharacterWidget(),
-                  ),
-
                   
+                  // Live2D WebView表示エリア
+                  const Live2DCharacterWidget(),
+
                   // テキストエリア
                   TextAreaWidget(),
                   

@@ -35,16 +35,31 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.read(routerProvider);
+    final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
       title: 'Flutter Demo',
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.black,
+        canvasColor: Colors.black,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         textTheme: GoogleFonts.kosugiMaruTextTheme(),
       ),
       routerConfig: router,
+      builder: (context, child) {
+        return AppLive2DWrapper(child: child ?? const SizedBox.shrink());
+      },
     );
+  }
+}
+
+class AppLive2DWrapper extends ConsumerWidget {
+  final Widget child;
+  const AppLive2DWrapper({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return child;
   }
 }
 
