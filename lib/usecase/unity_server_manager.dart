@@ -16,38 +16,40 @@ class UnityServerManager {
     final appDocDir = await getApplicationDocumentsDirectory();
     final unityDir = Directory('${appDocDir.path}/unity_webgl');
 
-    // まだコピーされていなければ、assetsからファイルを展開する
     if (!await unityDir.exists()) {
       await unityDir.create(recursive: true);
+    }
 
-      // コピーすべきUnityのファイル名リスト
-      const filesToCopy = [
-        'index.html',
-        'TemplateData/style.css',
-        'TemplateData/favicon.ico',
-        'TemplateData/fullscreen-button.png',
-        'TemplateData/webgl-logo.png',
-        'TemplateData/unity-logo-dark.png',
-        'TemplateData/progress-bar-empty-dark.png',
-        'TemplateData/progress-bar-full-dark.png',
-        'Build/unity_webgl.loader.js',
-        'Build/unity_webgl.framework.js',
-        'Build/unity_webgl.data',
-        'Build/unity_webgl.wasm',
-      ];
+    // コピーすべきUnityのファイル名リスト
+    const filesToCopy = [
+      'index.html',
+      'TemplateData/style.css',
+      'TemplateData/favicon.ico',
+      'TemplateData/fullscreen-button.png',
+      'TemplateData/webgl-logo.png',
+      'TemplateData/unity-logo-dark.png',
+      'TemplateData/progress-bar-empty-dark.png',
+      'TemplateData/progress-bar-full-dark.png',
+      'Build/unity_webgl.loader.js',
+      'Build/unity_webgl.framework.js',
+      'Build/unity_webgl.data',
+      'Build/unity_webgl.wasm',
+    ];
 
-      for (final filePath in filesToCopy) {
-        try {
+    for (final filePath in filesToCopy) {
+      try {
+        final file = File('${unityDir.path}/$filePath');
+        // index.html または未存在のファイルを展開
+        if (filePath == 'index.html' || !await file.exists()) {
           final byteData = await rootBundle.load('assets/unity_webgl/$filePath');
-          final file = File('${unityDir.path}/$filePath');
           await file.create(recursive: true);
           await file.writeAsBytes(byteData.buffer.asUint8List(
             byteData.offsetInBytes,
             byteData.lengthInBytes,
           ));
-        } catch (e) {
-          print('コピー失敗 ($filePath): $e');
         }
+      } catch (e) {
+        print('コピー失敗 ($filePath): $e');
       }
     }
 

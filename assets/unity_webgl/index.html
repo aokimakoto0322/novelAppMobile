@@ -119,6 +119,9 @@
                 fullscreenButton.onclick = () => {
                   unityInstance.SetFullscreen(1);
                 };
+                if (window.FlutterChannel) {
+                  window.FlutterChannel.postMessage("unity_loaded");
+                }
               }).catch((message) => {
                 alert(message);
               });

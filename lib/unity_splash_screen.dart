@@ -1,85 +1,80 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_nobel_app/provider/live2d_provider.dart';
 import 'package:flutter_nobel_app/widget/live2d_character_widget.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class UnitySplashScreen extends StatefulWidget {
+class UnitySplashScreen extends ConsumerStatefulWidget {
   const UnitySplashScreen({super.key});
 
   @override
-  State<UnitySplashScreen> createState() => _UnitySplashScreenState();
+  ConsumerState<UnitySplashScreen> createState() => _UnitySplashScreenState();
 }
 
-class _UnitySplashScreenState extends State<UnitySplashScreen> {
-  Timer? _timer;
+class _UnitySplashScreenState extends ConsumerState<UnitySplashScreen> {
+  Timer? _fallbackTimer;
   bool _hasNavigated = false;
-  bool _isFadingOut = false;
 
   @override
   void initState() {
     super.initState();
 
-    // 2.2秒後に暗転（フェードアウト）開始
-    _timer = Timer(const Duration(milliseconds: 2200), () {
-      _startFadeOut();
+    // 万が一のタイムアウト（15秒経過してもUnityの起動が検知できない場合のフォールバック）
+    _fallbackTimer = Timer(const Duration(seconds: 15), () {
+      if (!_hasNavigated && mounted) {
+        _navigateToNext();
+      }
     });
   }
 
-  void _startFadeOut() {
+  void _onUnityLoaded() {
     if (_hasNavigated || !mounted) return;
-    setState(() {
-      _isFadingOut = true;
-    });
-
-    // 500msの暗転アニメーション完了後に画面遷移
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _navigateToNext();
-    });
+    _fallbackTimer?.cancel();
+    // Unityのロード完了後、キャラクターを描画させずに即座にSplashScreen（音量注意画面）へ遷移
+    _navigateToNext();
   }
 
   void _navigateToNext() {
     if (_hasNavigated || !mounted) return;
     _hasNavigated = true;
-    _timer?.cancel();
+    _fallbackTimer?.cancel();
     context.go('/splash');
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _fallbackTimer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Unityの読み込み完了を検知
+    final live2dState = ref.watch(live2dProvider);
+    if (live2dState.isUnityLoaded && !_hasNavigated) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _onUnityLoaded();
+      });
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          if (!_isFadingOut) {
-            _startFadeOut();
-          } else {
-            _navigateToNext();
-          }
+          _navigateToNext();
         },
         child: Stack(
           children: [
             const Positioned.fill(
               child: Live2DCharacterWidget(),
             ),
-            // キャラクター表示前の暗転用オーバーレイ
-            Positioned.fill(
-              child: IgnorePointer(
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 500),
-                  opacity: _isFadingOut ? 1.0 : 0.0,
-                  child: const SizedBox.expand(
-                    child: ColoredBox(color: Colors.black),
-                  ),
-                ),
+            // Unityのロード完了時（キャラクターが描画される瞬間）、画面遷移までのわずかな隙間も黒で完全に隠す
+            if (live2dState.isUnityLoaded)
+              const Positioned.fill(
+                child: ColoredBox(color: Colors.black),
               ),
-            ),
           ],
         ),
       ),
