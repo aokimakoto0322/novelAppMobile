@@ -22,7 +22,7 @@ class BacklogRepository {
 
   // 保存したセーブデータと紐づいていないバックログを取得する
   Future<List<BackLog>> getBacklog() async {
-    var result = await (db.select(db.backLogTable)..where((tbl) => tbl.saveId.equals(0))).get();
+    var result = await (db.select(db.backLogTable)..where((tbl) => tbl.saveId.equals(0) | tbl.saveId.isNull())).get();
 
     return result;
   }
@@ -45,11 +45,25 @@ class BacklogRepository {
   }
 
   // セーブデータとバックログを紐づける
-  Future<void> linkSaveAndBacklog(int saveId) async {
+  Future<void> linkSaveAndBacklog(int currentSaveId, int newSaveId) async {
+    if (currentSaveId > 0 && currentSaveId != newSaveId) {
+      final previousLogs = await getSavedBacklog(currentSaveId);
+      for (final log in previousLogs) {
+        await db.into(db.backLogTable).insert(
+          BackLogTableCompanion(
+            word: Value(log.word),
+            speaker: Value(log.speaker),
+            choiceWord: Value(log.choiceWord),
+            saveId: Value(newSaveId),
+          ),
+        );
+      }
+    }
+
     await (db.update(db.backLogTable)
-      ..where((tbl) => tbl.saveId.equals(0)))
+      ..where((tbl) => tbl.saveId.equals(0) | tbl.saveId.isNull()))
       .write(BackLogTableCompanion(
-        saveId: Value(saveId)
+        saveId: Value(newSaveId)
       ));
   }
 }

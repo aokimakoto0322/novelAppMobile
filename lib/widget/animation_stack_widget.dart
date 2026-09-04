@@ -105,6 +105,7 @@ class _AnimationStackWidgetState extends ConsumerState<AnimationStackWidget> {
                                       final newSaveId = await saveUsecase.saveStory(
                                         database,
                                         allStory[storyState.currentIndex].id,
+                                        storyState.saveId,
                                       );
                                       storyUsecase.initGameScreen(
                                         storyState.currentIndex,

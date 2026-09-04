@@ -18,7 +18,6 @@ class BacklogUsecase {
     List<BackLog> result = [];
 
     if (saveId == 0) {
-      // TODO: バックログ表示→セーブ→バックログ表示すると何も表示されなくなってしまうため解消すること
       result = await backlogRepository.getBacklog();
     } else {
       // saveIdが0以外の場合は、指定されたsaveIdに紐づくバックログと、
