@@ -1,44 +1,109 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
+import 'package:flutter_nobel_app/state/story_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TextAreaWidget extends ConsumerWidget {
-  const TextAreaWidget({super.key});
+class TextAreaWidget extends ConsumerStatefulWidget {
+  final VoidCallback? onTap;
+
+  const TextAreaWidget({
+    super.key,
+    this.onTap,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TextAreaWidget> createState() => _TextAreaWidgetState();
+}
+
+class _TextAreaWidgetState extends ConsumerState<TextAreaWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  bool _isTextFinished = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
+
+    _fadeAnimation = Tween<double>(begin: 0.2, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    if (!_isTextFinished) {
+      setState(() {
+        _isTextFinished = true;
+      });
+    } else {
+      widget.onTap?.call();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final storyUsecase = ref.read(storyUsecaseProvider.notifier);
     final storyState = ref.watch(storyUsecaseProvider);
     final allStory = storyState.allStory;
 
+    ref.listen<StoryState>(storyUsecaseProvider, (previous, next) {
+      if (previous?.currentIndex != next.currentIndex) {
+        if (mounted) {
+          setState(() {
+            _isTextFinished = false;
+          });
+        }
+      }
+    });
+
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
     return Positioned(
-      left: 10,
-      right: 10,
-      bottom: MediaQuery.of(context).padding.bottom,
-      child: Container(
-        height: 180,
-        // 外側の青背景＆角丸
-        child: Material(
-          color: Colors.blue.withAlpha(100),
-          borderRadius: BorderRadius.circular(16),
-          clipBehavior: Clip.antiAlias,
-          child: Padding(
-            // 外枠から 2px 内側に配置するための余白
-            padding: const EdgeInsets.all(2),
-            child: Container(
-              // 2px 内側の内枠（1px幅の半透明な線）
-              decoration: BoxDecoration(
-                // 2px内側に配置されるため、角丸も少し小さめ（14）にすると綺麗に沿います
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: Colors.white.withAlpha(120), // 白の半透明線（お好みで透明度を調整できます）
-                  width: 1, // 1px幅
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: GestureDetector(
+        onTap: _handleTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          height: 200 + bottomPadding,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [
+                Colors.black.withAlpha(220),
+                Colors.black.withAlpha(160),
+                Colors.black.withAlpha(60),
+                Colors.transparent,
+              ],
+              stops: const [0.0, 0.45, 0.8, 1.0],
+            ),
+          ),
+          child: Stack(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(
+                  left: 24,
+                  right: 24,
+                  top: 48,
+                  bottom: bottomPadding + 16,
                 ),
-              ),
-              child: Padding(
-                // テキストの配置位置調整（外枠からの余白感にあわせています）
-                padding: const EdgeInsets.only(left: 18, right: 18, top: 8),
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: storyState.isWaiting
@@ -74,8 +139,8 @@ class TextAreaWidget extends ConsumerWidget {
                               key: ValueKey<String>('fill_${allStory[storyState.currentIndex].word}'),
                               animatedTexts: [
                                 TyperAnimatedText(
-                                  allStory[storyState.currentIndex].word + '[${storyState.currentIndex + 1}]',
-                                  textStyle: TextStyle(
+                                  '${allStory[storyState.currentIndex].word}[${storyState.currentIndex + 1}]',
+                                  textStyle: const TextStyle(
                                     fontSize: 18,
                                     color: Colors.white,
                                   ),
@@ -84,6 +149,11 @@ class TextAreaWidget extends ConsumerWidget {
                               totalRepeatCount: 1,
                               displayFullTextOnTap: true,
                               onFinished: () {
+                                if (mounted) {
+                                  setState(() {
+                                    _isTextFinished = true;
+                                  });
+                                }
                                 if (storyState.isDisplayingChoicePrompt) {
                                   storyUsecase.displayChoiceScreen();
                                 }
@@ -93,7 +163,38 @@ class TextAreaWidget extends ConsumerWidget {
                         ),
                 ),
               ),
-            ),
+
+              // テキスト表示完了時の「▼」点滅インジケータ
+              if (_isTextFinished && !storyState.isChoice && !storyState.isWaiting)
+                Positioned(
+                  right: 24,
+                  bottom: bottomPadding + 16,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Stack(
+                      children: [
+                        Text(
+                          '▼',
+                          style: TextStyle(
+                            fontSize: 18,
+                            foreground: Paint()
+                              ..style = PaintingStyle.stroke
+                              ..strokeWidth = 2
+                              ..color = Colors.black,
+                          ),
+                        ),
+                        const Text(
+                          '▼',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),

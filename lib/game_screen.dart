@@ -85,41 +85,39 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
         opacity: _isVisible ? 1.0 : 0.0,
         child: AnimationStackWidget(
           foregroundWidget: Scaffold(
-            body: GestureDetector(
-              onTap: (state.isChoice || state.isWaiting || state.isDisplayingChoicePrompt)
-                ? null
-                : () {
-                  usecase.showNextItem(usecase.db, allStory, admobUsecase);
-                },
-              behavior: HitTestBehavior.opaque,
-              child: Stack(
-                children: <Widget>[
-                  // 画像表示エリア
-                  ImageScreenWidget(
-                    backgroundImage: state.backGroundImage
-                  ),
+            body: Stack(
+              children: <Widget>[
+                // 画像表示エリア
+                ImageScreenWidget(
+                  backgroundImage: state.backGroundImage
+                ),
 
-                  // キャラクター表示エリア
-                  // CharacterWidget(
-                  //   character1: allStory[state.currentIndex].character1,
-                  //   character1Effect: allStory[state.currentIndex].character1Effect,
-                  // ),
-                  
-                  // Live2D WebView表示エリア
-                  const Live2DCharacterWidget(),
+                // キャラクター表示エリア
+                // CharacterWidget(
+                //   character1: allStory[state.currentIndex].character1,
+                //   character1Effect: allStory[state.currentIndex].character1Effect,
+                // ),
+                
+                // Live2D WebView表示エリア
+                const Live2DCharacterWidget(),
 
-                  // テキストエリア
-                  TextAreaWidget(),
-                  
-                  // しゃべっている人ラベル表示エリア
-                  if (allStory[state.currentIndex].speaker != '')
-                    SpeakerAreaWidget(),
-                                    
-                  // 選択肢表示エリア
-                  ChooseScreenWidget()
-                ],
-              ),
-            )
+                // テキストエリア
+                TextAreaWidget(
+                  onTap: (state.isChoice || state.isWaiting || state.isDisplayingChoicePrompt)
+                    ? null
+                    : () {
+                      usecase.showNextItem(usecase.db, allStory, admobUsecase);
+                    },
+                ),
+                
+                // しゃべっている人ラベル表示エリア
+                if (allStory[state.currentIndex].speaker != '')
+                  SpeakerAreaWidget(),
+                                  
+                // 選択肢表示エリア
+                ChooseScreenWidget()
+              ],
+            ),
           ),
         ),
       ),
