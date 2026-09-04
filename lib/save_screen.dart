@@ -16,6 +16,7 @@ class SaveScreen extends ConsumerWidget {
     final usecase = ref.read(storyUsecaseProvider.notifier);
 
     return Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text("セーブデータ"),
           leading: BackButton(

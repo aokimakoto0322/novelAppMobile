@@ -25,6 +25,7 @@ class _BacklogScreenState extends ConsumerState<BacklogScreen> {
     final state = ref.watch(storyUsecaseProvider);
     
     return Scaffold(
+      backgroundColor: Colors.white,
       key: ValueKey('${DateTime.now().millisecond}'), // keyを設定してGoRouterが画面情報を再利用するのを防ぐ
       appBar: AppBar(
         title: const Text("バックログ"),
