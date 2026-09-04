@@ -122,6 +122,14 @@
                 if (window.FlutterChannel) {
                   window.FlutterChannel.postMessage("unity_loaded");
                 }
+                setTimeout(() => {
+                  if (canvas) {
+                    canvas.style.visibility = "hidden";
+                  }
+                  if (window.FlutterChannel) {
+                    window.FlutterChannel.postMessage("unity_splash_finished");
+                  }
+                }, 2000);
               }).catch((message) => {
                 alert(message);
               });

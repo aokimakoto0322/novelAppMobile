@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_nobel_app/provider/live2d_provider.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_nobel_app/usecase/admob_usecase.dart';
 import 'package:flutter_nobel_app/widget/animation_stack_widget.dart';
@@ -38,6 +39,9 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
 
     // 明転と待機・文字表示の連鎖処理
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // GameScreen表示時にLive2Dキャンバスを再表示
+      ref.read(live2dProvider.notifier).showCanvas();
+
       // 1. 明転開始
       if (mounted) setState(() => _isVisible = true);
       

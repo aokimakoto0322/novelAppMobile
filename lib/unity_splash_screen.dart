@@ -20,25 +20,19 @@ class _UnitySplashScreenState extends ConsumerState<UnitySplashScreen> {
   void initState() {
     super.initState();
 
-    // 万が一のタイムアウト（15秒経過してもUnityの起動が検知できない場合のフォールバック）
-    _fallbackTimer = Timer(const Duration(seconds: 15), () {
+    // 万が一のタイムアウト（20秒経過しても検知できない場合のフォールバック）
+    _fallbackTimer = Timer(const Duration(seconds: 20), () {
       if (!_hasNavigated && mounted) {
         _navigateToNext();
       }
     });
   }
 
-  void _onUnityLoaded() {
-    if (_hasNavigated || !mounted) return;
-    _fallbackTimer?.cancel();
-    // Unityのロード完了後、キャラクターを描画させずに即座にSplashScreen（音量注意画面）へ遷移
-    _navigateToNext();
-  }
-
   void _navigateToNext() {
     if (_hasNavigated || !mounted) return;
     _hasNavigated = true;
     _fallbackTimer?.cancel();
+    ref.read(live2dProvider.notifier).hideCanvas();
     context.go('/splash');
   }
 
@@ -50,11 +44,12 @@ class _UnitySplashScreenState extends ConsumerState<UnitySplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Unityの読み込み完了を検知
     final live2dState = ref.watch(live2dProvider);
-    if (live2dState.isUnityLoaded && !_hasNavigated) {
+
+    // JSから 「Made with Unity」 の終了通知（unity_splash_finished）を受け取ったら音量注意画面へ遷移
+    if (live2dState.isUnitySplashFinished && !_hasNavigated) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _onUnityLoaded();
+        _navigateToNext();
       });
     }
 
@@ -63,18 +58,16 @@ class _UnitySplashScreenState extends ConsumerState<UnitySplashScreen> {
       body: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {
-          _navigateToNext();
+          // Unityのロード完了後であればタップでスキップ可能
+          if (live2dState.isUnityLoaded) {
+            _navigateToNext();
+          }
         },
-        child: Stack(
+        child: const Stack(
           children: [
-            const Positioned.fill(
+            Positioned.fill(
               child: Live2DCharacterWidget(),
             ),
-            // Unityのロード完了時（キャラクターが描画される瞬間）、画面遷移までのわずかな隙間も黒で完全に隠す
-            if (live2dState.isUnityLoaded)
-              const Positioned.fill(
-                child: ColoredBox(color: Colors.black),
-              ),
           ],
         ),
       ),

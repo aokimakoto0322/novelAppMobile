@@ -8,12 +8,14 @@ class Live2DState {
   final bool isInitialized;
   final bool isLoading;
   final bool isUnityLoaded;
+  final bool isUnitySplashFinished;
 
   Live2DState({
     this.controller,
     this.isInitialized = false,
     this.isLoading = false,
     this.isUnityLoaded = false,
+    this.isUnitySplashFinished = false,
   });
 
   Live2DState copyWith({
@@ -21,12 +23,15 @@ class Live2DState {
     bool? isInitialized,
     bool? isLoading,
     bool? isUnityLoaded,
+    bool? isUnitySplashFinished,
   }) {
     return Live2DState(
       controller: controller ?? this.controller,
       isInitialized: isInitialized ?? this.isInitialized,
       isLoading: isLoading ?? this.isLoading,
       isUnityLoaded: isUnityLoaded ?? this.isUnityLoaded,
+      isUnitySplashFinished:
+          isUnitySplashFinished ?? this.isUnitySplashFinished,
     );
   }
 }
@@ -43,6 +48,16 @@ class Live2DNotifier extends Notifier<Live2DState> {
     return Live2DState(isLoading: true);
   }
 
+  void showCanvas() {
+    state.controller?.runJavaScript(
+        'var c = document.getElementById("unity-canvas"); if(c) c.style.visibility = "visible";');
+  }
+
+  void hideCanvas() {
+    state.controller?.runJavaScript(
+        'var c = document.getElementById("unity-canvas"); if(c) c.style.visibility = "hidden";');
+  }
+
   Future<void> _initServerAndWebView() async {
     try {
       final unityDirPath = await _serverManager.prepareUnityFiles();
@@ -55,6 +70,8 @@ class Live2DNotifier extends Notifier<Live2DState> {
           onMessageReceived: (JavaScriptMessage message) {
             if (message.message == 'unity_loaded') {
               state = state.copyWith(isUnityLoaded: true);
+            } else if (message.message == 'unity_splash_finished') {
+              state = state.copyWith(isUnitySplashFinished: true);
             }
           },
         )
@@ -65,10 +82,16 @@ class Live2DNotifier extends Notifier<Live2DState> {
         isInitialized: true,
         isLoading: false,
         isUnityLoaded: false,
+        isUnitySplashFinished: false,
       );
     } catch (e) {
       debugPrint('Unity初期化エラー: $e');
-      state = Live2DState(isInitialized: false, isLoading: false, isUnityLoaded: false);
+      state = Live2DState(
+        isInitialized: false,
+        isLoading: false,
+        isUnityLoaded: false,
+        isUnitySplashFinished: false,
+      );
     }
   }
 }
