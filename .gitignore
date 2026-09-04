@@ -46,3 +46,22 @@ app.*.map.json
 
 # env
 .env
+
+# Unity
+/unity/**
+!/unity/
+!/unity/unityAssets/
+!/unity/unityAssets/**
+!/unity/Packages/
+!/unity/Packages/**
+!/unity/ProjectSettings/
+!/unity/ProjectSettings/**
+!/unity/*/
+!/unity/*/unityAssets/
+!/unity/*/unityAssets/**
+!/unity/*/Assets/
+!/unity/*/Assets/**
+!/unity/*/Packages/
+!/unity/*/Packages/**
+!/unity/*/ProjectSettings/
+!/unity/*/ProjectSettings/**

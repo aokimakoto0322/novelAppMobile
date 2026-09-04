@@ -1,16 +1,35 @@
-# flutter_nobel_app
+## 概念図
+![概念図](flow.png)
 
-A new Flutter project.
 
-## Getting Started
+## CI/CD
+### CD
+- GitHub Actionsによる自動デプロイ
+   - developブランチにマージされた瞬間にTestFlightに自動デプロイ
 
-This project is a starting point for a Flutter application.
+# Driftのビルド
+`flutter pub run build_runner build`
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+# MEMO
+## 子Widgetでcontextで受け取るか、引数で渡すかの判断
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. このWidgetはビジネスロジックに依存しているか？  
+   → Yes → 引数で受け取る  
+   → No → 次へ  
+
+2. このWidgetは再利用されるか？  
+   → Yes → 引数で受け取る  
+   → No → 次へ  
+
+3. このWidgetはテスト対象か？  
+   → Yes → 引数で受け取る  
+   → No → context.read() でもOK  
+
+# Unityのビルド
+1. Unity -> File -> Build Setting -> WebGL -> Buildをする
+2. できたフォルダを/assets内に入れ替える
+
+# memo
+- Unity初期化したら、下記をやること
+   - Window -> PackageManager -> InputSystemをいれること（入れないとSDKが動作しない）
