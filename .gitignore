@@ -47,5 +47,21 @@ app.*.map.json
 # env
 .env
 
-# unityフォルダ全体をGitの管理から除外
-unity/
+# Unity
+/unity/**
+!/unity/
+!/unity/unityAssets/
+!/unity/unityAssets/**
+!/unity/Packages/
+!/unity/Packages/**
+!/unity/ProjectSettings/
+!/unity/ProjectSettings/**
+!/unity/*/
+!/unity/*/unityAssets/
+!/unity/*/unityAssets/**
+!/unity/*/Assets/
+!/unity/*/Assets/**
+!/unity/*/Packages/
+!/unity/*/Packages/**
+!/unity/*/ProjectSettings/
+!/unity/*/ProjectSettings/**
