@@ -1,17 +1,29 @@
+import 'package:flutter_nobel_app/data/repository/backlog_repository.dart';
 import 'package:flutter_nobel_app/data/repository/save_repository.dart';
+import 'package:flutter_nobel_app/database/database.dart';
 import 'package:flutter_nobel_app/views/save_view_model.dart';
-import 'package:sqflite/sqflite.dart';
 
 class SaveUsecase {
-  SaveRepository saveRepository = SaveRepository();
+  final SaveRepository saveRepository;
+  final BacklogRepository backlogRepository;
+
+  SaveUsecase({
+    required this.saveRepository,
+    required this.backlogRepository
+  });
 
   // 進行状態をセーブする
-  Future<void> saveStory(Database db, int storyId) async {
-    saveRepository.insertSaveStory(db, storyId);
+  Future<int> saveStory(MyDatabase db, int storyId, int currentSaveId) async {
+    // 進行状況をセーブ
+    var saveId = await saveRepository.insertSaveStory(db, storyId);
+
+    // セーブした進行状況と、バックログを紐づける
+    await backlogRepository.linkSaveAndBacklog(currentSaveId, saveId);
+    return saveId; // saveIdを返す
   }
 
   // 進行状況を取得する
-  Future<List<SaveViewModel>> fetchSaveList(Database db) async {
+  Future<List<SaveViewModel>> fetchSaveList(MyDatabase db) async {
     var result = await saveRepository.fetchSaveList(db);
     return result;
   }

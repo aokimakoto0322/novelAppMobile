@@ -1,119 +1,188 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_nobel_app/database/migration.dart';
-import 'package:flutter_nobel_app/game_screen.dart';
-import 'package:flutter_nobel_app/models/common_story.dart';
-import 'package:flutter_nobel_app/save_screen.dart';
-import 'package:flutter_nobel_app/usecase/common_story_usecase.dart';
-import 'package:flutter_nobel_app/usecase/save_usecase.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:flutter_nobel_app/database/database.dart';
+import 'package:flutter_nobel_app/provider/backlog_provider.dart';
+import 'package:flutter_nobel_app/provider/database_provider.dart';
+import 'package:flutter_nobel_app/provider/story_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'router/router.dart';
+import 'package:flutter_nobel_app/widget/title_slideshow.dart';
+import 'package:flutter_nobel_app/widget/button/title_button.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Database database = await initializeDatabase();
+  MobileAds.instance.initialize();
+  final database = MyDatabase();
 
   // 環境変数
   await dotenv.load(fileName: ".env");
 
-  runApp(MyApp(database: database));
+  runApp(
+    ProviderScope(
+      overrides: [
+        databaseProvider.overrideWithValue(database)
+      ],
+      child: MyApp()
+    )
+  );
 }
 
-class MyApp extends StatelessWidget {
-  final Database database;
-
-  const MyApp({super.key, required this.database});
+class MyApp extends ConsumerWidget {
+  const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(routerProvider);
+
+    return MaterialApp.router(
       title: 'Flutter Demo',
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.black,
+        canvasColor: Colors.black,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        textTheme: GoogleFonts.kosugiMaruTextTheme(),
       ),
-      home: MyHomePage(title: 'サンプル', database: database),
+      routerConfig: router,
+      builder: (context, child) {
+        return AppLive2DWrapper(child: child ?? const SizedBox.shrink());
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  final Database database;
-
-  const MyHomePage({super.key, required this.title, required this.database});
-
-  final String title;
+class AppLive2DWrapper extends ConsumerWidget {
+  final Widget child;
+  const AppLive2DWrapper({super.key, required this.child});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return child;
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  CommonStoryUsecase commonStoryUsecase = CommonStoryUsecase();
-  SaveUsecase saveUsecase = SaveUsecase();
-  List<CommonStory> allStory = [];
+class MyHomePage extends ConsumerStatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  ConsumerState<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends ConsumerState<MyHomePage> {
+  List<Story> allStory = [];
+  bool isLoading = false; // 初期データ取得時のロード状態を管理
+  bool isFading = false; // 暗転用フラグを追加
 
   @override
   void initState() {
-    fetchAllStory();
     super.initState();
+    fetchAllStory();
   }
 
   Future<void> fetchAllStory() async {
-    allStory = await commonStoryUsecase.getAllStory(widget.database);
+    final storyUsecase = ref.read(storyUsecaseProvider.notifier);
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await storyUsecase.getAllStory();
+    } catch (e) {
+      debugPrint("ストーリー取得エラー: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('images/home.jpg'),
-            fit: BoxFit.cover
-          )
-        ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 60),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) => GameScreen(database: widget.database, allStory: allStory),
-                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                          return FadeTransition(
-                            opacity: animation.drive(
-                              CurveTween(curve: Curves.easeIn)
-                            ),
-                            child: child
-                          );
-                        },
-                        transitionDuration: Duration(milliseconds: 500)
-                      )
-                    );
-                  },
-                  child: Text('初めから')
+    final usecase = ref.read(storyUsecaseProvider.notifier);
+    final backlogUsecase = ref.read(backlogUsecaseProvider);
+    
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            const TitleSlideshow(),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 60),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    TitleButton(
+                      text: '初めから',
+                      onPressed: () async {
+                        if (!isLoading && !isFading) {
+                          setState(() {
+                            isFading = true; // 暗転開始
+                          });
+
+                          // 暗転アニメーションを待つ
+                          await Future.delayed(const Duration(milliseconds: 1200));
+
+                          usecase.resetState();
+                          await backlogUsecase.deleteBackLog();
+                          await usecase.setCurrentIndex(0);
+                          if (!context.mounted) return;
+                          
+                          context.go('/game'); // 戻る禁止の画面遷移
+                        }
+                      }
+                    ),
+                    const SizedBox(height: 20),
+                    TitleButton(
+                      text: '続きから',
+                      onPressed: () {
+                        if (!isLoading && !isFading) {
+                          // 念のためここでもフラグを立てるか、即座に遷移させる
+                          if (!context.mounted) return;
+                          context.push('/save'); // 戻る許可の画面遷移
+                        }
+                      }
+                    ),
+                  ],
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SaveScreen(database: widget.database, allStory: allStory))
-                    );
-                  },
-                  child: Text('続きから')
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      )
+            // 暗転用のオーバーレイ
+            IgnorePointer(
+              ignoring: !isFading,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 1000), // 1秒かけて暗転
+                opacity: isFading ? 1.0 : 0.0,
+                child: Container(color: Colors.black),
+              ),
+            ),
+
+            // ローディング表示（追加）
+            Visibility(
+              visible: isLoading,
+              child: Container(
+                color: Colors.black.withValues(alpha: 0.6),
+                child: const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(color: Colors.white),
+                      SizedBox(height: 20),
+                      Text("データを読み込み中...", style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        )
+      ),
     );
   }
 }

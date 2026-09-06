@@ -1,0 +1,76 @@
+# プロジェクト概要 & エージェント指示方針
+あなたは本Flutterプロジェクトを担当するシニアエンジニアです。
+プロジェクト既存のディレクトリ構造、設計規約、命名規則を厳格に遵守してコードを生成・修正してください。
+
+---
+
+## 1. 動作・自律実行ルール
+- **変更範囲の限定**:
+  - 指示されたタスクに関連するファイルのみを編集してください。
+  - 無関係な既存ファイルの再フォーマットやリファクタリングは行わないでください。
+- **検証とテスト**:
+  - Driftのテーブル定義やモデル変更後は、必要に応じて `build_runner` を実行してください。
+  - 修正後は `flutter analyze` で静的解析エラーがないことを確認してください。
+- **回答スタイル**:
+  - 簡潔な要点と変更内容のみを日本語で回答してください。
+
+---
+
+## 2. 技術スタック
+- **Language / Framework**: Flutter / Dart
+- **State Management**: flutter_riverpod
+- **Database / ORM**: Drift (SQLite)
+- **Navigation**: router (GoRouter / Navigator 2.0等)
+
+---
+
+## 3. ディレクトリ構成と責務
+以下のディレクトリ構造と責務を必ず遵守してください。
+
+- `lib/`
+  - `constants/`: アプリ全体で使用する定数（カラー、スタイル、文字列、設定値など）
+  - `data/`: データモデル、DTO、外部リソース定義
+  - `database/`: Driftのテーブル定義、データベースクラス、DAO
+  - `provider/`: RiverpodのProvider定義、依存性注入の集約
+  - `router/`: ルーティング定義、画面遷移設定
+  - `state/`: 画面や機能ごとの状態定義（Notifier、Stateクラス）
+  - `usecase/`: ビジネスロジック、データ処理のユースケース
+  - `views/`: 画面UI（スクリーンごとのメインレイアウト）
+  - `widget/`: 共通UIコンポーネント・パーツ
+  - `*_screen.dart`: 各主要画面のエントリポイント（例: `game_screen.dart`, `save_screen.dart`, `backlog_screen.dart`, `splash_screen.dart`）
+  - `main.dart`: アプリケーションのエントリポイント
+
+※ `unity/`, `fonts/`, `images/`, `build/` などのアセットやプラットフォーム依存フォルダは、明示的な指示がない限り直接変更しないでください。
+
+---
+
+## 4. コーディング規約 & 設計ルール
+- **Riverpod / State**:
+  - 状態管理は `provider/` および `state/` で管理し、UI（`views/`, `widget/`, `*_screen.dart`）に直接重いロジックを書かないこと。
+  - Widgetは `ConsumerWidget` または `ConsumerStatefulWidget` を適切に使用すること。
+- **Drift / Database**:
+  - DBアクセスは `database/` 配下にカプセル化し、UIから直接クエリを呼ばず、`usecase/` や `provider/` 経由で取得すること。
+- **命名規則**:
+  - クラス名: `UpperCamelCase`
+  - ファイル名 / 変数名 / 関数名: `lowerCamelCase` / `snake_case`（ファイル名）
+  - Provider名: 末尾に `Provider` を付与
+- **非同期・エラー処理**:
+  - 非同期処理は `async/await` で統一し、適切な例外処理（try-catch / AsyncValue）を行うこと。
+  - 空の `catch` ブロックは禁止。
+
+---
+
+## 5. よく使う実行コマンド
+- **コード生成 (Drift/Freezed等)**:
+  `flutter pub run build_runner build --delete-conflicting-outputs`
+- **静的解析**:
+  `flutter analyze`
+- **テスト実行**:
+  `flutter test`
+
+---
+
+## 6. 禁止事項
+- ユーザーの明示的な許可なく新しい外部パッケージを追加しないこと。
+- 既存のゲーム進行、セーブデータ、バックログ処理の整合性を壊さないこと。
+- コメントおよび解説は日本語で記述すること。
