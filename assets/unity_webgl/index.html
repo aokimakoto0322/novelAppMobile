@@ -119,6 +119,17 @@
                 fullscreenButton.onclick = () => {
                   unityInstance.SetFullscreen(1);
                 };
+                
+                // --------------------------------------------------
+                // ★ここを新しく追加します！
+                // Flutterから呼ばれる関数を定義して、Unity(C#)へメッセージを送る
+                window.onScreenTap = function(x, y) {
+                  // Unityのシーン内にある "TouchReceiverObject" というオブジェクトの
+                  // "OnScreenTouch" というC#メソッドに "x,y" の文字列を渡す！
+                  unityInstance.SendMessage('TouchReceiverObject', 'OnScreenTouch', x + ',' + y);
+                };
+                // --------------------------------------------------
+
                 if (window.FlutterChannel) {
                   window.FlutterChannel.postMessage("unity_loaded");
                 }
