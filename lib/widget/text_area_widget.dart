@@ -103,35 +103,45 @@ class _TextAreaWidgetState extends ConsumerState<TextAreaWidget>
         child: Container(
           height: 190 + bottomPadding,
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-            border: Border.all(
-              color: Colors.white.withAlpha(35), // 邪魔しない超薄い境界線
-              width: 0.8,
-            ),
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF64FFDA).withAlpha(20), // 非常に控えめな光
-                blurRadius: 16,
+                color: Colors.black.withAlpha(40),
+                blurRadius: 24,
                 spreadRadius: 0,
+                offset: const Offset(0, 8),
+              ),
+              BoxShadow(
+                color: const Color(0xFF64FFDA).withAlpha(25),
+                blurRadius: 16,
+                spreadRadius: -2,
                 offset: const Offset(0, -1),
               ),
             ],
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.black.withAlpha(50), // かなり透明度を高く（キャラクターがしっかり見える）
-                Colors.black.withAlpha(100),
-                Colors.black.withAlpha(140),
-              ],
-              stops: const [0.0, 0.6, 1.0],
-            ),
           ),
           child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0), // すりガラス効果
-              child: Stack(
+              filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0), // 強めのiPhone風すりガラス効果
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(24)),
+                  border: Border.all(
+                    color: Colors.white.withAlpha(75), // ガラスのエッジ感（光の反射）
+                    width: 1.2,
+                  ),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withAlpha(55), // 透明感のある光
+                      Colors.white.withAlpha(20),
+                      Colors.black.withAlpha(45), // 全体を引き締め文字のコントラストを保つ
+                    ],
+                    stops: const [0.0, 0.55, 1.0],
+                  ),
+                ),
+                child: Stack(
                 children: [
 
                 // 上部ネオンアクセントライン
@@ -334,6 +344,7 @@ class _TextAreaWidgetState extends ConsumerState<TextAreaWidget>
         ),
       ),
     ),
-  );
+  ),
+);
   }
 }

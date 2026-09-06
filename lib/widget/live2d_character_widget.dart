@@ -14,8 +14,29 @@ class Live2DCharacterWidget extends ConsumerWidget {
       return const SizedBox.shrink(); // 準備中は何も表示しない
     }
 
-    // タップイベントを後ろに通すためIgnorePointerで囲む
-    return IgnorePointer(
+    // タップ位置を検知するために Listener または GestureDetector を使う
+    return Listener(
+      onPointerDown: (PointerDownEvent event) {
+        // Unityのロードが完了していない場合はJS呼び出しを行わない
+        if (!live2dState.isUnityLoaded) {
+          return;
+        }
+
+        final localPosition = event.localPosition;
+        final x = localPosition.dx;
+        final y = localPosition.dy;
+
+        print('Live2Dがタップされたよ！ 座標: X=$x, Y=$y');
+
+        // WebView（Unity内）のJavaScript関数を呼んで座標を伝える
+        live2dState.controller!.runJavaScript('''
+          if (typeof window.onScreenTap === "function") {
+            window.onScreenTap($x, $y);
+          }
+        ''');
+      },
+      // 完全に下にタップを透過させたい場合は HitTestBehavior を調整します
+      behavior: HitTestBehavior.translucent, 
       child: WebViewWidget(controller: live2dState.controller!),
     );
   }
