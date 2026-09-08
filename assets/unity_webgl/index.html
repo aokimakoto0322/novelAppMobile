@@ -123,15 +123,36 @@
                 window.unityInstance = unityInstance;
 
                 // --------------------------------------------------
+                // iOS WebAudio (AudioContext) の自動再生制限対策
+                function resumeWebAudioContext() {
+                  try {
+                    if (unityInstance && unityInstance.Module && unityInstance.Module.audioContext) {
+                      if (unityInstance.Module.audioContext.state === 'suspended' || unityInstance.Module.audioContext.state === 'interrupted') {
+                        unityInstance.Module.audioContext.resume();
+                      }
+                    }
+                    if (typeof WEBAudio !== 'undefined' && WEBAudio.audioWebAudio && WEBAudio.audioWebAudio.audioContext) {
+                      if (WEBAudio.audioWebAudio.audioContext.state === 'suspended' || WEBAudio.audioWebAudio.audioContext.state === 'interrupted') {
+                        WEBAudio.audioWebAudio.audioContext.resume();
+                      }
+                    }
+                  } catch (e) {
+                    console.log('WebAudio resume error: ' + e);
+                  }
+                }
+
+                window.addEventListener('touchstart', resumeWebAudioContext, { passive: true });
+                window.addEventListener('click', resumeWebAudioContext, { passive: true });
+
                 // Flutterから呼ばれる関数を定義して、Unity(C#)へメッセージを送る
                 window.onScreenTap = function(x, y) {
-                  // Unityのシーン内にある "TouchReceiverObject" というオブジェクトの
-                  // "OnScreenTouch" というC#メソッドに "x,y" の文字列を渡す！
+                  resumeWebAudioContext();
                   unityInstance.SendMessage('TouchReceiverObject', 'OnScreenTouch', x + ',' + y);
                 };
 
                 // FlutterからBGM再生命令を受け取る関数
                 window.playBgm = function(bgmName) {
+                  resumeWebAudioContext();
                   if (window.unityInstance) {
                     window.unityInstance.SendMessage('BgmManager', 'PlayBgm', bgmName);
                   }
