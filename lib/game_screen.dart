@@ -24,14 +24,16 @@ class GameScreen extends ConsumerStatefulWidget {
   ConsumerState<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObserver {
+class _GameScreenState extends ConsumerState<GameScreen> {
   AdmobUsecase admobUsecase = AdmobUsecase();
   bool _isVisible = false; // 明転用フラグ
+  late final Live2DNotifier _live2dNotifier;
 
   @override
   void initState() {
     super.initState();
     
+    _live2dNotifier = ref.read(live2dProvider.notifier);
     admobUsecase.loadInterstitialAd();
 
     final usecase = ref.read(storyUsecaseProvider.notifier);
@@ -40,7 +42,7 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
     // 明転と待機・文字表示の連鎖処理
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // GameScreen表示時にLive2Dキャンバスを再表示
-      ref.read(live2dProvider.notifier).showCanvas();
+      _live2dNotifier.showCanvas();
 
       // 1. 明転開始
       if (mounted) setState(() => _isVisible = true);
@@ -54,26 +56,12 @@ class _GameScreenState extends ConsumerState<GameScreen> with WidgetsBindingObse
         usecase.startStory();
       }
     });
-
-    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _live2dNotifier.stopBgm();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState appState) {
-    final usecase = ref.read(storyUsecaseProvider.notifier);
-    final state = ref.watch(storyUsecaseProvider);
-
-    if (appState == AppLifecycleState.paused || appState == AppLifecycleState.inactive) {
-      usecase.stopBgm(); // ← アプリが非アクティブになったらBGM停止
-    } else if (appState == AppLifecycleState.resumed) {
-      usecase.playBgmIfNeeded(state.allStory[state.currentIndex].bgm);
-    }
   }
 
   @override

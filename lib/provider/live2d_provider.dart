@@ -58,6 +58,20 @@ class Live2DNotifier extends Notifier<Live2DState> {
         'var c = document.getElementById("unity-canvas"); if(c) c.style.visibility = "hidden";');
   }
 
+  /// Unity側へBGM再生命令を送信する
+  void playBgm(String bgmName) {
+    if (bgmName.isEmpty) {
+      stopBgm();
+      return;
+    }
+    state.controller?.runJavaScript('playBgm("$bgmName");');
+  }
+
+  /// Unity側へBGM停止命令を送信する
+  void stopBgm() {
+    state.controller?.runJavaScript('stopBgm();');
+  }
+
   Future<void> _initServerAndWebView() async {
     try {
       final unityDirPath = await _serverManager.prepareUnityFiles();

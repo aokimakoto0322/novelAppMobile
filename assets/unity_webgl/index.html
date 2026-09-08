@@ -120,13 +120,28 @@
                   unityInstance.SetFullscreen(1);
                 };
                 
+                window.unityInstance = unityInstance;
+
                 // --------------------------------------------------
-                // ★ここを新しく追加します！
                 // Flutterから呼ばれる関数を定義して、Unity(C#)へメッセージを送る
                 window.onScreenTap = function(x, y) {
                   // Unityのシーン内にある "TouchReceiverObject" というオブジェクトの
                   // "OnScreenTouch" というC#メソッドに "x,y" の文字列を渡す！
                   unityInstance.SendMessage('TouchReceiverObject', 'OnScreenTouch', x + ',' + y);
+                };
+
+                // FlutterからBGM再生命令を受け取る関数
+                window.playBgm = function(bgmName) {
+                  if (window.unityInstance) {
+                    window.unityInstance.SendMessage('BgmManager', 'PlayBgm', bgmName);
+                  }
+                };
+
+                // FlutterからBGM停止命令を受け取る関数
+                window.stopBgm = function() {
+                  if (window.unityInstance) {
+                    window.unityInstance.SendMessage('BgmManager', 'StopBgm', '');
+                  }
                 };
                 // --------------------------------------------------
 

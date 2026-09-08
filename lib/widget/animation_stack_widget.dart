@@ -156,7 +156,6 @@ class _AnimationStackWidgetState extends ConsumerState<AnimationStackWidget> {
                                               onPressed: () {
                                                 Navigator.of(dialogContext).pop();
                                                 backlogUsecase.deleteBackLog();
-                                                storyUsecase.stopBgm();
                                                 context.go('/title');
                                               },
                                               child: const Text('はい'),

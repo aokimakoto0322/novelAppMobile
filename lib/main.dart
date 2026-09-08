@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'router/router.dart';
+import 'package:flutter_nobel_app/provider/live2d_provider.dart';
 import 'package:flutter_nobel_app/widget/title_slideshow.dart';
 import 'package:flutter_nobel_app/widget/button/title_button.dart';
 
@@ -79,6 +80,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   void initState() {
     super.initState();
     fetchAllStory();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(live2dProvider.notifier).stopBgm();
+    });
   }
 
   Future<void> fetchAllStory() async {
