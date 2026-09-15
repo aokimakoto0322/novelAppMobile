@@ -33,3 +33,17 @@
 # memo
 - Unity初期化したら、下記をやること
    - Window -> PackageManager -> InputSystemをいれること（入れないとSDKが動作しない）
+
+# シナリオデータの自動化
+[ Googleスプレッドシート ]
+   └▶「デプロイ実行」ボタンをワンクリック！  
+         │. 
+         ├─ ①＆② GoogleドキュメントをHTML変換して指定フォルダに保存
+         ├─ ③ 先ほどのロジックでHTML解析 ＆ Sheet2の演出データをマージしてSheet1更新
+         ├─ ④ Sheet1のデータをCSV形式に変換
+         └─ ⑤ AWS S3バケットへ直接PUTアップロード
+               │
+               ▼ (S3のObjectCreatedイベントを検知)
+[ AWS S3 ] ───▶ [ AWS Lambda ]
+                     ├─ ⑥ DynamoDBの既存データをクリア
+                     └─ ⑦ S3のCSVを読み込んでDynamoDBへPutItem
