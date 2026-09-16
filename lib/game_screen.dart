@@ -79,18 +79,13 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           foregroundWidget: Scaffold(
             body: Stack(
               children: <Widget>[
-                // 画像表示エリア (Unity側で背景を表示するためコメントアウト)
-                // ImageScreenWidget(
-                //   backgroundImage: state.backGroundImage
-                // ),
+                // 画面全体のぼかし背景表示エリア
+                ImageScreenWidget(
+                  backgroundImage: state.backGroundImage,
+                  isBlurred: true,
+                ),
 
-                // キャラクター表示エリア
-                // CharacterWidget(
-                //   character1: allStory[state.currentIndex].character1,
-                //   character1Effect: allStory[state.currentIndex].character1Effect,
-                // ),
-                
-                // Live2D WebView表示エリア
+                // Live2D WebView表示エリア（スマホ画面の縦幅にフィット）
                 const Live2DCharacterWidget(),
 
                 // テキストエリア

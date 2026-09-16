@@ -3,16 +3,17 @@ using UnityEngine.UI;
 
 public class BackgroundManager : MonoBehaviour
 {
-    [SerializeField] private Image backgroundImage;       // 背景を表示する UI Image
+    [Header("UI References")]
+    [SerializeField] private Image mainBackgroundImage; // 前面：アスペクト比維持用 (Preserve Aspect = true)
+    [SerializeField] private Image blurBackgroundImage; // 背面：画面全域埋め用 (Preserve Aspect = false)
+
+    [Header("Data")]
     [SerializeField] private Sprite[] backgroundSprites; // Inspectorで登録する背景画像(Sprite)一覧
 
     private void Awake()
     {
-        // 起動時はとりあえず初期化
-        if (backgroundImage != null && backgroundImage.sprite == null)
-        {
-            backgroundImage.gameObject.SetActive(false);
-        }
+        // 起動時は非表示に初期化
+        SetVisible(false);
     }
 
     // Flutterから呼ばれるメソッド
@@ -22,36 +23,48 @@ public class BackgroundManager : MonoBehaviour
 
         if (string.IsNullOrEmpty(imageName))
         {
-            if (backgroundImage != null)
-            {
-                backgroundImage.gameObject.SetActive(false);
-            }
+            SetVisible(false);
             return;
         }
 
-        if (backgroundImage != null)
+        if (backgroundSprites != null && backgroundSprites.Length > 0)
         {
-            backgroundImage.gameObject.SetActive(true);
-
-            if (backgroundSprites != null && backgroundSprites.Length > 0)
+            // 配列から名前が一致するSpriteを検索
+            Sprite targetSprite = System.Array.Find(backgroundSprites, sprite => sprite != null && sprite.name == imageName);
+            
+            if (targetSprite != null)
             {
-                // 配列から名前が一致するSpriteを検索
-                Sprite targetSprite = System.Array.Find(backgroundSprites, sprite => sprite != null && sprite.name == imageName);
-                
-                if (targetSprite != null)
+                // 前面：元のアスペクト比を維持して中央表示 (Fit)
+                if (mainBackgroundImage != null)
                 {
-                    backgroundImage.sprite = targetSprite;
-                    Debug.Log($"[BackgroundManager] 背景画像を '{imageName}' に変更しました！");
+                    mainBackgroundImage.sprite = targetSprite;
+                    mainBackgroundImage.preserveAspect = true;
                 }
-                else
+
+                // 背面：アスペクト比を無視して画面全域に引き伸ばす (Cover/Fill)
+                if (blurBackgroundImage != null)
                 {
-                    Debug.LogError($"[BackgroundManager] '{imageName}' という名前のSpriteがInspectorの配列に見つかりません！");
+                    blurBackgroundImage.sprite = targetSprite;
+                    blurBackgroundImage.preserveAspect = false;
                 }
+
+                SetVisible(true);
+                Debug.Log($"[BackgroundManager] 背景画像を '{imageName}' に変更しました！");
             }
             else
             {
-                Debug.LogError("[BackgroundManager] Background Sprites の配列が空です！");
+                Debug.LogError($"[BackgroundManager] '{imageName}' という名前のSpriteがInspectorの配列に見つかりません！");
             }
         }
+        else
+        {
+            Debug.LogError("[BackgroundManager] Background Sprites の配列が空です！");
+        }
+    }
+
+    private void SetVisible(bool visible)
+    {
+        if (mainBackgroundImage != null) mainBackgroundImage.gameObject.SetActive(visible);
+        if (blurBackgroundImage != null) blurBackgroundImage.gameObject.SetActive(visible);
     }
 }
