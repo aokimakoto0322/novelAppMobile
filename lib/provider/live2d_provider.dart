@@ -73,6 +73,16 @@ class Live2DNotifier extends Notifier<Live2DState> {
     state.controller?.runJavaScript('stopBgm();');
   }
 
+  /// Unity側へキャラクター表示・切替命令を送信する
+  void changeCharacter(String characterName) {
+    state.controller?.runJavaScript('changeCharacter("$characterName");');
+  }
+
+  /// Unity側へ背景画像切替命令を送信する
+  void changeBackground(String imageName) {
+    state.controller?.runJavaScript('changeBackground("$imageName");');
+  }
+
   Future<void> _initServerAndWebView() async {
     try {
       final unityDirPath = await _serverManager.prepareUnityFiles();

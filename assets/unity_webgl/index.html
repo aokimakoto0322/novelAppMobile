@@ -164,6 +164,20 @@
                     window.unityInstance.SendMessage('BgmManager', 'StopBgm', '');
                   }
                 };
+
+                // Flutterからキャラクター表示・切替命令を受け取る関数
+                window.changeCharacter = function(characterName) {
+                  if (window.unityInstance) {
+                    window.unityInstance.SendMessage('CharacterManager', 'SetCharacter', characterName);
+                  }
+                };
+
+                // Flutterから背景画像切替命令を受け取る関数
+                window.changeBackground = function(imageName) {
+                  if (window.unityInstance) {
+                    window.unityInstance.SendMessage('BackgroundManager', 'SetBackground', imageName);
+                  }
+                };
                 // --------------------------------------------------
 
                 if (window.FlutterChannel) {

@@ -101,6 +101,8 @@ class StoryUsecase extends Notifier<StoryState> {
     } else {
       ref.read(live2dProvider.notifier).stopBgm();
     }
+    ref.read(live2dProvider.notifier).changeCharacter(allStory[index].character1);
+    ref.read(live2dProvider.notifier).changeBackground(allStory[index].imageName);
   }
 
   // ゲーム画面クリック時の業務処理
@@ -130,6 +132,8 @@ class StoryUsecase extends Notifier<StoryState> {
     } else {
       ref.read(live2dProvider.notifier).stopBgm();
     }
+    ref.read(live2dProvider.notifier).changeCharacter(allStory[state.currentIndex].character1);
+    ref.read(live2dProvider.notifier).changeBackground(allStory[state.currentIndex].imageName);
   }
 
   // 選択肢がクリックされたとき
@@ -160,6 +164,8 @@ class StoryUsecase extends Notifier<StoryState> {
     } else {
       ref.read(live2dProvider.notifier).stopBgm();
     }
+    ref.read(live2dProvider.notifier).changeCharacter(allStory[choice.nextStoryId].character1);
+    ref.read(live2dProvider.notifier).changeBackground(allStory[choice.nextStoryId].imageName);
   }
 
   // 選択肢画面を表示する

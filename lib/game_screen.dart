@@ -79,10 +79,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           foregroundWidget: Scaffold(
             body: Stack(
               children: <Widget>[
-                // 画像表示エリア
-                ImageScreenWidget(
-                  backgroundImage: state.backGroundImage
-                ),
+                // 画像表示エリア (Unity側で背景を表示するためコメントアウト)
+                // ImageScreenWidget(
+                //   backgroundImage: state.backGroundImage
+                // ),
 
                 // キャラクター表示エリア
                 // CharacterWidget(

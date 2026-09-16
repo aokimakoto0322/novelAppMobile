@@ -13,6 +13,14 @@ class StoryRepository {
   // 全件データ取得
   Future<List<Story>> fetchAllStory() async {
     List<Story> result = await db.select(db.storyTable).get();
+    result.sort((a, b) {
+      final numA = num.tryParse(a.sortId);
+      final numB = num.tryParse(b.sortId);
+      if (numA != null && numB != null) {
+        return numA.compareTo(numB);
+      }
+      return a.sortId.compareTo(b.sortId);
+    });
     return result;
   }
 
