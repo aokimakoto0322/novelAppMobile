@@ -3,12 +3,14 @@ import 'package:animations/animations.dart';
 
 class CharacterWidget extends StatefulWidget {
   final String character1;
-  final String character1Effect;
+  final String character1EffectIn;
+  final String character1EffectOut;
 
   const CharacterWidget({
     super.key,
     required this.character1,
-    required this.character1Effect
+    this.character1EffectIn = '',
+    this.character1EffectOut = '',
   });
 
   @override
@@ -85,7 +87,7 @@ class _CharacterWidgetState extends State<CharacterWidget> {
                 );
               } else {
                 // 表示 → 表示
-                if (widget.character1Effect == "bounce") {
+                if (widget.character1EffectIn == "bounce") {
                   // 跳ねる＋クロスフェード
                   final bounceOffset = TweenSequence<Offset>([
                     TweenSequenceItem(

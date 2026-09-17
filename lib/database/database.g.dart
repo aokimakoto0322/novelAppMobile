@@ -84,17 +84,28 @@ class $StoryTableTable extends StoryTable
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _character1EffectMeta = const VerificationMeta(
-    'character1Effect',
-  );
+  static const VerificationMeta _character1EffectInMeta =
+      const VerificationMeta('character1EffectIn');
   @override
-  late final GeneratedColumn<String> character1Effect = GeneratedColumn<String>(
-    'character1_effect',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
+  late final GeneratedColumn<String> character1EffectIn =
+      GeneratedColumn<String>(
+        'character1_effect_in',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _character1EffectOutMeta =
+      const VerificationMeta('character1EffectOut');
+  @override
+  late final GeneratedColumn<String> character1EffectOut =
+      GeneratedColumn<String>(
+        'character1_effect_out',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
   static const VerificationMeta _bgmMeta = const VerificationMeta('bgm');
   @override
   late final GeneratedColumn<String> bgm = GeneratedColumn<String>(
@@ -113,7 +124,8 @@ class $StoryTableTable extends StoryTable
     description,
     imageName,
     character1,
-    character1Effect,
+    character1EffectIn,
+    character1EffectOut,
     bgm,
   ];
   @override
@@ -182,16 +194,27 @@ class $StoryTableTable extends StoryTable
     } else if (isInserting) {
       context.missing(_character1Meta);
     }
-    if (data.containsKey('character1_effect')) {
+    if (data.containsKey('character1_effect_in')) {
       context.handle(
-        _character1EffectMeta,
-        character1Effect.isAcceptableOrUnknown(
-          data['character1_effect']!,
-          _character1EffectMeta,
+        _character1EffectInMeta,
+        character1EffectIn.isAcceptableOrUnknown(
+          data['character1_effect_in']!,
+          _character1EffectInMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_character1EffectMeta);
+      context.missing(_character1EffectInMeta);
+    }
+    if (data.containsKey('character1_effect_out')) {
+      context.handle(
+        _character1EffectOutMeta,
+        character1EffectOut.isAcceptableOrUnknown(
+          data['character1_effect_out']!,
+          _character1EffectOutMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_character1EffectOutMeta);
     }
     if (data.containsKey('bgm')) {
       context.handle(
@@ -245,10 +268,15 @@ class $StoryTableTable extends StoryTable
             DriftSqlType.string,
             data['${effectivePrefix}character1'],
           )!,
-      character1Effect:
+      character1EffectIn:
           attachedDatabase.typeMapping.read(
             DriftSqlType.string,
-            data['${effectivePrefix}character1_effect'],
+            data['${effectivePrefix}character1_effect_in'],
+          )!,
+      character1EffectOut:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}character1_effect_out'],
           )!,
       bgm:
           attachedDatabase.typeMapping.read(
@@ -272,7 +300,8 @@ class Story extends DataClass implements Insertable<Story> {
   final String description;
   final String imageName;
   final String character1;
-  final String character1Effect;
+  final String character1EffectIn;
+  final String character1EffectOut;
   final String bgm;
   const Story({
     required this.id,
@@ -282,7 +311,8 @@ class Story extends DataClass implements Insertable<Story> {
     required this.description,
     required this.imageName,
     required this.character1,
-    required this.character1Effect,
+    required this.character1EffectIn,
+    required this.character1EffectOut,
     required this.bgm,
   });
   @override
@@ -295,7 +325,8 @@ class Story extends DataClass implements Insertable<Story> {
     map['description'] = Variable<String>(description);
     map['image_name'] = Variable<String>(imageName);
     map['character1'] = Variable<String>(character1);
-    map['character1_effect'] = Variable<String>(character1Effect);
+    map['character1_effect_in'] = Variable<String>(character1EffectIn);
+    map['character1_effect_out'] = Variable<String>(character1EffectOut);
     map['bgm'] = Variable<String>(bgm);
     return map;
   }
@@ -309,7 +340,8 @@ class Story extends DataClass implements Insertable<Story> {
       description: Value(description),
       imageName: Value(imageName),
       character1: Value(character1),
-      character1Effect: Value(character1Effect),
+      character1EffectIn: Value(character1EffectIn),
+      character1EffectOut: Value(character1EffectOut),
       bgm: Value(bgm),
     );
   }
@@ -327,7 +359,12 @@ class Story extends DataClass implements Insertable<Story> {
       description: serializer.fromJson<String>(json['description']),
       imageName: serializer.fromJson<String>(json['image_name']),
       character1: serializer.fromJson<String>(json['character1']),
-      character1Effect: serializer.fromJson<String>(json['character1_effect']),
+      character1EffectIn: serializer.fromJson<String>(
+        json['character1_effect_in'],
+      ),
+      character1EffectOut: serializer.fromJson<String>(
+        json['character1_effect_out'],
+      ),
       bgm: serializer.fromJson<String>(json['bgm']),
     );
   }
@@ -342,7 +379,8 @@ class Story extends DataClass implements Insertable<Story> {
       'description': serializer.toJson<String>(description),
       'image_name': serializer.toJson<String>(imageName),
       'character1': serializer.toJson<String>(character1),
-      'character1_effect': serializer.toJson<String>(character1Effect),
+      'character1_effect_in': serializer.toJson<String>(character1EffectIn),
+      'character1_effect_out': serializer.toJson<String>(character1EffectOut),
       'bgm': serializer.toJson<String>(bgm),
     };
   }
@@ -355,7 +393,8 @@ class Story extends DataClass implements Insertable<Story> {
     String? description,
     String? imageName,
     String? character1,
-    String? character1Effect,
+    String? character1EffectIn,
+    String? character1EffectOut,
     String? bgm,
   }) => Story(
     id: id ?? this.id,
@@ -365,7 +404,8 @@ class Story extends DataClass implements Insertable<Story> {
     description: description ?? this.description,
     imageName: imageName ?? this.imageName,
     character1: character1 ?? this.character1,
-    character1Effect: character1Effect ?? this.character1Effect,
+    character1EffectIn: character1EffectIn ?? this.character1EffectIn,
+    character1EffectOut: character1EffectOut ?? this.character1EffectOut,
     bgm: bgm ?? this.bgm,
   );
   Story copyWithCompanion(StoryTableCompanion data) {
@@ -379,10 +419,14 @@ class Story extends DataClass implements Insertable<Story> {
       imageName: data.imageName.present ? data.imageName.value : this.imageName,
       character1:
           data.character1.present ? data.character1.value : this.character1,
-      character1Effect:
-          data.character1Effect.present
-              ? data.character1Effect.value
-              : this.character1Effect,
+      character1EffectIn:
+          data.character1EffectIn.present
+              ? data.character1EffectIn.value
+              : this.character1EffectIn,
+      character1EffectOut:
+          data.character1EffectOut.present
+              ? data.character1EffectOut.value
+              : this.character1EffectOut,
       bgm: data.bgm.present ? data.bgm.value : this.bgm,
     );
   }
@@ -397,7 +441,8 @@ class Story extends DataClass implements Insertable<Story> {
           ..write('description: $description, ')
           ..write('imageName: $imageName, ')
           ..write('character1: $character1, ')
-          ..write('character1Effect: $character1Effect, ')
+          ..write('character1EffectIn: $character1EffectIn, ')
+          ..write('character1EffectOut: $character1EffectOut, ')
           ..write('bgm: $bgm')
           ..write(')'))
         .toString();
@@ -412,7 +457,8 @@ class Story extends DataClass implements Insertable<Story> {
     description,
     imageName,
     character1,
-    character1Effect,
+    character1EffectIn,
+    character1EffectOut,
     bgm,
   );
   @override
@@ -426,7 +472,8 @@ class Story extends DataClass implements Insertable<Story> {
           other.description == this.description &&
           other.imageName == this.imageName &&
           other.character1 == this.character1 &&
-          other.character1Effect == this.character1Effect &&
+          other.character1EffectIn == this.character1EffectIn &&
+          other.character1EffectOut == this.character1EffectOut &&
           other.bgm == this.bgm);
 }
 
@@ -438,7 +485,8 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
   final Value<String> description;
   final Value<String> imageName;
   final Value<String> character1;
-  final Value<String> character1Effect;
+  final Value<String> character1EffectIn;
+  final Value<String> character1EffectOut;
   final Value<String> bgm;
   const StoryTableCompanion({
     this.id = const Value.absent(),
@@ -448,7 +496,8 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     this.description = const Value.absent(),
     this.imageName = const Value.absent(),
     this.character1 = const Value.absent(),
-    this.character1Effect = const Value.absent(),
+    this.character1EffectIn = const Value.absent(),
+    this.character1EffectOut = const Value.absent(),
     this.bgm = const Value.absent(),
   });
   StoryTableCompanion.insert({
@@ -459,7 +508,8 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     required String description,
     required String imageName,
     required String character1,
-    required String character1Effect,
+    required String character1EffectIn,
+    required String character1EffectOut,
     required String bgm,
   }) : sortId = Value(sortId),
        word = Value(word),
@@ -467,7 +517,8 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
        description = Value(description),
        imageName = Value(imageName),
        character1 = Value(character1),
-       character1Effect = Value(character1Effect),
+       character1EffectIn = Value(character1EffectIn),
+       character1EffectOut = Value(character1EffectOut),
        bgm = Value(bgm);
   static Insertable<Story> custom({
     Expression<int>? id,
@@ -477,7 +528,8 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     Expression<String>? description,
     Expression<String>? imageName,
     Expression<String>? character1,
-    Expression<String>? character1Effect,
+    Expression<String>? character1EffectIn,
+    Expression<String>? character1EffectOut,
     Expression<String>? bgm,
   }) {
     return RawValuesInsertable({
@@ -488,7 +540,10 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
       if (description != null) 'description': description,
       if (imageName != null) 'image_name': imageName,
       if (character1 != null) 'character1': character1,
-      if (character1Effect != null) 'character1_effect': character1Effect,
+      if (character1EffectIn != null)
+        'character1_effect_in': character1EffectIn,
+      if (character1EffectOut != null)
+        'character1_effect_out': character1EffectOut,
       if (bgm != null) 'bgm': bgm,
     });
   }
@@ -501,7 +556,8 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     Value<String>? description,
     Value<String>? imageName,
     Value<String>? character1,
-    Value<String>? character1Effect,
+    Value<String>? character1EffectIn,
+    Value<String>? character1EffectOut,
     Value<String>? bgm,
   }) {
     return StoryTableCompanion(
@@ -512,7 +568,8 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
       description: description ?? this.description,
       imageName: imageName ?? this.imageName,
       character1: character1 ?? this.character1,
-      character1Effect: character1Effect ?? this.character1Effect,
+      character1EffectIn: character1EffectIn ?? this.character1EffectIn,
+      character1EffectOut: character1EffectOut ?? this.character1EffectOut,
       bgm: bgm ?? this.bgm,
     );
   }
@@ -541,8 +598,13 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
     if (character1.present) {
       map['character1'] = Variable<String>(character1.value);
     }
-    if (character1Effect.present) {
-      map['character1_effect'] = Variable<String>(character1Effect.value);
+    if (character1EffectIn.present) {
+      map['character1_effect_in'] = Variable<String>(character1EffectIn.value);
+    }
+    if (character1EffectOut.present) {
+      map['character1_effect_out'] = Variable<String>(
+        character1EffectOut.value,
+      );
     }
     if (bgm.present) {
       map['bgm'] = Variable<String>(bgm.value);
@@ -560,7 +622,8 @@ class StoryTableCompanion extends UpdateCompanion<Story> {
           ..write('description: $description, ')
           ..write('imageName: $imageName, ')
           ..write('character1: $character1, ')
-          ..write('character1Effect: $character1Effect, ')
+          ..write('character1EffectIn: $character1EffectIn, ')
+          ..write('character1EffectOut: $character1EffectOut, ')
           ..write('bgm: $bgm')
           ..write(')'))
         .toString();
@@ -1874,7 +1937,8 @@ typedef $$StoryTableTableCreateCompanionBuilder =
       required String description,
       required String imageName,
       required String character1,
-      required String character1Effect,
+      required String character1EffectIn,
+      required String character1EffectOut,
       required String bgm,
     });
 typedef $$StoryTableTableUpdateCompanionBuilder =
@@ -1886,7 +1950,8 @@ typedef $$StoryTableTableUpdateCompanionBuilder =
       Value<String> description,
       Value<String> imageName,
       Value<String> character1,
-      Value<String> character1Effect,
+      Value<String> character1EffectIn,
+      Value<String> character1EffectOut,
       Value<String> bgm,
     });
 
@@ -1934,8 +1999,13 @@ class $$StoryTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get character1Effect => $composableBuilder(
-    column: $table.character1Effect,
+  ColumnFilters<String> get character1EffectIn => $composableBuilder(
+    column: $table.character1EffectIn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get character1EffectOut => $composableBuilder(
+    column: $table.character1EffectOut,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1989,8 +2059,13 @@ class $$StoryTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get character1Effect => $composableBuilder(
-    column: $table.character1Effect,
+  ColumnOrderings<String> get character1EffectIn => $composableBuilder(
+    column: $table.character1EffectIn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get character1EffectOut => $composableBuilder(
+    column: $table.character1EffectOut,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -2034,8 +2109,13 @@ class $$StoryTableTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get character1Effect => $composableBuilder(
-    column: $table.character1Effect,
+  GeneratedColumn<String> get character1EffectIn => $composableBuilder(
+    column: $table.character1EffectIn,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get character1EffectOut => $composableBuilder(
+    column: $table.character1EffectOut,
     builder: (column) => column,
   );
 
@@ -2078,7 +2158,8 @@ class $$StoryTableTableTableManager
                 Value<String> description = const Value.absent(),
                 Value<String> imageName = const Value.absent(),
                 Value<String> character1 = const Value.absent(),
-                Value<String> character1Effect = const Value.absent(),
+                Value<String> character1EffectIn = const Value.absent(),
+                Value<String> character1EffectOut = const Value.absent(),
                 Value<String> bgm = const Value.absent(),
               }) => StoryTableCompanion(
                 id: id,
@@ -2088,7 +2169,8 @@ class $$StoryTableTableTableManager
                 description: description,
                 imageName: imageName,
                 character1: character1,
-                character1Effect: character1Effect,
+                character1EffectIn: character1EffectIn,
+                character1EffectOut: character1EffectOut,
                 bgm: bgm,
               ),
           createCompanionCallback:
@@ -2100,7 +2182,8 @@ class $$StoryTableTableTableManager
                 required String description,
                 required String imageName,
                 required String character1,
-                required String character1Effect,
+                required String character1EffectIn,
+                required String character1EffectOut,
                 required String bgm,
               }) => StoryTableCompanion.insert(
                 id: id,
@@ -2110,7 +2193,8 @@ class $$StoryTableTableTableManager
                 description: description,
                 imageName: imageName,
                 character1: character1,
-                character1Effect: character1Effect,
+                character1EffectIn: character1EffectIn,
+                character1EffectOut: character1EffectOut,
                 bgm: bgm,
               ),
           withReferenceMapper:

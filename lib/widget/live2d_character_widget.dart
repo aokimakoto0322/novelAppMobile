@@ -17,19 +17,31 @@ class Live2DCharacterWidget extends ConsumerWidget {
 
     // character1や背景画像の状態変化を監視して、Unity側へ通知する
     ref.listen(storyUsecaseProvider, (previous, next) {
-      final prevChar = (previous != null &&
+      final prevStory = (previous != null &&
               previous.allStory.isNotEmpty &&
               previous.currentIndex < previous.allStory.length)
-          ? previous.allStory[previous.currentIndex].character1.trim()
-          : '';
-      final nextChar = (next.allStory.isNotEmpty &&
+          ? previous.allStory[previous.currentIndex]
+          : null;
+      final nextStory = (next.allStory.isNotEmpty &&
               next.currentIndex < next.allStory.length)
-          ? next.allStory[next.currentIndex].character1.trim()
-          : '';
+          ? next.allStory[next.currentIndex]
+          : null;
 
-      if (prevChar != nextChar) {
-        // Unity(CharacterManager)側へキャラクター名（空文字含む）を送信
-        ref.read(live2dProvider.notifier).changeCharacter(nextChar);
+      final prevChar = prevStory?.character1.trim() ?? '';
+      final nextChar = nextStory?.character1.trim() ?? '';
+      final nextEffectIn = nextStory?.character1EffectIn.trim() ?? '';
+      final nextEffectOut = nextStory?.character1EffectOut.trim() ?? '';
+
+      final prevEffectIn = prevStory?.character1EffectIn.trim() ?? '';
+      final prevEffectOut = prevStory?.character1EffectOut.trim() ?? '';
+
+      if (prevChar != nextChar || prevEffectIn != nextEffectIn || prevEffectOut != nextEffectOut) {
+        // Unity(CharacterManager)側へキャラクター名および演出名を送信
+        ref.read(live2dProvider.notifier).changeCharacter(
+              nextChar,
+              effectIn: nextEffectIn,
+              effectOut: nextEffectOut,
+            );
       }
 
       final prevBg = previous?.backGroundImage ?? '';
@@ -43,12 +55,19 @@ class Live2DCharacterWidget extends ConsumerWidget {
     // Unityのロード完了時に初期データ(背景・キャラクター)を送信し、キャンバスを表示する
     ref.listen(live2dProvider, (previous, next) {
       if ((previous == null || !previous.isUnityLoaded) && next.isUnityLoaded) {
-        final currentChar = (allStory.isNotEmpty && currentIndex < allStory.length)
-            ? allStory[currentIndex].character1.trim()
-            : '';
+        final currentStory = (allStory.isNotEmpty && currentIndex < allStory.length)
+            ? allStory[currentIndex]
+            : null;
+        final currentChar = currentStory?.character1.trim() ?? '';
+        final currentEffectIn = currentStory?.character1EffectIn.trim() ?? '';
+        final currentEffectOut = currentStory?.character1EffectOut.trim() ?? '';
         final currentBg = storyState.backGroundImage;
 
-        ref.read(live2dProvider.notifier).changeCharacter(currentChar);
+        ref.read(live2dProvider.notifier).changeCharacter(
+              currentChar,
+              effectIn: currentEffectIn,
+              effectOut: currentEffectOut,
+            );
         ref.read(live2dProvider.notifier).changeBackground(currentBg);
         ref.read(live2dProvider.notifier).showCanvas();
       }

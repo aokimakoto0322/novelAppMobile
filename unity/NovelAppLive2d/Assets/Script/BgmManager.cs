@@ -48,10 +48,6 @@ public class BgmManager : MonoBehaviour
             audioSource.volume = defaultVolume;
             audioSource.Play();
         }
-        else
-        {
-            Debug.LogWarning($"[BgmManager] Clip not found: {bgmName}");
-        }
     }
 
     // FlutterからBGM停止命令が来た場合に呼ばれるメソッド
