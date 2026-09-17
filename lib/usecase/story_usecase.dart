@@ -32,12 +32,7 @@ class StoryUsecase extends Notifier<StoryState> {
 
   List<Choice> get currentChoice => state.allChoiceList;
 
-  Future<void> getAllStory({bool force = false}) async {
-    if (!force && state.allStory.isNotEmpty) {
-      print('★既にストーリー取得済みのため、API取得をスキップします');
-      return;
-    }
-
+  Future<void> getAllStory() async {
     print('★APIから最新データを取得開始します...');
     
     // 1. 先に古いデータを消す（await で完了を待つ）
