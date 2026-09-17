@@ -86,6 +86,11 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   }
 
   Future<void> fetchAllStory() async {
+    final storyState = ref.read(storyUsecaseProvider);
+    if (storyState.allStory.isNotEmpty) {
+      return;
+    }
+
     final storyUsecase = ref.read(storyUsecaseProvider.notifier);
 
     setState(() {
