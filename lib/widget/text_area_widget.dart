@@ -94,76 +94,86 @@ class _TextAreaWidgetState extends ConsumerState<TextAreaWidget>
         storyState.currentIndex < allStory.length;
 
     return Positioned(
-      left: 12,
-      right: 12,
-      bottom: 12,
+      left: 0,
+      right: 0,
+      bottom: 0,
       child: GestureDetector(
         onTap: _handleTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
           height: 190 + bottomPadding,
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(24)),
             boxShadow: [
+              // 深いアンビエントシャドウ（macOSの浮遊感と馴染み）
               BoxShadow(
-                color: Colors.black.withAlpha(40),
-                blurRadius: 24,
+                color: Colors.black.withAlpha(70),
+                blurRadius: 36,
                 spreadRadius: 0,
-                offset: const Offset(0, 8),
+                offset: const Offset(0, -6),
               ),
+              // 天面のエッジグロー（極めて上品な白い光彩）
               BoxShadow(
-                color: const Color(0xFF64FFDA).withAlpha(25),
-                blurRadius: 16,
-                spreadRadius: -2,
+                color: Colors.white.withAlpha(20),
+                blurRadius: 8,
+                spreadRadius: 0,
                 offset: const Offset(0, -1),
               ),
             ],
           ),
           child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(24)),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0), // 強めのiPhone風すりガラス効果
+              filter: ImageFilter.blur(sigmaX: 32.0, sigmaY: 32.0), // macOS風 Liquid Glass すりガラス効果
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(24)),
-                  border: Border.all(
-                    color: Colors.white.withAlpha(75), // ガラスのエッジ感（光の反射）
-                    width: 1.2,
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.white.withAlpha(100), // 上部エッジのガラス光屈折
+                      width: 1.2,
+                    ),
+                    left: BorderSide(
+                      color: Colors.white.withAlpha(45),
+                      width: 0.8,
+                    ),
+                    right: BorderSide(
+                      color: Colors.white.withAlpha(45),
+                      width: 0.8,
+                    ),
                   ),
                   gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                     colors: [
-                      Colors.white.withAlpha(55), // 透明感のある光
-                      Colors.white.withAlpha(20),
-                      Colors.black.withAlpha(45), // 全体を引き締め文字のコントラストを保つ
+                      Colors.white.withAlpha(48), // 天面から差し込むハイライト
+                      Colors.white.withAlpha(16), // 中央の透明感
+                      Colors.black.withAlpha(40), // 自然な深み
+                      Colors.black.withAlpha(65), // 下部文字エリアのコントラスト確保
                     ],
-                    stops: const [0.0, 0.55, 1.0],
+                    stops: const [0.0, 0.25, 0.70, 1.0],
                   ),
                 ),
                 child: Stack(
-                children: [
-
-                // 上部ネオンアクセントライン
-                Positioned(
-                  top: 0,
-                  left: 30,
-                  right: 30,
-                  child: Container(
-                    height: 2,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.transparent,
-                          const Color(0xFF64FFDA).withAlpha(180),
-                          Colors.white.withAlpha(220),
-                          const Color(0xFF64FFDA).withAlpha(180),
-                          Colors.transparent,
-                        ],
+                  children: [
+                    // ガラス天面の光の屈折ライン（macOSリムハイライト）
+                    Positioned(
+                      top: 0,
+                      left: 24,
+                      right: 24,
+                      child: Container(
+                        height: 1.5,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.transparent,
+                              Colors.white.withAlpha(160),
+                              Colors.white.withAlpha(230),
+                              Colors.white.withAlpha(160),
+                              Colors.transparent,
+                            ],
+                            stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
 
                 // テキスト表示エリア
                 Padding(
