@@ -1,103 +1,105 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_nobel_app/models/common_story.dart';
-import 'package:flutter_nobel_app/usecase/save_usecase.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:flutter_nobel_app/provider/live2d_provider.dart';
+import 'package:flutter_nobel_app/provider/story_provider.dart';
+import 'package:flutter_nobel_app/usecase/admob_usecase.dart';
+import 'package:flutter_nobel_app/widget/animation_stack_widget.dart';
+import 'package:flutter_nobel_app/widget/choose_screen_widget.dart';
+import 'package:flutter_nobel_app/widget/live2d_character_widget.dart';
+import 'package:flutter_nobel_app/widget/speaker_area_widget.dart';
+import 'package:flutter_nobel_app/widget/text_area_widget.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class GameScreen extends StatefulWidget {
-  final Database database;
-  final List<CommonStory> allStory;
+class GameScreen extends ConsumerStatefulWidget {
   final int savedIndex;
+  final int saveId;
 
   const GameScreen({
     super.key,
-    required this.database,
-    required this.allStory,
-    this.savedIndex = 0
+    this.savedIndex = 0,
+    this.saveId = 0
   });
 
   @override
-  State<GameScreen> createState() => _GameScreenState();
+  ConsumerState<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
-  SaveUsecase saveUsecase = SaveUsecase();
-  int currentIndex = 0;
+class _GameScreenState extends ConsumerState<GameScreen> {
+  AdmobUsecase admobUsecase = AdmobUsecase();
+  bool _isVisible = false; // 明転用フラグ
+  late final Live2DNotifier _live2dNotifier;
 
   @override
   void initState() {
-    _setCurrentIndex();
     super.initState();
-  }
-  
-  void _showItem() {
-    setState(() {
-      currentIndex = (currentIndex + 1);
+    
+    _live2dNotifier = ref.read(live2dProvider.notifier);
+    admobUsecase.loadInterstitialAd();
+
+    final usecase = ref.read(storyUsecaseProvider.notifier);
+    usecase.initGameScreen(widget.savedIndex, widget.saveId);
+
+    // 明転と待機・文字表示の連鎖処理
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // GameScreen表示時にLive2Dキャンバスを再表示
+      _live2dNotifier.showCanvas();
+
+      // 1. 明転開始
+      if (mounted) setState(() => _isVisible = true);
+      
+      // 2. 明転にかかる時間（2秒）を待つ
+      await Future.delayed(const Duration(milliseconds: 2000));
+      
+      // 3. 文字表示
+      if (mounted) {
+        // 次に進めるのではなく、今のページ（0ページ目）を表示開始する
+        usecase.startStory();
+      }
     });
   }
 
-  // セーブされたデータがあるのであれば、セーブ時の状態から表示する
-  void _setCurrentIndex() {
-    if (widget.savedIndex != 0) {
-      currentIndex = widget.savedIndex;
-    }
+  @override
+  void dispose() {
+    _live2dNotifier.stopBgm();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      body: GestureDetector(
-        onTap: () {
-          _showItem();
-        },
-        child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('images/sample.jpg'),
-              fit: BoxFit.cover
-            )
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
+    final usecase = ref.watch(storyUsecaseProvider.notifier);
+    final state = ref.watch(storyUsecaseProvider);
+    final allStory = state.allStory;
+
+    return PopScope(
+      canPop: false,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 2000), // 2秒かけて明るく
+        opacity: _isVisible ? 1.0 : 0.0,
+        child: AnimationStackWidget(
+          foregroundWidget: Scaffold(
+            body: Stack(
               children: <Widget>[
-                Container(
-                  color: Colors.brown.withAlpha(200),
-                  alignment: Alignment.topLeft,
-                  height: 150,
-                  child: Container(
-                    margin: EdgeInsets.only(left: 20, right: 20, top: 10),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: AnimatedTextKit(
-                        key: ValueKey<String>(widget.allStory[currentIndex].word),
-                        animatedTexts: [
-                          TyperAnimatedText(
-                            widget.allStory[currentIndex].word,
-                            textStyle: const TextStyle(
-                              fontSize: 18
-                            ),
-                          )
-                        ],
-                        totalRepeatCount: 1,
-                        displayFullTextOnTap: true
-                      )
-                    ),
-                  ),
-                )
+                // Live2D WebView表示エリア（スマホ画面の縦幅にフィット）
+                const Live2DCharacterWidget(),
+
+                // テキストエリア
+                TextAreaWidget(
+                  onTap: (state.isChoice || state.isWaiting || state.isDisplayingChoicePrompt)
+                    ? null
+                    : () {
+                      usecase.showNextItem(usecase.db, allStory, admobUsecase);
+                    },
+                ),
+                
+                // しゃべっている人ラベル表示エリア
+                if (allStory.isNotEmpty && state.currentIndex < allStory.length && allStory[state.currentIndex].speaker.isNotEmpty)
+                  const SpeakerAreaWidget(),
+                                  
+                // 選択肢表示エリア
+                ChooseScreenWidget()
               ],
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          saveUsecase.saveStory(widget.database, widget.allStory[currentIndex].storyId);
-        },
-        child: Icon(Icons.add),
       ),
     );
   }
