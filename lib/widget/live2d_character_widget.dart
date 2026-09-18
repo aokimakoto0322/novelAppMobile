@@ -83,8 +83,6 @@ class Live2DCharacterWidget extends ConsumerWidget {
         final x = localPosition.dx;
         final y = localPosition.dy;
 
-        print('Live2Dがタップされたよ！ 座標: X=$x, Y=$y');
-
         // WebView（Unity内）のJavaScript関数を呼んで座標を伝える
         live2dState.controller!.runJavaScript('''
           if (typeof window.onScreenTap === "function") {

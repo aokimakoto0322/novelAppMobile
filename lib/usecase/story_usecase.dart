@@ -129,9 +129,6 @@ class StoryUsecase extends Notifier<StoryState> {
 
     await _advanceStory(allStory);
 
-    //debug
-    print('★現在のBGM: ${state.currentBgm}');
-
     // UnityにBGM再生する場合はUnity側にBGM名を送りBGMを再生する
     if (state.currentBgm.isNotEmpty) {
       ref.read(live2dProvider.notifier).playBgm(state.currentBgm);
