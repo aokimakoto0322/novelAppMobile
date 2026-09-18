@@ -166,10 +166,10 @@
                 };
 
                 // Flutterからキャラクター表示・切替・演出命令を受け取る関数
-                window.changeCharacter = function(characterName, effectIn, effectOut) {
-                  console.log('[JS Bridge] changeCharacter called:', characterName, effectIn, effectOut);
+                window.changeCharacter = function(characterName, effect) {
+                  console.log('[JS Bridge] changeCharacter called:', characterName, effect);
                   if (window.unityInstance) {
-                    var dataStr = (characterName || "") + "," + (effectIn || "") + "," + (effectOut || "");
+                    var dataStr = (characterName || "") + "," + (effect || "");
                     console.log('[JS Bridge] Sending to Unity (SetCharacterWithEffect):', dataStr);
                     window.unityInstance.SendMessage('CharacterManager', 'SetCharacterWithEffect', dataStr);
                   } else {

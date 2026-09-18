@@ -48,11 +48,11 @@
                      ├─ ⑥ DynamoDBの既存データをクリア
                      └─ ⑦ S3のCSVを読み込んでDynamoDBへPutItem
 
-# キャラクター演出名一覧 (character1_effect_in / character1_effect_out)
+# キャラクター演出名一覧 (character1_effect)
 
-Storyデータの `character1_effect_in`（登場）および `character1_effect_out`（退場）で使用する演出エフェクト名一覧です。
+Storyデータの `character1_effect` で使用する演出エフェクト名一覧です。登場演出（`_in`）および退場演出（`_out`）を同じカラムで指定します。
 
-| No | 演出名 | 登場演出 (`character1_effect_in`) | 退場演出 (`character1_effect_out`) | 概要 |
+| No | 演出名 | 登場演出コード | 退場演出コード | 概要 |
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | フェード | `fade_in` | `fade_out` | アルファ値（透明度）の変化でスムーズに表示/非表示 |
 | 2 | 下スライド | `slide_up_in` | `slide_down_out` | 下から浮き上がるように登場 / 下へ退場 |

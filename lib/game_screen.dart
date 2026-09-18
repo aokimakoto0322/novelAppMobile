@@ -98,8 +98,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 ),
                 
                 // しゃべっている人ラベル表示エリア
-                if (allStory[state.currentIndex].speaker != '')
-                  SpeakerAreaWidget(),
+                if (allStory.isNotEmpty && state.currentIndex < allStory.length && allStory[state.currentIndex].speaker.isNotEmpty)
+                  const SpeakerAreaWidget(),
                                   
                 // 選択肢表示エリア
                 ChooseScreenWidget()

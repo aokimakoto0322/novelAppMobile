@@ -74,9 +74,9 @@ class Live2DNotifier extends Notifier<Live2DState> {
   }
 
   /// Unity側へキャラクター表示・切替命令を送信する
-  void changeCharacter(String characterName, {String effectIn = '', String effectOut = ''}) {
-    debugPrint('Live2DNotifier.changeCharacter -> name: "$characterName", effectIn: "$effectIn", effectOut: "$effectOut"');
-    state.controller?.runJavaScript('changeCharacter("$characterName", "$effectIn", "$effectOut");');
+  void changeCharacter(String characterName, {String effect = ''}) {
+    debugPrint('Live2DNotifier.changeCharacter -> name: "$characterName", effect: "$effect"');
+    state.controller?.runJavaScript('changeCharacter("$characterName", "$effect");');
   }
 
   /// Unity側へ背景画像切替命令を送信する

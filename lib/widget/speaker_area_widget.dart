@@ -11,6 +11,10 @@ class SpeakerAreaWidget extends ConsumerWidget {
     final storyState = ref.read(storyUsecaseProvider);
     final allStory = storyState.allStory;
 
+    if (allStory.isEmpty || storyState.currentIndex < 0 || storyState.currentIndex >= allStory.length) {
+      return const SizedBox.shrink();
+    }
+
     return Positioned(
       left: 10,
       bottom: 218,

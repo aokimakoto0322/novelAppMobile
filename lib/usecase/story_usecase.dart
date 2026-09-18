@@ -35,28 +35,33 @@ class StoryUsecase extends Notifier<StoryState> {
   Future<void> getAllStory() async {
     print('★APIから最新データを取得開始します...');
     
-    // 1. 先に古いデータを消す（await で完了を待つ）
-    await storyRepository.deleteAllStory();
-
-    // 2. APIで最新の話を取得
-    List<Story> apiStoryList = await commonStoryApi.fetchAllStory();
+    try {
+      // 1. APIで最新の話を取得（先に取得して成功を確認する）
+      List<Story> apiStoryList = await commonStoryApi.fetchAllStory();
+      
+      if (apiStoryList.isNotEmpty) {
+        // 2. 取得できた場合のみ既存データを削除して更新
+        await storyRepository.deleteAllStory();
+        await storyRepository.insertStory(db, apiStoryList);
+      }
+    } catch (e) {
+      print('★APIからの取得失敗、既存のDBデータを使用します: $e');
+    }
     
-    // 3. DBに格納（ここも完了をしっかり待ちます）
-    await storyRepository.insertStory(db, apiStoryList);
-    
-    // 4. 最新のデータをDBから全件取得
+    // 3. 最新のデータをDBから全件取得
     final result = await storyRepository.fetchAllStory();
 
-    // 5. 最後にstateを更新する
+    // 4. 最後にstateを更新する
     state = state.copyWith(allStory: result);
     print('★データの同期がすべて完了しました！全 ${result.length} 件');
   }
 
   void resetState() {
+    final hasStory = state.allStory.isNotEmpty;
     state = StoryState(
       allStory: state.allStory,
       currentIndex: 0,
-      backGroundImage: state.allStory[0].imageName,
+      backGroundImage: hasStory ? state.allStory[0].imageName : '',
       allChoiceList: [],
       isChoice: false,
       isDisplayingChoicePrompt: false,
@@ -76,10 +81,13 @@ class StoryUsecase extends Notifier<StoryState> {
   // ロードした場合、ロードしたところからスタートする
   // 新規の場合は最初からスタートする
   Future<void> initGameScreen(int savedIndex, [int? saveId]) async {
+    final allStory = state.allStory;
+    if (allStory.isEmpty || savedIndex < 0 || savedIndex >= allStory.length) {
+      return;
+    }
     final index = savedIndex;
     final choice = await choiceRepository.fetchChoiceList();
     final isChoice = choice.where((c) => c.storyId == index).length > 1; // StoryIdで選択肢を検索し、行が取得できたら選択肢がある
-    final allStory = state.allStory;
 
     if (saveId == 0) {
       // バックログ用に話の内容をBacklogテーブルに格納する
@@ -101,8 +109,6 @@ class StoryUsecase extends Notifier<StoryState> {
     } else {
       ref.read(live2dProvider.notifier).stopBgm();
     }
-    ref.read(live2dProvider.notifier).changeCharacter(allStory[index].character1);
-    ref.read(live2dProvider.notifier).changeBackground(allStory[index].imageName);
   }
 
   // ゲーム画面クリック時の業務処理
@@ -132,8 +138,6 @@ class StoryUsecase extends Notifier<StoryState> {
     } else {
       ref.read(live2dProvider.notifier).stopBgm();
     }
-    ref.read(live2dProvider.notifier).changeCharacter(allStory[state.currentIndex].character1);
-    ref.read(live2dProvider.notifier).changeBackground(allStory[state.currentIndex].imageName);
   }
 
   // 選択肢がクリックされたとき
@@ -164,8 +168,6 @@ class StoryUsecase extends Notifier<StoryState> {
     } else {
       ref.read(live2dProvider.notifier).stopBgm();
     }
-    ref.read(live2dProvider.notifier).changeCharacter(allStory[choice.nextStoryId].character1);
-    ref.read(live2dProvider.notifier).changeBackground(allStory[choice.nextStoryId].imageName);
   }
 
   // 選択肢画面を表示する

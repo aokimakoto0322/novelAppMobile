@@ -38,8 +38,7 @@ class StoryRepository {
             description: story.description,
             imageName: story.imageName,
             character1: story.character1,
-            character1EffectIn: story.character1EffectIn,
-            character1EffectOut: story.character1EffectOut,
+            character1Effect: story.character1Effect,
             bgm: story.bgm
           ),
           onConflict: DoNothing()

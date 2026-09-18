@@ -29,18 +29,14 @@ class Live2DCharacterWidget extends ConsumerWidget {
 
       final prevChar = prevStory?.character1.trim() ?? '';
       final nextChar = nextStory?.character1.trim() ?? '';
-      final nextEffectIn = nextStory?.character1EffectIn.trim() ?? '';
-      final nextEffectOut = nextStory?.character1EffectOut.trim() ?? '';
+      final nextEffect = nextStory?.character1Effect.trim() ?? '';
+      final prevEffect = prevStory?.character1Effect.trim() ?? '';
 
-      final prevEffectIn = prevStory?.character1EffectIn.trim() ?? '';
-      final prevEffectOut = prevStory?.character1EffectOut.trim() ?? '';
-
-      if (prevChar != nextChar || prevEffectIn != nextEffectIn || prevEffectOut != nextEffectOut) {
+      if (prevChar != nextChar || prevEffect != nextEffect) {
         // Unity(CharacterManager)側へキャラクター名および演出名を送信
         ref.read(live2dProvider.notifier).changeCharacter(
               nextChar,
-              effectIn: nextEffectIn,
-              effectOut: nextEffectOut,
+              effect: nextEffect,
             );
       }
 
@@ -59,14 +55,12 @@ class Live2DCharacterWidget extends ConsumerWidget {
             ? allStory[currentIndex]
             : null;
         final currentChar = currentStory?.character1.trim() ?? '';
-        final currentEffectIn = currentStory?.character1EffectIn.trim() ?? '';
-        final currentEffectOut = currentStory?.character1EffectOut.trim() ?? '';
+        final currentEffect = currentStory?.character1Effect.trim() ?? '';
         final currentBg = storyState.backGroundImage;
 
         ref.read(live2dProvider.notifier).changeCharacter(
               currentChar,
-              effectIn: currentEffectIn,
-              effectOut: currentEffectOut,
+              effect: currentEffect,
             );
         ref.read(live2dProvider.notifier).changeBackground(currentBg);
         ref.read(live2dProvider.notifier).showCanvas();

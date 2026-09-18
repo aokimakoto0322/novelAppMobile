@@ -13,6 +13,7 @@ public class CharacterManager : MonoBehaviour
     private RectTransform rectTransform;
 
     private string activeCharacterName = "";
+    private string activeCharacterEffect = "";
     private bool isAnimating = false;
 
     private void Awake()
@@ -43,7 +44,7 @@ public class CharacterManager : MonoBehaviour
     }
 
     // WebGL (index.html) の SendMessage から呼ばれるメソッド
-    // 引数データ形式: "characterName,effectIn,effectOut"
+    // 引数データ形式: "characterName,effect"
     public void SetCharacterWithEffect(string dataStr)
     {
         Debug.Log($"<color=cyan>[CharEffect]</color> Received from Web: '{dataStr}'");
@@ -56,20 +57,32 @@ public class CharacterManager : MonoBehaviour
 
         string[] parts = dataStr.Split(',');
         string characterName = parts.Length > 0 ? parts[0] : "";
-        string effectIn = parts.Length > 1 ? parts[1] : "";
-        string effectOut = parts.Length > 2 ? parts[2] : "";
+        string effect = parts.Length > 1 ? parts[1] : "";
 
-        PlayCharacterEffect(characterName, effectIn, effectOut);
+        PlayCharacterEffect(characterName, effect);
     }
 
     // 従来互換のメソッド
     public void SetCharacter(string characterName)
     {
         Debug.Log($"<color=cyan>[CharEffect]</color> SetCharacter called with name: '{characterName}'");
-        PlayCharacterEffect(characterName, "", "");
+        PlayCharacterEffect(characterName, "");
     }
 
-    private void PlayCharacterEffect(string characterName, string effectIn, string effectOut)
+    private bool IsOutEffect(string effect)
+    {
+        if (string.IsNullOrEmpty(effect)) return false;
+        string trimmed = effect.ToLower().Trim();
+        return trimmed.EndsWith("_out") ||
+               trimmed == "fade_out" ||
+               trimmed == "slide_down_out" ||
+               trimmed == "slide_left_out" ||
+               trimmed == "slide_right_out" ||
+               trimmed == "zoom_out" ||
+               trimmed == "blur_out";
+    }
+
+    private void PlayCharacterEffect(string characterName, string effect)
     {
         if (live2dCharacterObject == null)
         {
@@ -77,18 +90,49 @@ public class CharacterManager : MonoBehaviour
             return;
         }
 
+        bool isOut = IsOutEffect(effect);
+
+        // 退場エフェクトの場合
+        if (isOut)
+        {
+            // キャラクターが非表示中、またはすでに退場済みの場合
+            if (!live2dCharacterObject.activeSelf)
+            {
+                Debug.Log("<color=yellow>[CharEffect]</color> Out effect requested, but character is already inactive.");
+                activeCharacterName = "";
+                activeCharacterEffect = "";
+                return;
+            }
+
+            // ガード処理: すでに退場アニメーション再生中であり、同一の退場エフェクトが連投された場合はキャンセルせずに継続
+            if (isAnimating && string.Equals(effect, activeCharacterEffect, System.StringComparison.OrdinalIgnoreCase))
+            {
+                Debug.Log("<color=orange>[CharEffect]</color> Guard: Ignored duplicate out effect call while animating.");
+                return;
+            }
+
+            if (currentEffectCoroutine != null) StopCoroutine(currentEffectCoroutine);
+
+            activeCharacterEffect = effect;
+            Debug.Log($"<color=green>[CharEffect]</color> Play Out Effect -> Effect: '{effect}'");
+            currentEffectCoroutine = StartCoroutine(AnimateEffectOut(effect));
+            return;
+        }
+
+        // キャラクター名が空で、かつ退場エフェクトでもない場合 -> 即時非表示
         if (string.IsNullOrEmpty(characterName))
         {
-            Debug.Log("<color=yellow>[CharEffect]</color> Character name is empty -> Hiding character.");
+            Debug.Log("<color=yellow>[CharEffect]</color> Character name is empty -> Hiding character immediately.");
             if (currentEffectCoroutine != null) StopCoroutine(currentEffectCoroutine);
             isAnimating = false;
             activeCharacterName = "";
+            activeCharacterEffect = "";
             live2dCharacterObject.SetActive(false);
             return;
         }
 
         // ガード処理: 同一キャラクター表示中にアニメーション再生中であり、後続の空エフェクト("")が連投された場合は上書きキャンセルしない！
-        if (isAnimating && activeCharacterName == characterName && string.IsNullOrEmpty(effectIn))
+        if (isAnimating && activeCharacterName == characterName && string.IsNullOrEmpty(effect))
         {
             Debug.Log("<color=orange>[CharEffect]</color> Guard: Ignored empty effect override while animation is playing for same character.");
             return;
@@ -100,12 +144,13 @@ public class CharacterManager : MonoBehaviour
         }
 
         activeCharacterName = characterName;
+        activeCharacterEffect = effect;
         live2dCharacterObject.SetActive(true);
 
-        Debug.Log($"<color=green>[CharEffect]</color> Play -> Char: '{characterName}', EffectIn: '{effectIn}'");
+        Debug.Log($"<color=green>[CharEffect]</color> Play -> Char: '{characterName}', Effect: '{effect}'");
 
         // 登場エフェクトのコルーチンを開始
-        currentEffectCoroutine = StartCoroutine(AnimateEffectIn(effectIn));
+        currentEffectCoroutine = StartCoroutine(AnimateEffectIn(effect));
     }
 
     private void SetPosition(Vector3 pos, Vector2 anchoredPos)
@@ -140,8 +185,8 @@ public class CharacterManager : MonoBehaviour
         Debug.Log($"<color=green>[CharEffect]</color> Starting Animation Routine for: '{trimmedEffect}'");
 
         // 移動オフセット（UI Canvasかワールド座標かにより調整）
-        float offsetX = (rectTransform != null) ? 500f : 3.0f;
-        float offsetY = (rectTransform != null) ? 300f : 2.0f;
+        float offsetX = (rectTransform != null) ? 1200f : 6.0f;
+        float offsetY = (rectTransform != null) ? 800f : 4.0f;
 
         switch (trimmedEffect)
         {
@@ -263,5 +308,140 @@ public class CharacterManager : MonoBehaviour
 
         isAnimating = false;
         Debug.Log($"<color=green>[CharEffect]</color> Finished Animation for '{effectIn}'");
+    }
+
+    private IEnumerator AnimateEffectOut(string effectOut)
+    {
+        float duration = 0.65f;
+        float elapsed = 0f;
+
+        isAnimating = true;
+
+        string trimmedEffect = effectOut.ToLower().Trim();
+        Debug.Log($"<color=green>[CharEffect]</color> Starting Out Animation Routine for: '{trimmedEffect}'");
+
+        float offsetX = (rectTransform != null) ? 1200f : 6.0f;
+        float offsetY = (rectTransform != null) ? 800f : 4.0f;
+
+        // アニメーション開始直前にアルファを1fに確定
+        if (canvasGroup != null) canvasGroup.alpha = 1f;
+
+        switch (trimmedEffect)
+        {
+            case "fade_out":
+                while (elapsed < duration)
+                {
+                    elapsed += Time.deltaTime;
+                    float t = Mathf.Clamp01(elapsed / duration);
+                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, t);
+                    yield return null;
+                }
+                if (canvasGroup != null) canvasGroup.alpha = 0f;
+                break;
+
+            case "slide_down_out":
+                Vector3 targetPosDown = defaultPosition + new Vector3(0, -offsetY, 0);
+                Vector2 targetAnchoredDown = defaultAnchoredPosition + new Vector2(0, -offsetY);
+
+                while (elapsed < duration)
+                {
+                    elapsed += Time.deltaTime;
+                    float t = Mathf.Clamp01(elapsed / duration);
+                    float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+                    Vector3 curPos = Vector3.Lerp(defaultPosition, targetPosDown, smoothT);
+                    Vector2 curAnchored = Vector2.Lerp(defaultAnchoredPosition, targetAnchoredDown, smoothT);
+                    SetPosition(curPos, curAnchored);
+
+                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, smoothT);
+                    yield return null;
+                }
+                break;
+
+            case "slide_left_out":
+                Vector3 targetPosLeft = defaultPosition + new Vector3(-offsetX, 0, 0);
+                Vector2 targetAnchoredLeft = defaultAnchoredPosition + new Vector2(-offsetX, 0);
+
+                while (elapsed < duration)
+                {
+                    elapsed += Time.deltaTime;
+                    float t = Mathf.Clamp01(elapsed / duration);
+                    float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+                    Vector3 curPos = Vector3.Lerp(defaultPosition, targetPosLeft, smoothT);
+                    Vector2 curAnchored = Vector2.Lerp(defaultAnchoredPosition, targetAnchoredLeft, smoothT);
+                    SetPosition(curPos, curAnchored);
+
+                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, smoothT);
+                    yield return null;
+                }
+                break;
+
+            case "slide_right_out":
+                Vector3 targetPosRight = defaultPosition + new Vector3(offsetX, 0, 0);
+                Vector2 targetAnchoredRight = defaultAnchoredPosition + new Vector2(offsetX, 0);
+
+                while (elapsed < duration)
+                {
+                    elapsed += Time.deltaTime;
+                    float t = Mathf.Clamp01(elapsed / duration);
+                    float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+                    Vector3 curPos = Vector3.Lerp(defaultPosition, targetPosRight, smoothT);
+                    Vector2 curAnchored = Vector2.Lerp(defaultAnchoredPosition, targetAnchoredRight, smoothT);
+                    SetPosition(curPos, curAnchored);
+
+                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, smoothT);
+                    yield return null;
+                }
+                break;
+
+            case "zoom_out":
+                Vector3 targetScaleZoom = defaultScale * 0.7f;
+
+                while (elapsed < duration)
+                {
+                    elapsed += Time.deltaTime;
+                    float t = Mathf.Clamp01(elapsed / duration);
+                    float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+                    live2dCharacterObject.transform.localScale = Vector3.Lerp(defaultScale, targetScaleZoom, smoothT);
+                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, smoothT);
+                    yield return null;
+                }
+                break;
+
+            case "blur_out":
+                Vector3 targetScaleBlur = defaultScale * 1.15f;
+
+                while (elapsed < duration)
+                {
+                    elapsed += Time.deltaTime;
+                    float t = Mathf.Clamp01(elapsed / duration);
+                    float smoothT = Mathf.SmoothStep(0f, 1f, t);
+
+                    live2dCharacterObject.transform.localScale = Vector3.Lerp(defaultScale, targetScaleBlur, smoothT);
+                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, smoothT);
+                    yield return null;
+                }
+                break;
+
+            default:
+                Debug.LogWarning($"<color=orange>[CharEffect]</color> Unknown out effect name: '{trimmedEffect}'");
+                break;
+        }
+
+        // 退場完了処理
+        live2dCharacterObject.SetActive(false);
+        activeCharacterName = "";
+        activeCharacterEffect = "";
+
+        // 次回表示時のために状態をデフォルトにリセット
+        SetPosition(defaultPosition, defaultAnchoredPosition);
+        live2dCharacterObject.transform.localScale = defaultScale;
+        if (canvasGroup != null) canvasGroup.alpha = 1f;
+
+        isAnimating = false;
+        Debug.Log($"<color=green>[CharEffect]</color> Finished Out Animation for '{effectOut}'");
     }
 }
