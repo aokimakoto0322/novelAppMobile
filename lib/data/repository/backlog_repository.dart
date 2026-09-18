@@ -37,11 +37,6 @@ class BacklogRepository {
   // セーブデータと紐づいていないバックログは削除する
   Future<void> deleteBackLog() async {
     await (db.delete(db.backLogTable)..where((tbl) => tbl.saveId.isNull() | tbl.saveId.equals(0))).go();
-
-    // debug ちゃんと削除されているか確認
-    final logs = await (db.select(db.backLogTable)..where((tbl) => tbl.saveId.isNull() | tbl.saveId.equals(0))).get();
-    print('削除確認');
-    print(logs.length);
   }
 
   // セーブデータとバックログを紐づける

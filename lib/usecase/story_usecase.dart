@@ -5,13 +5,13 @@ import 'package:flutter_nobel_app/state/story_state.dart';
 import 'package:flutter_nobel_app/usecase/admob_usecase.dart';
 import 'package:flutter_nobel_app/usecase/backlog_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:just_audio/just_audio.dart';
 import '../data/sources/story_api.dart';
 import 'package:flutter_nobel_app/provider/database_provider.dart';
 import 'package:flutter_nobel_app/provider/choice_provider.dart';
 import 'package:flutter_nobel_app/provider/story_repository_provider.dart';
 import 'package:flutter_nobel_app/provider/common_story_api_provider.dart';
 import 'package:flutter_nobel_app/provider/backlog_provider.dart';
+import 'package:flutter_nobel_app/provider/live2d_provider.dart';
 
 class StoryUsecase extends Notifier<StoryState> {
   late final MyDatabase db;
@@ -19,8 +19,6 @@ class StoryUsecase extends Notifier<StoryState> {
   late final StoryRepository storyRepository;
   late final CommonStoryApi commonStoryApi;
   late final BacklogUsecase backlogUsecase;
-  late final AudioPlayer audioPlayer;
-  bool _isFadingOut = false;
 
   @override
   StoryState build() {
@@ -29,7 +27,6 @@ class StoryUsecase extends Notifier<StoryState> {
     storyRepository = ref.read(storyRepositoryProvider);
     commonStoryApi = ref.read(commonStoryApiProvider);
     backlogUsecase = ref.read(backlogUsecaseProvider);
-    audioPlayer = AudioPlayer();
     return StoryState.initial;
   }
 
@@ -38,28 +35,33 @@ class StoryUsecase extends Notifier<StoryState> {
   Future<void> getAllStory() async {
     print('★APIから最新データを取得開始します...');
     
-    // 1. 先に古いデータを消す（await で完了を待つ）
-    await storyRepository.deleteAllStory();
-
-    // 2. APIで最新の話を取得
-    List<Story> apiStoryList = await commonStoryApi.fetchAllStory();
+    try {
+      // 1. APIで最新の話を取得（先に取得して成功を確認する）
+      List<Story> apiStoryList = await commonStoryApi.fetchAllStory();
+      
+      if (apiStoryList.isNotEmpty) {
+        // 2. 取得できた場合のみ既存データを削除して更新
+        await storyRepository.deleteAllStory();
+        await storyRepository.insertStory(db, apiStoryList);
+      }
+    } catch (e) {
+      print('★APIからの取得失敗、既存のDBデータを使用します: $e');
+    }
     
-    // 3. DBに格納（ここも完了をしっかり待ちます）
-    await storyRepository.insertStory(db, apiStoryList);
-    
-    // 4. 最新のデータをDBから全件取得
+    // 3. 最新のデータをDBから全件取得
     final result = await storyRepository.fetchAllStory();
 
-    // 5. 最後にstateを更新する
+    // 4. 最後にstateを更新する
     state = state.copyWith(allStory: result);
     print('★データの同期がすべて完了しました！全 ${result.length} 件');
   }
 
   void resetState() {
+    final hasStory = state.allStory.isNotEmpty;
     state = StoryState(
       allStory: state.allStory,
       currentIndex: 0,
-      backGroundImage: state.allStory[0].imageName,
+      backGroundImage: hasStory ? state.allStory[0].imageName : '',
       allChoiceList: [],
       isChoice: false,
       isDisplayingChoicePrompt: false,
@@ -79,10 +81,13 @@ class StoryUsecase extends Notifier<StoryState> {
   // ロードした場合、ロードしたところからスタートする
   // 新規の場合は最初からスタートする
   Future<void> initGameScreen(int savedIndex, [int? saveId]) async {
+    final allStory = state.allStory;
+    if (allStory.isEmpty || savedIndex < 0 || savedIndex >= allStory.length) {
+      return;
+    }
     final index = savedIndex;
     final choice = await choiceRepository.fetchChoiceList();
     final isChoice = choice.where((c) => c.storyId == index).length > 1; // StoryIdで選択肢を検索し、行が取得できたら選択肢がある
-    final allStory = state.allStory;
 
     if (saveId == 0) {
       // バックログ用に話の内容をBacklogテーブルに格納する
@@ -95,32 +100,42 @@ class StoryUsecase extends Notifier<StoryState> {
       backGroundImage: allStory[index].imageName,
       allChoiceList: choice,
       isChoice: isChoice,
-      saveId: saveId
+      saveId: saveId,
+      currentBgm: allStory[index].bgm,
     );
 
-    // BGM再生
-    await playBgmIfNeeded(allStory[index].bgm);
+    if (allStory[index].bgm.isNotEmpty) {
+      ref.read(live2dProvider.notifier).playBgm(allStory[index].bgm);
+    } else {
+      ref.read(live2dProvider.notifier).stopBgm();
+    }
   }
 
   // ゲーム画面クリック時の業務処理
   Future<void> showNextItem(MyDatabase db, List<Story> allStory, AdmobUsecase admobUsecase) async {
     // 広告表示チェック（サンプルで30回に1回表示する）
-    if (state.currentIndex == 30) {
-      // 広告を表示
-      admobUsecase.showInterstitialAd(onAdClosed: () async {
-        await Future.delayed(Duration(seconds: 1));
-        _advanceStory(allStory);
-        admobUsecase.loadInterstitialAd();
-      });
-      return;
-    }
+    // 一旦広告はストップ
+    // if (state.currentIndex == 30) {
+    //   // 広告を表示
+    //   admobUsecase.showInterstitialAd(onAdClosed: () async {
+    //     await Future.delayed(Duration(seconds: 1));
+    //     _advanceStory(allStory);
+    //     admobUsecase.loadInterstitialAd();
+    //   });
+    //   return;
+    // }
 
     // 話の終わりを判定
     if (state.currentIndex + 1 >= allStory.length) return;
 
     await _advanceStory(allStory);
-    // BGM再生
-    await playBgmIfNeeded(allStory[state.currentIndex].bgm);
+
+    // UnityにBGM再生する場合はUnity側にBGM名を送りBGMを再生する
+    if (state.currentBgm.isNotEmpty) {
+      ref.read(live2dProvider.notifier).playBgm(state.currentBgm);
+    } else {
+      ref.read(live2dProvider.notifier).stopBgm();
+    }
   }
 
   // 選択肢がクリックされたとき
@@ -141,11 +156,16 @@ class StoryUsecase extends Notifier<StoryState> {
 
     state = state.copyWith(
       currentIndex: choice.nextStoryId,
-      isWaiting: false
+      isWaiting: false,
+      currentBgm: allStory[choice.nextStoryId].bgm,
     );
 
-    // 選択肢を選択後、すぐにBGM指定があった場合は再生
-    await playBgmIfNeeded(allStory[choice.nextStoryId].bgm);
+    // UnityにBGM再生する場合はUnity側にBGM名を送りBGMを再生する
+    if (state.currentBgm.isNotEmpty) {
+      ref.read(live2dProvider.notifier).playBgm(state.currentBgm);
+    } else {
+      ref.read(live2dProvider.notifier).stopBgm();
+    }
   }
 
   // 選択肢画面を表示する
@@ -203,69 +223,5 @@ class StoryUsecase extends Notifier<StoryState> {
     }
 
     state = newState;
-  }
-
-  // BGMを流す
-  Future<void> playBgmIfNeeded(String? nextBgm) async {
-    final currentBgm = state.currentBgm;
-
-    if (nextBgm == null || nextBgm.isEmpty) {
-      // BGMを停止する処理
-      try {
-        await fadeOut(audioPlayer); // フェードアウト
-        await audioPlayer.stop();
-        state = state.copyWith(currentBgm: null); // 状態を更新
-      } catch (e) {
-        print('BGM停止エラー: $e');
-      }
-      return;
-    }
-
-    if (currentBgm == nextBgm && audioPlayer.playing) return; // 同じBGMなら何もしない
-
-    try {
-      await audioPlayer.stop();
-      await audioPlayer.setAsset('bgm/$nextBgm');
-      await audioPlayer.setLoopMode(LoopMode.one);
-      await audioPlayer.setVolume(1.0);
-      await audioPlayer.play();
-
-      // BGMが正常に切り替わったら状態を更新
-      state = state.copyWith(currentBgm: nextBgm);
-    } catch (e) {
-      print('BGM再生エラー: $e');
-    }
-  }
-
-  Future<void> fadeIn(AudioPlayer player, {double targetVolume = 1.0, Duration duration = const Duration(seconds: 1)}) async {
-    const steps = 10;
-    final interval = duration ~/ steps;
-
-    for (int i = 0; i <= steps; i++) {
-      final volume = (i / steps) * targetVolume;
-      await player.setVolume(volume);
-      await Future.delayed(interval);
-    }
-  }
-
-  Future<void> fadeOut(AudioPlayer player, {Duration duration = const Duration(seconds: 1)}) async {
-    if (_isFadingOut) return; // すでにフェードアウト中なら処理をスキップ
-    _isFadingOut = true;
-
-    const steps = 10;
-    final interval = duration ~/ steps;
-
-    for (int i = steps; i >= 0; i--) {
-      final volume = i / steps;
-      await player.setVolume(volume);
-      await Future.delayed(interval);
-    }
-
-    // フェードアウトが終わったら終わったことを知らせる
-    _isFadingOut = false;
-  }
-
-  void stopBgm() {
-    audioPlayer.stop();
   }
 }

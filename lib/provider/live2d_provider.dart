@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import '../usecase/unity_server_manager.dart';
 
 class Live2DState {
@@ -58,12 +59,47 @@ class Live2DNotifier extends Notifier<Live2DState> {
         'var c = document.getElementById("unity-canvas"); if(c) c.style.visibility = "hidden";');
   }
 
+  /// Unity側へBGM再生命令を送信する
+  void playBgm(String bgmName) {
+    if (bgmName.isEmpty) {
+      stopBgm();
+      return;
+    }
+    state.controller?.runJavaScript('playBgm("$bgmName");');
+  }
+
+  /// Unity側へBGM停止命令を送信する
+  void stopBgm() {
+    state.controller?.runJavaScript('stopBgm();');
+  }
+
+  /// Unity側へキャラクター表示・切替命令を送信する
+  void changeCharacter(String characterName, {String effect = ''}) {
+    debugPrint('Live2DNotifier.changeCharacter -> name: "$characterName", effect: "$effect"');
+    state.controller?.runJavaScript('changeCharacter("$characterName", "$effect");');
+  }
+
+  /// Unity側へ背景画像切替命令を送信する
+  void changeBackground(String imageName) {
+    state.controller?.runJavaScript('changeBackground("$imageName");');
+  }
+
   Future<void> _initServerAndWebView() async {
     try {
       final unityDirPath = await _serverManager.prepareUnityFiles();
       await _serverManager.start(unityDirPath);
 
-      final controller = WebViewController()
+      late final PlatformWebViewControllerCreationParams params;
+      if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+        params = WebKitWebViewControllerCreationParams(
+          allowsInlineMediaPlayback: true,
+          mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
+        );
+      } else {
+        params = const PlatformWebViewControllerCreationParams();
+      }
+
+      final controller = WebViewController.fromPlatformCreationParams(params)
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..addJavaScriptChannel(
           'FlutterChannel',

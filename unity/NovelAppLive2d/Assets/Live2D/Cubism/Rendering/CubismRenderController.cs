@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Copyright(c) Live2D Inc. All rights reserved.
  *
  * Use of this source code is governed by the Live2D Open Software license
@@ -642,8 +642,14 @@ namespace Live2D.Cubism.Rendering
 
             var isMultiplyColorUpdated = false;
             var isScreenColorUpdated = false;
-            _newMultiplyColors ??= new Color[Renderers.Length];
-            _newScreenColors ??= new Color[Renderers.Length];
+            if (_newMultiplyColors == null || _newMultiplyColors.Length != Renderers.Length)
+            {
+                _newMultiplyColors = new Color[Renderers.Length];
+            }
+            if (_newScreenColors == null || _newScreenColors.Length != Renderers.Length)
+            {
+                _newScreenColors = new Color[Renderers.Length];
+            }
 
             for (int i = 0; i < Renderers.Length; i++)
             {

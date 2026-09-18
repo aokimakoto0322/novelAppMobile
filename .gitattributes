@@ -1,0 +1,36 @@
+# Auto-detect text files and perform LF normalization on checkout/commit
+* text=auto
+
+# Force LF line endings for Unity meta, script, asset, and config files across Mac and Windows
+*.cs text eol=lf
+*.meta text eol=lf
+*.unity text eol=lf
+*.prefab text eol=lf
+*.asset text eol=lf
+*.json text eol=lf
+*.cginc text eol=lf
+*.shader text eol=lf
+*.mat text eol=lf
+*.anim text eol=lf
+*.controller text eol=lf
+*.overrideController text eol=lf
+*.asmdef text eol=lf
+*.asmref text eol=lf
+
+# Force binary handling for media and compiled Unity files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.psd binary
+*.tga binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.bytes binary
+*.cubism3.json binary
+*.moc3 binary
+*.motion3.json binary
+*.fbx binary
+*.obj binary
+*.unitypackage binary
+

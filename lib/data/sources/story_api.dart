@@ -19,7 +19,16 @@ class CommonStoryApi {
     if (response.statusCode == 200) {
       String decodedBody = utf8.decode(response.bodyBytes);
       List<dynamic> jsonData = jsonDecode(decodedBody);
-      return jsonData.map((data) => Story.fromJson(data)).toList();
+      final stories = jsonData.map((data) => Story.fromJson(data)).toList();
+      stories.sort((a, b) {
+        final numA = num.tryParse(a.sortId);
+        final numB = num.tryParse(b.sortId);
+        if (numA != null && numB != null) {
+          return numA.compareTo(numB);
+        }
+        return a.sortId.compareTo(b.sortId);
+      });
+      return stories;
     } else {
       throw Exception('failed request');
     }
