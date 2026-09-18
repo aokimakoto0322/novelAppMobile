@@ -114,15 +114,16 @@ class StoryUsecase extends Notifier<StoryState> {
   // ゲーム画面クリック時の業務処理
   Future<void> showNextItem(MyDatabase db, List<Story> allStory, AdmobUsecase admobUsecase) async {
     // 広告表示チェック（サンプルで30回に1回表示する）
-    if (state.currentIndex == 30) {
-      // 広告を表示
-      admobUsecase.showInterstitialAd(onAdClosed: () async {
-        await Future.delayed(Duration(seconds: 1));
-        _advanceStory(allStory);
-        admobUsecase.loadInterstitialAd();
-      });
-      return;
-    }
+    // 一旦広告はストップ
+    // if (state.currentIndex == 30) {
+    //   // 広告を表示
+    //   admobUsecase.showInterstitialAd(onAdClosed: () async {
+    //     await Future.delayed(Duration(seconds: 1));
+    //     _advanceStory(allStory);
+    //     admobUsecase.loadInterstitialAd();
+    //   });
+    //   return;
+    // }
 
     // 話の終わりを判定
     if (state.currentIndex + 1 >= allStory.length) return;

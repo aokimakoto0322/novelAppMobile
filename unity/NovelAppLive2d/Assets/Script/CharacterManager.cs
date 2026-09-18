@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using Live2D.Cubism.Rendering;
 
 public class CharacterManager : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class CharacterManager : MonoBehaviour
     private Coroutine currentEffectCoroutine;
     private CanvasGroup canvasGroup;
     private RectTransform rectTransform;
+    private CubismRenderController[] cubismRenderControllers;
+    private SpriteRenderer[] spriteRenderers;
 
     private string activeCharacterName = "";
     private string activeCharacterEffect = "";
@@ -35,11 +38,56 @@ public class CharacterManager : MonoBehaviour
                 canvasGroup = live2dCharacterObject.AddComponent<CanvasGroup>();
             }
 
-            Debug.Log($"<color=cyan>[CharEffect]</color> Awake -> Object: '{live2dCharacterObject.name}', defaultPos: {defaultPosition}, defaultAnchoredPos: {defaultAnchoredPosition}");
+            cubismRenderControllers = live2dCharacterObject.GetComponentsInChildren<CubismRenderController>(true);
+            spriteRenderers = live2dCharacterObject.GetComponentsInChildren<SpriteRenderer>(true);
+
+            Debug.Log($"<color=cyan>[CharEffect]</color> Awake -> Object: '{live2dCharacterObject.name}', CubismCtrls: {cubismRenderControllers?.Length ?? 0}");
         }
         else
         {
             Debug.LogError("<color=red>[CharEffect]</color> Awake ERROR: live2dCharacterObject is NOT assigned in Inspector!");
+        }
+    }
+
+    private void SetAlpha(float alpha)
+    {
+        if (live2dCharacterObject == null) return;
+
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = alpha;
+        }
+
+        if (cubismRenderControllers == null || cubismRenderControllers.Length == 0)
+        {
+            cubismRenderControllers = live2dCharacterObject.GetComponentsInChildren<CubismRenderController>(true);
+        }
+        if (cubismRenderControllers != null)
+        {
+            for (int i = 0; i < cubismRenderControllers.Length; i++)
+            {
+                if (cubismRenderControllers[i] != null)
+                {
+                    cubismRenderControllers[i].Opacity = alpha;
+                }
+            }
+        }
+
+        if (spriteRenderers == null || spriteRenderers.Length == 0)
+        {
+            spriteRenderers = live2dCharacterObject.GetComponentsInChildren<SpriteRenderer>(true);
+        }
+        if (spriteRenderers != null)
+        {
+            for (int i = 0; i < spriteRenderers.Length; i++)
+            {
+                if (spriteRenderers[i] != null)
+                {
+                    Color c = spriteRenderers[i].color;
+                    c.a = alpha;
+                    spriteRenderers[i].color = c;
+                }
+            }
         }
     }
 
@@ -172,16 +220,19 @@ public class CharacterManager : MonoBehaviour
         // 初期状態に確定
         SetPosition(defaultPosition, defaultAnchoredPosition);
         live2dCharacterObject.transform.localScale = defaultScale;
-        if (canvasGroup != null) canvasGroup.alpha = 1f;
 
-        if (string.IsNullOrEmpty(effectIn) || effectIn == "none")
+        string trimmedEffect = string.IsNullOrEmpty(effectIn) ? "" : effectIn.ToLower().Trim();
+
+        if (string.IsNullOrEmpty(trimmedEffect) || trimmedEffect == "none")
         {
+            SetAlpha(1f);
             Debug.Log("<color=yellow>[CharEffect]</color> No effect specified (Instant display).");
             isAnimating = false;
             yield break;
         }
 
-        string trimmedEffect = effectIn.ToLower().Trim();
+        // 登場演出の開始時は透明(0f)からスタートする
+        SetAlpha(0f);
         Debug.Log($"<color=green>[CharEffect]</color> Starting Animation Routine for: '{trimmedEffect}'");
 
         // 移動オフセット（UI Canvasかワールド座標かにより調整）
@@ -191,12 +242,12 @@ public class CharacterManager : MonoBehaviour
         switch (trimmedEffect)
         {
             case "fade_in":
-                if (canvasGroup != null) canvasGroup.alpha = 0f;
+                SetAlpha(0f);
                 while (elapsed < duration)
                 {
                     elapsed += Time.deltaTime;
                     float t = Mathf.Clamp01(elapsed / duration);
-                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(0f, 1f, t);
+                    SetAlpha(Mathf.SmoothStep(0f, 1f, t));
                     yield return null;
                 }
                 break;
@@ -204,7 +255,7 @@ public class CharacterManager : MonoBehaviour
             case "slide_up_in":
                 Vector3 startPosUp = defaultPosition + new Vector3(0, -offsetY, 0);
                 Vector2 startAnchoredUp = defaultAnchoredPosition + new Vector2(0, -offsetY);
-                if (canvasGroup != null) canvasGroup.alpha = 0f;
+                SetAlpha(0f);
 
                 while (elapsed < duration)
                 {
@@ -216,7 +267,7 @@ public class CharacterManager : MonoBehaviour
                     Vector2 curAnchored = Vector2.Lerp(startAnchoredUp, defaultAnchoredPosition, smoothT);
                     SetPosition(curPos, curAnchored);
 
-                    if (canvasGroup != null) canvasGroup.alpha = smoothT;
+                    SetAlpha(smoothT);
                     yield return null;
                 }
                 break;
@@ -224,7 +275,7 @@ public class CharacterManager : MonoBehaviour
             case "slide_left_in":
                 Vector3 startPosLeft = defaultPosition + new Vector3(-offsetX, 0, 0);
                 Vector2 startAnchoredLeft = defaultAnchoredPosition + new Vector2(-offsetX, 0);
-                if (canvasGroup != null) canvasGroup.alpha = 0f;
+                SetAlpha(0f);
 
                 while (elapsed < duration)
                 {
@@ -236,7 +287,7 @@ public class CharacterManager : MonoBehaviour
                     Vector2 curAnchored = Vector2.Lerp(startAnchoredLeft, defaultAnchoredPosition, smoothT);
                     SetPosition(curPos, curAnchored);
 
-                    if (canvasGroup != null) canvasGroup.alpha = smoothT;
+                    SetAlpha(smoothT);
                     yield return null;
                 }
                 break;
@@ -244,7 +295,7 @@ public class CharacterManager : MonoBehaviour
             case "slide_right_in":
                 Vector3 startPosRight = defaultPosition + new Vector3(offsetX, 0, 0);
                 Vector2 startAnchoredRight = defaultAnchoredPosition + new Vector2(offsetX, 0);
-                if (canvasGroup != null) canvasGroup.alpha = 0f;
+                SetAlpha(0f);
 
                 while (elapsed < duration)
                 {
@@ -256,7 +307,7 @@ public class CharacterManager : MonoBehaviour
                     Vector2 curAnchored = Vector2.Lerp(startAnchoredRight, defaultAnchoredPosition, smoothT);
                     SetPosition(curPos, curAnchored);
 
-                    if (canvasGroup != null) canvasGroup.alpha = smoothT;
+                    SetAlpha(smoothT);
                     yield return null;
                 }
                 break;
@@ -264,7 +315,7 @@ public class CharacterManager : MonoBehaviour
             case "zoom_in":
                 Vector3 startScale = defaultScale * 0.7f;
                 live2dCharacterObject.transform.localScale = startScale;
-                if (canvasGroup != null) canvasGroup.alpha = 0f;
+                SetAlpha(0f);
 
                 while (elapsed < duration)
                 {
@@ -273,7 +324,7 @@ public class CharacterManager : MonoBehaviour
                     float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
                     live2dCharacterObject.transform.localScale = Vector3.Lerp(startScale, defaultScale, smoothT);
-                    if (canvasGroup != null) canvasGroup.alpha = smoothT;
+                    SetAlpha(smoothT);
                     yield return null;
                 }
                 break;
@@ -282,7 +333,7 @@ public class CharacterManager : MonoBehaviour
             case "focus_in":
                 Vector3 blurStartScale = defaultScale * 1.15f;
                 live2dCharacterObject.transform.localScale = blurStartScale;
-                if (canvasGroup != null) canvasGroup.alpha = 0f;
+                SetAlpha(0f);
 
                 while (elapsed < duration)
                 {
@@ -291,7 +342,7 @@ public class CharacterManager : MonoBehaviour
                     float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
                     live2dCharacterObject.transform.localScale = Vector3.Lerp(blurStartScale, defaultScale, smoothT);
-                    if (canvasGroup != null) canvasGroup.alpha = smoothT;
+                    SetAlpha(smoothT);
                     yield return null;
                 }
                 break;
@@ -304,7 +355,7 @@ public class CharacterManager : MonoBehaviour
         // 演出完了後の最終位置・状態確定
         SetPosition(defaultPosition, defaultAnchoredPosition);
         live2dCharacterObject.transform.localScale = defaultScale;
-        if (canvasGroup != null) canvasGroup.alpha = 1f;
+        SetAlpha(1f);
 
         isAnimating = false;
         Debug.Log($"<color=green>[CharEffect]</color> Finished Animation for '{effectIn}'");
@@ -324,7 +375,7 @@ public class CharacterManager : MonoBehaviour
         float offsetY = (rectTransform != null) ? 800f : 4.0f;
 
         // アニメーション開始直前にアルファを1fに確定
-        if (canvasGroup != null) canvasGroup.alpha = 1f;
+        SetAlpha(1f);
 
         switch (trimmedEffect)
         {
@@ -333,10 +384,10 @@ public class CharacterManager : MonoBehaviour
                 {
                     elapsed += Time.deltaTime;
                     float t = Mathf.Clamp01(elapsed / duration);
-                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, t);
+                    SetAlpha(Mathf.SmoothStep(1f, 0f, t));
                     yield return null;
                 }
-                if (canvasGroup != null) canvasGroup.alpha = 0f;
+                SetAlpha(0f);
                 break;
 
             case "slide_down_out":
@@ -353,7 +404,7 @@ public class CharacterManager : MonoBehaviour
                     Vector2 curAnchored = Vector2.Lerp(defaultAnchoredPosition, targetAnchoredDown, smoothT);
                     SetPosition(curPos, curAnchored);
 
-                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, smoothT);
+                    SetAlpha(Mathf.SmoothStep(1f, 0f, smoothT));
                     yield return null;
                 }
                 break;
@@ -372,7 +423,7 @@ public class CharacterManager : MonoBehaviour
                     Vector2 curAnchored = Vector2.Lerp(defaultAnchoredPosition, targetAnchoredLeft, smoothT);
                     SetPosition(curPos, curAnchored);
 
-                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, smoothT);
+                    SetAlpha(Mathf.SmoothStep(1f, 0f, smoothT));
                     yield return null;
                 }
                 break;
@@ -391,7 +442,7 @@ public class CharacterManager : MonoBehaviour
                     Vector2 curAnchored = Vector2.Lerp(defaultAnchoredPosition, targetAnchoredRight, smoothT);
                     SetPosition(curPos, curAnchored);
 
-                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, smoothT);
+                    SetAlpha(Mathf.SmoothStep(1f, 0f, smoothT));
                     yield return null;
                 }
                 break;
@@ -406,7 +457,7 @@ public class CharacterManager : MonoBehaviour
                     float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
                     live2dCharacterObject.transform.localScale = Vector3.Lerp(defaultScale, targetScaleZoom, smoothT);
-                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, smoothT);
+                    SetAlpha(Mathf.SmoothStep(1f, 0f, smoothT));
                     yield return null;
                 }
                 break;
@@ -421,7 +472,7 @@ public class CharacterManager : MonoBehaviour
                     float smoothT = Mathf.SmoothStep(0f, 1f, t);
 
                     live2dCharacterObject.transform.localScale = Vector3.Lerp(defaultScale, targetScaleBlur, smoothT);
-                    if (canvasGroup != null) canvasGroup.alpha = Mathf.SmoothStep(1f, 0f, smoothT);
+                    SetAlpha(Mathf.SmoothStep(1f, 0f, smoothT));
                     yield return null;
                 }
                 break;
@@ -439,7 +490,7 @@ public class CharacterManager : MonoBehaviour
         // 次回表示時のために状態をデフォルトにリセット
         SetPosition(defaultPosition, defaultAnchoredPosition);
         live2dCharacterObject.transform.localScale = defaultScale;
-        if (canvasGroup != null) canvasGroup.alpha = 1f;
+        SetAlpha(1f);
 
         isAnimating = false;
         Debug.Log($"<color=green>[CharEffect]</color> Finished Out Animation for '{effectOut}'");
