@@ -121,23 +121,11 @@ LazyDatabase _openConnection() {
 Future<void> _initChoiceDataInsert(MyDatabase db) async {
   print('初期データ投入');
 
+  // index - 1なので、選択肢を出したいStoryId - 1にすること（例StoryId35が終わったタイミングで選択肢を出したい場合、34と入力）
+  // returnStoryId: 選択肢に応じた内容が終わるID(IDの指定はStoryIdと同様)
+  // nextStoryIdも同様
 
   // 選択肢グループ①
-  // 選択肢A
-  await db.into(db.choiseTable).insert(
-    // index - 1なので、選択肢を出したいStoryId - 1にすること（例StoryId35が終わったタイミングで選択肢を出したい場合、34と入力）
-    // returnStoryId: 選択肢に応じた内容が終わるID(IDの指定はStoryIdと同様)
-    // nextStoryIdも同様
-    ChoiseTableCompanion.insert(storyId: 84, word: 'ヒロインAを選ぶ', choiceGroup: 1, nextStoryId: 200, returnStoryId: 290, warpStoryId: 201, saveDiv: Value(Const.SAVEDIV['キャラクター選択画面']))
-  );
-
-  // 選択肢B // 最後の場合retunStoryId - 1に設定
-  await db.into(db.choiseTable).insert(
-    ChoiseTableCompanion.insert(storyId: 84, word: 'ヒロインBを選ぶ', choiceGroup: 1, nextStoryId: 86, returnStoryId: 109, warpStoryId: 110, saveDiv: Value(Const.SAVEDIV['キャラクター選択画面']))
-  );
-
-
-  // 選択肢グループ②
   await db.into(db.choiseTable).insert(
     ChoiseTableCompanion.insert(
       storyId: 201,
