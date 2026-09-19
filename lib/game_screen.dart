@@ -24,6 +24,7 @@ class GameScreen extends ConsumerStatefulWidget {
 }
 
 class _GameScreenState extends ConsumerState<GameScreen> {
+  final GlobalKey<TextAreaWidgetState> _textAreaKey = GlobalKey<TextAreaWidgetState>();
   AdmobUsecase admobUsecase = AdmobUsecase();
   bool _isVisible = false; // 明転用フラグ
   late final Live2DNotifier _live2dNotifier;
@@ -76,27 +77,34 @@ class _GameScreenState extends ConsumerState<GameScreen> {
         opacity: _isVisible ? 1.0 : 0.0,
         child: AnimationStackWidget(
           foregroundWidget: Scaffold(
-            body: Stack(
-              children: <Widget>[
-                // Live2D WebView表示エリア（スマホ画面の縦幅にフィット）
-                const Live2DCharacterWidget(),
+            body: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: (state.isChoice || state.isWaiting)
+                ? null
+                : () {
+                    _textAreaKey.currentState?.handleTap();
+                  },
+              child: Stack(
+                children: <Widget>[
+                  // Live2D WebView表示エリア（スマホ画面の縦幅にフィット）
+                  const Live2DCharacterWidget(),
 
-                // テキストエリア
-                TextAreaWidget(
-                  onTap: (state.isChoice || state.isWaiting || state.isDisplayingChoicePrompt)
-                    ? null
-                    : () {
+                  // テキストエリア
+                  TextAreaWidget(
+                    key: _textAreaKey,
+                    onTap: () {
                       usecase.showNextItem(usecase.db, allStory, admobUsecase);
                     },
-                ),
-                
-                // しゃべっている人ラベル表示エリア
-                if (allStory.isNotEmpty && state.currentIndex < allStory.length && allStory[state.currentIndex].speaker.isNotEmpty)
-                  const SpeakerAreaWidget(),
-                                  
-                // 選択肢表示エリア
-                ChooseScreenWidget()
-              ],
+                  ),
+                  
+                  // しゃべっている人ラベル表示エリア
+                  if (allStory.isNotEmpty && state.currentIndex < allStory.length && allStory[state.currentIndex].speaker.isNotEmpty)
+                    const SpeakerAreaWidget(),
+                                    
+                  // 選択肢表示エリア
+                  ChooseScreenWidget()
+                ],
+              ),
             ),
           ),
         ),

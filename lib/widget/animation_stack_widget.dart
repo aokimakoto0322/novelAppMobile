@@ -4,6 +4,7 @@ import 'package:flutter_nobel_app/provider/database_provider.dart';
 import 'package:flutter_nobel_app/provider/save_provider.dart';
 import 'package:flutter_nobel_app/provider/story_provider.dart';
 import 'package:flutter_nobel_app/widget/fab_icon_widget.dart';
+import 'package:flutter_nobel_app/widget/game_confirm_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
@@ -59,9 +60,16 @@ class _AnimationStackWidgetState extends ConsumerState<AnimationStackWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // メインの右FAB（明るい紫に変更したい場合はここも Colors.purpleAccent に変更できます！）
+              // メインの右FAB（ストーリーを邪魔しない黒半透明のシックなデザイン）
               FloatingActionButton(
-                backgroundColor: Colors.orangeAccent,
+                elevation: 2,
+                backgroundColor: Colors.black.withOpacity(0.5),
+                shape: CircleBorder(
+                  side: BorderSide(
+                    color: Colors.white.withOpacity(0.2),
+                    width: 1.0,
+                  ),
+                ),
                 onPressed: _toggleMenu,
                 child: Icon(
                   _isMenuOpen ? Icons.close : Icons.menu,
@@ -88,11 +96,10 @@ class _AnimationStackWidgetState extends ConsumerState<AnimationStackWidget> {
                         padding: const EdgeInsets.only(top: 16.0),
                         child: Material(
                           color: Colors.transparent,
-                          // 👈 配下のアイコン色と文字色を強制的に固定・変更します！
                           child: IconTheme(
-                            data: const IconThemeData(color: Colors.purpleAccent), // 明るい紫色のアイコン
+                            data: const IconThemeData(color: Colors.white),
                             child: DefaultTextStyle(
-                              style: const TextStyle(color: Colors.white), // 白色テキスト
+                              style: const TextStyle(color: Colors.white),
                               child: Column(
                                 children: [
                                   FabIconWidget(
@@ -138,31 +145,19 @@ class _AnimationStackWidgetState extends ConsumerState<AnimationStackWidget> {
                                     height: 60,
                                     label: 'TOP',
                                     iconData: Icons.home,
-                                    onPressed: () {
+                                    onPressed: () async {
                                       _toggleMenu();
-                                      showDialog<bool>(
+                                      final confirmed = await showGameConfirmDialog(
                                         context: context,
-                                        builder: (dialogContext) => AlertDialog(
-                                          title: const Text('確認'),
-                                          content: const Text('ホーム画面に戻りますか？'),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(dialogContext).pop();
-                                              },
-                                              child: const Text('いいえ'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(dialogContext).pop();
-                                                backlogUsecase.deleteBackLog();
-                                                context.go('/title');
-                                              },
-                                              child: const Text('はい'),
-                                            ),
-                                          ],
-                                        ),
+                                        title: '確認',
+                                        message: 'ホーム画面に戻りますか？',
+                                        confirmText: 'はい',
+                                        cancelText: 'いいえ',
                                       );
+                                      if (confirmed == true && context.mounted) {
+                                        backlogUsecase.deleteBackLog();
+                                        context.go('/title');
+                                      }
                                     },
                                   ),
                                 ],
